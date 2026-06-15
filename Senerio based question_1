@@ -57,15 +57,19 @@ Prevention
 ⸻
 How I Would Answer in the Interview
 
-“If users are receiving HTTP 503 errors while all Kubernetes pods are running, I wouldn’t assume the application is healthy because a Running pod doesn’t necessarily mean it’s Ready to serve traffic. My first priority is understanding the business impact by determining whether the issue affects all users, a specific region, or only certain APIs.
+“If users are receiving HTTP 503 errors while all Kubernetes pods are running, I wouldn’t assume the application is healthy because a Running pod doesn’t necessarily mean it’s Ready to serve traffic.
+My first priority is understanding the business impact by determining whether the issue affects all users, a specific region, or only certain APIs.
 
-Then I’d troubleshoot the request path systematically instead of jumping directly into the pods. I start from the AWS Load Balancer to verify that the target group reports healthy targets. Next, I’d check the Ingress Controller to ensure routing rules are correct and there are no configuration errors. After that, I’d verify the Kubernetes Service selectors and confirm that Endpoints have been created correctly.
+Then I’d troubleshoot the request path systematically instead of jumping directly into the pods. I start from the AWS Load Balancer to verify that the target group reports healthy targets. 
+Next, I’d check the Ingress Controller to ensure routing rules are correct and there are no configuration errors. After that, I’d verify the Kubernetes Service selectors and confirm that Endpoints have been created correctly.
 
 If the Service has no endpoints, I’d compare the Service selectors with the Pod labels. If endpoints exist, I’d inspect the Readiness Probe because a pod can be Running but still not Ready to receive traffic.
 
-Once Kubernetes networking is validated, I’d investigate the application itself by reviewing container logs, application logs, resource utilization, and any dependency failures such as database connectivity, Redis availability, or third-party APIs. If a deployment was recently completed, I’d compare configuration changes and perform a rollback if necessary.
+Once Kubernetes networking is validated, I’d investigate the application itself by reviewing container logs, application logs, resource utilization, 
+and any dependency failures such as database connectivity, Redis availability, or third-party APIs. If a deployment was recently completed, I’d compare configuration changes and perform a rollback if necessary.
 
-After identifying the root cause, I’d restore service, verify application functionality through health checks and user validation, continue monitoring for stability, document the RCA, and implement preventive improvements such as deployment validation, better monitoring, and automated rollback strategies.”
+After identifying the root cause, I’d restore service, verify application functionality through health checks and user validation, continue monitoring 
+for stability, document the RCA, and implement preventive improvements such as deployment validation, better monitoring, and automated rollback strategies.”
 
 kubectl get pods -o wide
 kubectl describe pod <pod-name>
@@ -134,10 +138,15 @@ I first identify whether the drift is intentional or accidental, compare the Ter
 * Require code reviews before infrastructure changes.
 ⸻
 How I Would Answer in the Interview
-“If Terraform state shows resources that no longer exist in AWS, I wouldn’t immediately run terraform apply because that could recreate resources unexpectedly or impact production. First, I’d determine whether the missing resources were intentionally deleted or removed accidentally.
-Then I’d compare the Terraform state with the actual AWS infrastructure using terraform state list, terraform plan, and the AWS Console or CLI. If the resources still exist but are missing from the state, I’d import them using terraform import. If the resources were intentionally deleted, I’d update the Terraform configuration or remove stale state entries only after validating the impact.
-Before making any changes, I’d back up the current state using terraform state pull and ensure state locking is functioning correctly. Once the state is synchronized, I’d run another terraform plan to verify there are no unexpected changes. Only after confirming the plan is accurate would I proceed with an apply if required.
-Finally, I’d document the RCA, identify why the drift occurred, and implement preventive controls such as Infrastructure as Code enforcement, drift detection in CI/CD, S3 versioning, and strict change management to minimize manual modifications.”
+“If Terraform state shows resources that no longer exist in AWS, I wouldn’t immediately run terraform apply because that could recreate resources unexpectedly or impact production.
+First, I’d determine whether the missing resources were intentionally deleted or removed accidentally.
+Then I’d compare the Terraform state with the actual AWS infrastructure using terraform state list, terraform plan, and the AWS Console or CLI.
+If the resources still exist but are missing from the state, I’d import them using terraform import. If the resources were intentionally deleted,
+I’d update the Terraform configuration or remove stale state entries only after validating the impact.
+Before making any changes, I’d back up the current state using terraform state pull and ensure state locking is functioning correctly. 
+Once the state is synchronized, I’d run another terraform plan to verify there are no unexpected changes. Only after confirming the plan is accurate would I proceed with an apply if required.
+Finally, I’d document the RCA, identify why the drift occurred, and implement preventive controls such as Infrastructure
+as Code enforcement, drift detection in CI/CD, S3 versioning, and strict change management to minimize manual modifications.”
 
 terraform state list
 terraform state show <resource>
@@ -201,11 +210,19 @@ Prevention
 ⸻
 How I Would Answer in the Interview
 
-“If a GitHub Actions pipeline suddenly starts taking three times longer than usual, I first determine whether the issue affects a single repository or multiple repositories because that helps identify whether it’s an application issue or an infrastructure issue. Then I review the workflow execution timeline in GitHub Actions to identify which stage has increased in duration, such as dependency installation, Docker image build, unit testing, security scanning, or deployment.
+“If a GitHub Actions pipeline suddenly starts taking three times longer than usual, I first determine whether the issue affects
+a single repository or multiple repositories because that helps identify whether it’s an application issue or an infrastructure issue. 
+Then I review the workflow execution timeline in GitHub Actions to identify which stage has increased in duration,
+such as dependency installation, Docker image build, unit testing, security scanning, or deployment.
 
-Next, I’d compare the current execution with previous successful runs to identify recent workflow changes. I’d verify whether dependency caches are being restored successfully and whether Docker layer caching is still effective. If self-hosted runners are being used, I’d check CPU, memory, disk utilization, and concurrent job execution to determine whether the runners are overloaded. I’d also investigate external dependencies such as package repositories, container registries, or vulnerability scanners that might be introducing latency.
+Next, I’d compare the current execution with previous successful runs to identify recent workflow changes. 
+I’d verify whether dependency caches are being restored successfully and whether Docker layer caching is still effective.
+If self-hosted runners are being used, I’d check CPU, memory, disk utilization, and concurrent job execution to determine whether the runners are overloaded.
+I’d also investigate external dependencies such as package repositories, container registries, or vulnerability scanners that might be introducing latency.
 
-Once I identify the bottleneck, I’d optimize the affected stage by restoring caching, parallelizing independent jobs, scaling runners if necessary, or optimizing Docker builds. After implementing the fix, I’d rerun the pipeline, compare execution times with historical data, and continue monitoring. Finally, I’d document the RCA and implement pipeline performance monitoring and alerts so similar regressions are detected early.”
+Once I identify the bottleneck, I’d optimize the affected stage by restoring caching, parallelizing independent jobs, scaling runners if necessary
+, or optimizing Docker builds. After implementing the fix, I’d rerun the pipeline, compare execution times with historical data, and continue monitoring. 
+Finally, I’d document the RCA and implement pipeline performance monitoring and alerts so similar regressions are detected early.”
 
 Common Follow-up Questions
 
@@ -256,11 +273,17 @@ Possible causes include:
 
 How I Would Answer in the Interview
 
-“If a microservice starts failing only during periods of high traffic, I first determine the business impact by identifying whether all users or only specific APIs are affected. Then I correlate application metrics, infrastructure metrics, logs, and distributed traces using tools such as Prometheus, Grafana, CloudWatch, and centralized logging platforms.
+“If a microservice starts failing only during periods of high traffic, I first determine the business impact by identifying whether all users or 
+only specific APIs are affected. Then I correlate application metrics, infrastructure metrics, logs, and distributed traces using tools such as Prometheus,
+Grafana, CloudWatch, and centralized logging platforms.
 
-My next step is to verify CPU utilization, memory usage, thread counts, database connection pools, request latency, and downstream dependency health. I also review Kubernetes events and Horizontal Pod Autoscaler activity to confirm that the application is scaling correctly. If a recent deployment occurred, I’d compare application and infrastructure changes and perform a rollback if necessary.
+My next step is to verify CPU utilization, memory usage, thread counts, database connection pools, request latency, and downstream dependency health. 
+I also review Kubernetes events and Horizontal Pod Autoscaler activity to confirm that the application is scaling correctly. If a recent deployment occurred,
+I’d compare application and infrastructure changes and perform a rollback if necessary.
 
-Once the bottleneck is identified, whether it’s database contention, thread exhaustion, network latency, or resource limits, I’d implement the appropriate fix and validate it through load testing. After service stability is restored, I’d document the RCA and improve autoscaling policies, resource requests and limits, monitoring, and performance testing to reduce the likelihood of recurrence.”
+Once the bottleneck is identified, whether it’s database contention, thread exhaustion, network latency, or resource limits, I’d implement the appropriate 
+fix and validate it through load testing. After service stability is restored, I’d document the RCA and improve autoscaling policies, resource requests
+and limits, monitoring, and performance testing to reduce the likelihood of recurrence.”
 
 kubectl top pod
 kubectl top node
@@ -368,9 +391,15 @@ Prevention
 * Regular node health checks
 ⸻
 How I Would Answer in the Interview
-“If a Kubernetes node suddenly becomes NotReady, my first priority is understanding the business impact by identifying which workloads are running on that node and whether customer-facing services are affected. I immediately check the node status using kubectl get nodes and inspect the node events using kubectl describe node.
-Next, I verify whether the issue is related to kubelet, container runtime, networking, disk pressure, or resource exhaustion. Since this is an EKS cluster, I’d also check the EC2 instance status, CloudWatch metrics, and Auto Scaling Group health. If the node is unhealthy but still accessible, I’d cordon and drain it to safely move workloads to healthy nodes. If the node is completely unavailable, I’d allow the Managed Node Group or Auto Scaling Group to replace it automatically.
-Once workloads are rescheduled, I’d verify pod health, application availability, and cluster capacity before closing the incident. Finally, I’d perform a root cause analysis, document the findings, and improve monitoring, autoscaling policies, and node replacement automation to reduce future incidents.”
+“If a Kubernetes node suddenly becomes NotReady, my first priority is understanding the business impact by identifying 
+which workloads are running on that node and whether customer-facing services are affected. I immediately check the node status using kubectl get nodes
+and inspect the node events using kubectl describe node.
+Next, I verify whether the issue is related to kubelet, container runtime, networking, disk pressure, or resource exhaustion.
+Since this is an EKS cluster, I’d also check the EC2 instance status, CloudWatch metrics, and Auto Scaling Group health.
+If the node is unhealthy but still accessible, I’d cordon and drain it to safely move workloads to healthy nodes. 
+If the node is completely unavailable, I’d allow the Managed Node Group or Auto Scaling Group to replace it automatically.
+Once workloads are rescheduled, I’d verify pod health, application availability, and cluster capacity before closing the incident.
+Finally, I’d perform a root cause analysis, document the findings, and improve monitoring, autoscaling policies, and node replacement automation to reduce future incidents.”
 
 kubectl get nodes
 kubectl describe node <node-name>
@@ -439,11 +468,15 @@ Prevention
 ⸻
 How I Would Answer in the Interview
 
-“If Prometheus shows increasing latency but application logs contain no errors, I wouldn’t assume the application is healthy because latency issues often occur outside the application itself. I first determine whether the latency affects all APIs or only specific endpoints. Then I’d correlate metrics from Prometheus, dashboards from Grafana, application logs, and distributed traces from tools like Jaeger or OpenTelemetry.
+“If Prometheus shows increasing latency but application logs contain no errors, I wouldn’t assume the application is healthy because latency
+issues often occur outside the application itself. I first determine whether the latency affects all APIs or only specific endpoints. 
+Then I’d correlate metrics from Prometheus, dashboards from Grafana, application logs, and distributed traces from tools like Jaeger or OpenTelemetry.
 
-I’d investigate CPU, memory, request duration, database response time, DNS lookup latency, network throughput, and external service dependencies. If infrastructure metrics look normal, I’d focus on downstream services such as databases or third-party APIs because they often introduce latency without generating application errors.
+I’d investigate CPU, memory, request duration, database response time, DNS lookup latency, network throughput, and external service dependencies.
+If infrastructure metrics look normal, I’d focus on downstream services such as databases or third-party APIs because they often introduce latency without generating application errors.
 
-Once the slow component is identified, I’d implement the appropriate fix, whether it’s database optimization, connection pool tuning, DNS improvements, or scaling. After confirming latency returns to normal, I’d document the RCA and improve observability by adding tracing, dashboards, and proactive alerts.”
+Once the slow component is identified, I’d implement the appropriate fix, whether it’s database optimization, connection pool tuning, 
+DNS improvements, or scaling. After confirming latency returns to normal, I’d document the RCA and improve observability by adding tracing, dashboards, and proactive alerts.”
 
 kubectl top pods
 kubectl logs
@@ -501,11 +534,14 @@ Prevention
 ⸻
 How I Would Answer in the Interview
 
-“For an organization managing more than 100 microservices, my objective is to standardize deployments while allowing teams to remain independent. Instead of maintaining separate pipelines for every service, I’d build reusable CI/CD templates that handle building, testing, security scanning, container image creation, and deployment.
+“For an organization managing more than 100 microservices, my objective is to standardize deployments while allowing teams to remain independent.
+Instead of maintaining separate pipelines for every service, I’d build reusable CI/CD templates that handle building, testing, security scanning, container image creation, and deployment.
 
-I’d adopt GitOps using ArgoCD or Flux so Git becomes the single source of truth. Terraform would provision infrastructure, Helm would manage Kubernetes deployments, and environment promotion would move changes from Development to QA, UAT, and Production through controlled approvals.
+I’d adopt GitOps using ArgoCD or Flux so Git becomes the single source of truth. Terraform would provision infrastructure, 
+Helm would manage Kubernetes deployments, and environment promotion would move changes from Development to QA, UAT, and Production through controlled approvals.
 
-I would also integrate security scanning, policy enforcement, automated rollback, and deployment monitoring into every pipeline. This approach improves consistency, reduces manual effort, and allows hundreds of services to be deployed reliably with minimal operational overhead.”
+I would also integrate security scanning, policy enforcement, automated rollback, and deployment monitoring into every pipeline. 
+This approach improves consistency, reduces manual effort, and allows hundreds of services to be deployed reliably with minimal operational overhead.”
 
 helm upgrade
 kubectl apply
@@ -560,11 +596,14 @@ Prevention
 ⸻
 How I Would Answer in the Interview
 
-“If an application works in Development but fails in Production, I wouldn’t immediately assume there’s a code defect because environment differences are a common cause. First, I’d compare deployment manifests, ConfigMaps, Secrets, resource limits, IAM permissions, networking, DNS configuration, and container images between the two environments.
+“If an application works in Development but fails in Production, I wouldn’t immediately assume there’s a code defect because environment differences are a common cause.
+First, I’d compare deployment manifests, ConfigMaps, Secrets, resource limits, IAM permissions, networking, DNS configuration, and container images between the two environments.
 
-I’d verify application logs, Kubernetes events, readiness probes, and connectivity to external services such as databases or APIs. If a recent deployment introduced the issue, I’d compare image versions and configuration changes before deciding whether a rollback is necessary.
+I’d verify application logs, Kubernetes events, readiness probes, and connectivity to external services such as databases or APIs. 
+If a recent deployment introduced the issue, I’d compare image versions and configuration changes before deciding whether a rollback is necessary.
 
-Once the configuration difference is identified, I’d implement the fix, validate production health, and continue monitoring. Finally, I’d document the RCA and improve environment standardization using Infrastructure as Code and automated configuration validation.”
+Once the configuration difference is identified, I’d implement the fix, validate production health, and continue monitoring. Finally,
+I’d document the RCA and improve environment standardization using Infrastructure as Code and automated configuration validation.”
 
 kubectl describe pod
 kubectl logs
@@ -619,11 +658,14 @@ Prevention
 ⸻
 How I Would Answer in the Interview
 
-“Secrets management is one of the most critical aspects of securing cloud infrastructure. I never store secrets in source code or container images. Instead, I use centralized solutions such as AWS Secrets Manager or HashiCorp Vault integrated with Kubernetes, Jenkins, and GitHub Actions.
+“Secrets management is one of the most critical aspects of securing cloud infrastructure. I never store secrets in source code or container images.
+Instead, I use centralized solutions such as AWS Secrets Manager or HashiCorp Vault integrated with Kubernetes, Jenkins, and GitHub Actions.
 
-For AWS workloads, I prefer IAM Roles and OIDC authentication instead of long-lived access keys. Applications retrieve secrets dynamically at runtime, eliminating the need for hardcoded credentials. Access is controlled using the principle of least privilege, and all secret access is logged for auditing.
+For AWS workloads, I prefer IAM Roles and OIDC authentication instead of long-lived access keys. Applications retrieve secrets dynamically at runtime,
+eliminating the need for hardcoded credentials. Access is controlled using the principle of least privilege, and all secret access is logged for auditing.
 
-I also implement automatic secret rotation, regular permission reviews, and secret scanning within CI/CD pipelines to detect accidental credential exposure. Finally, I continuously monitor secret usage and document security improvements as part of the organization’s governance process.”
+I also implement automatic secret rotation, regular permission reviews, and secret scanning within CI/CD pipelines to detect accidental credential exposure. 
+Finally, I continuously monitor secret usage and document security improvements as part of the organization’s governance process.”
 
 kubectl get secret
 kubectl describe secret
@@ -676,9 +718,15 @@ Prevention
 ⸻
 How I Would Answer in the Interview
 
-“Whenever a production database schema change is required, my first priority is ensuring there is no impact on running applications. I never perform breaking schema changes during a live deployment because different application versions may run simultaneously during rolling updates.
+“Whenever a production database schema change is required, my first priority is ensuring there is no impact on running applications.
+I never perform breaking schema changes during a live deployment because different application versions may run simultaneously during rolling updates.
 
-I follow the Expand → Migrate → Contract strategy. First, I expand the schema by adding new columns or tables without removing existing ones. Then I deploy the new application version that supports both the old and new schema. After validating production traffic and migrating existing data, I remove deprecated columns or objects in a later deployment. Before starting the migration, I verify database backups, review rollback procedures, and test the migration in lower environments. During deployment, I continuously monitor database performance, application error rates, and replication health. If unexpected issues occur, I stop the migration and roll back the application while preserving database integrity. After successful completion, I document the RCA and improve migration automation to minimize future deployment risks.”
+I follow the Expand → Migrate → Contract strategy. First, I expand the schema by adding new columns or tables without removing existing ones.
+Then I deploy the new application version that supports both the old and new schema. After validating production traffic and migrating existing data,
+I remove deprecated columns or objects in a later deployment. Before starting the migration, I verify database backups, review rollback procedures,
+and test the migration in lower environments. During deployment, I continuously monitor database performance, application error rates,
+and replication health. If unexpected issues occur, I stop the migration and roll back the application while preserving database integrity.
+After successful completion, I document the RCA and improve migration automation to minimize future deployment risks.”
 
 kubectl rollout status deployment/app
 flyway migrate
@@ -734,9 +782,14 @@ Prevention
 ⸻
 How I Would Answer in the Interview
 
-“If AWS costs suddenly increased by 40%, I wouldn’t immediately start deleting resources because that could affect production. First, I’d identify which AWS services contributed to the increase using Cost Explorer and Cost and Usage Reports. Then I’d compare current usage with previous billing periods to identify changes in EC2, EKS, RDS, S3, NAT Gateway, or data transfer costs.
+“If AWS costs suddenly increased by 40%, I wouldn’t immediately start deleting resources because that could affect production.
+First, I’d identify which AWS services contributed to the increase using Cost Explorer and Cost and Usage Reports.
+Then I’d compare current usage with previous billing periods to identify changes in EC2, EKS, RDS, S3, NAT Gateway, or data transfer costs.
 
-After identifying the affected service, I’d correlate billing data with CloudWatch metrics and recent infrastructure changes. For example, I’d verify whether autoscaling created additional EC2 instances, whether storage usage increased unexpectedly, or whether idle resources were left running after testing. Once I identify the root cause, I’d safely remove unused resources, right-size workloads, optimize autoscaling policies, or purchase Savings Plans where appropriate.
+After identifying the affected service, I’d correlate billing data with CloudWatch metrics and recent infrastructure changes.
+For example, I’d verify whether autoscaling created additional EC2 instances, whether storage usage increased unexpectedly, 
+or whether idle resources were left running after testing. Once I identify the root cause, I’d safely remove unused resources,
+right-size workloads, optimize autoscaling policies, or purchase Savings Plans where appropriate.
 
 Finally, I’d document the RCA and implement AWS Budgets, Cost Anomaly Detection, resource tagging, and regular cost reviews to prevent unexpected spending in the future.”
 
@@ -785,11 +838,15 @@ Prevention
 ⸻
 How I Would Answer in the Interview
 
-“If an application’s memory usage continuously increases until the pod is OOMKilled, I first determine whether the issue affects one instance or all application replicas. Then I’d review Kubernetes events, application logs, memory metrics, and recent deployments. I’d verify whether memory growth is expected due to traffic or indicates a leak.
+“If an application’s memory usage continuously increases until the pod is OOMKilled, I first determine whether the issue affects one instance or all application replicas.
+Then I’d review Kubernetes events, application logs, memory metrics, and recent deployments. I’d verify whether memory growth is expected due to traffic or indicates a leak.
 
-If a memory leak is suspected, I’d capture heap dumps, analyze garbage collection behavior, and profile the application to identify unreleased objects or caches. I also review resource requests and limits to ensure Kubernetes isn’t terminating the pod due to incorrect configuration. If the issue began after a recent deployment, I’d compare application changes and roll back if necessary.
+If a memory leak is suspected, I’d capture heap dumps, analyze garbage collection behavior, and profile the application to identify unreleased objects or caches.
+I also review resource requests and limits to ensure Kubernetes isn’t terminating the pod due to incorrect configuration.
+If the issue began after a recent deployment, I’d compare application changes and roll back if necessary.
 
-After resolving the leak, I’d validate memory stability under load testing, continue monitoring, and document the RCA. Finally, I’d improve observability by implementing memory dashboards, alerting, and regular performance testing.”
+After resolving the leak, I’d validate memory stability under load testing, continue monitoring, and document the RCA. 
+Finally, I’d improve observability by implementing memory dashboards, alerting, and regular performance testing.”
 
 Common Follow-up Questions
 Q1. What is OOMKilled?
@@ -835,9 +892,12 @@ Prevention
 ⸻
 How I Would Answer in the Interview
 
-“If an entire Kubernetes cluster becomes unavailable, my first priority is restoring business-critical services rather than investigating the root cause immediately. I first activate the disaster recovery plan and assess whether the failure is limited to the cluster or affects the entire AWS region.
+“If an entire Kubernetes cluster becomes unavailable, my first priority is restoring business-critical services rather 
+than investigating the root cause immediately. I first activate the disaster recovery plan and assess whether the failure is limited to the cluster or affects the entire AWS region.
 
-If a secondary region is available, I’d restore infrastructure using Terraform and deploy applications using GitOps tools such as ArgoCD. Persistent data would be recovered from database replicas or backup solutions like Velero. Throughout the recovery process, I’d validate application health, networking, DNS, and user access before declaring service restored.
+If a secondary region is available, I’d restore infrastructure using Terraform and deploy applications using GitOps tools such as ArgoCD.
+Persistent data would be recovered from database replicas or backup solutions like Velero. Throughout the recovery process, 
+I’d validate application health, networking, DNS, and user access before declaring service restored.
 
 After recovery, I’d conduct a detailed RCA, document lessons learned, and schedule disaster recovery drills to ensure the recovery objectives continue to meet business requirements.”
 
@@ -894,11 +954,17 @@ Prevention
 ⸻
 How I Would Answer in the Interview
 
-“If I receive a critical production alert at 2 AM, my first priority is restoring customer service as quickly and safely as possible. I begin by assessing the business impact, identifying which services are affected, and checking dashboards, alerts, and recent deployment history. I avoid making assumptions and instead follow the production runbook.
+“If I receive a critical production alert at 2 AM, my first priority is restoring customer service as quickly and safely as possible. 
+I begin by assessing the business impact, identifying which services are affected, and checking dashboards, alerts, and recent deployment history.
+I avoid making assumptions and instead follow the production runbook.
 
-I then trace the request flow from the Load Balancer through Kubernetes, application services, databases, and external dependencies to isolate the failing component. If the issue is related to a recent deployment, I perform an immediate rollback while continuing the investigation. If it’s an infrastructure failure, I activate the appropriate disaster recovery or failover procedures.
+I then trace the request flow from the Load Balancer through Kubernetes, application services, databases, and external dependencies to isolate the failing component.
+If the issue is related to a recent deployment, I perform an immediate rollback while continuing the investigation.
+If it’s an infrastructure failure, I activate the appropriate disaster recovery or failover procedures.
 
-Once service is restored, I continue monitoring until the system is stable before declaring the incident resolved. Afterward, I conduct a blameless post-incident review, document the root cause, identify contributing factors, and implement preventive improvements such as enhanced monitoring, automation, deployment validation, or architectural changes. My objective is not only to restore service quickly but also to reduce the likelihood of the same incident happening again.”
+Once service is restored, I continue monitoring until the system is stable before declaring the incident resolved. Afterward,
+I conduct a blameless post-incident review, document the root cause, identify contributing factors, and implement preventive improvements such as enhanced monitoring,
+automation, deployment validation, or architectural changes. My objective is not only to restore service quickly but also to reduce the likelihood of the same incident happening again.”
 
 kubectl get pods
 kubectl get events
