@@ -247,8 +247,7 @@ Q3. How do you improve CI/CD performance?
 * Faster artifact storage
 
 =============================================================
-Question 4
-Scenario
+Question 4 --> Scenario
 
 A microservice works normally under low traffic but starts failing intermittently when traffic increases during peak business hours.
 ⸻
@@ -306,8 +305,7 @@ Because bottlenecks such as connection pools, thread pools, memory, CPU, or down
 Q3. How do you prevent these issues?
 Regular load testing, autoscaling validation, performance monitoring, and capacity planning.
 ==============================================================
-Question 5
-Scenario
+Question 5 --> Scenario
 A business-critical application must be deployed without causing any downtime for users.
 
 kubectl rollout status deployment/app
@@ -360,8 +358,7 @@ I use the Expand → Migrate → Contract strategy:
 4. Remove deprecated schema only after all applications are updated.
 =================================================
 
-Question 6
-Scenario
+Question 6--> Scenario
 One of the Kubernetes worker nodes suddenly becomes NotReady in a production EKS cluster.
 ⸻
 Issue
@@ -432,8 +429,7 @@ Q3. What happens if the node hosting CoreDNS becomes unavailable?
 
 CoreDNS pods are rescheduled to healthy nodes. If no healthy CoreDNS pods exist, service discovery inside the cluster is affected.
 =========================================================
-Question 7
-Scenario
+Question 7 --> Scenario
 Prometheus reports very high application latency, but application logs contain no errors.
 ⸻
 Issue
@@ -502,8 +498,7 @@ Q3. Which observability pillars do you use?
 * Logs
 * Traces
 ===============================================================
-Question 8
-Scenario
+Question 8 --> Scenario
 Your company has over 100 microservices, and each team manages its own deployments.
 ⸻
 Issue
@@ -564,8 +559,7 @@ Standardized templates, Helm charts, ArgoCD, automated testing, and progressive 
 
 ===============================================================
 
-Question 9
-Scenario
+Question 9 --> Scenario
 The application works perfectly in Development but fails after deployment to Production.
 ⸻
 Issue
@@ -626,8 +620,7 @@ Q3. How do you prevent this?
 Environment parity, Infrastructure as Code, automated validation, and GitOps.
 
 ===============================================================
-Question 10
-Scenario
+Question 10 --> Scenario
 Your organization manages hundreds of application secrets across AWS, Kubernetes, Jenkins, and GitHub Actions.
 ⸻
 Issue
@@ -687,8 +680,7 @@ Q3. Which secrets manager do you recommend?
 For AWS-native environments, AWS Secrets Manager is ideal. In multi-cloud or hybrid environments, HashiCorp Vault is often the better choice.
 
 ===============================================================
-Question 11
-Scenario
+Question 11 --> Scenario
 
 Your application requires a database schema change in production, but downtime is not acceptable because the application serves thousands of active users.
 ⸻
@@ -746,8 +738,7 @@ Stop the deployment, restore from backup if required, or execute rollback script
 Q3. How do you avoid locking large tables?
 Perform online schema changes, batch migrations, or use database-specific online DDL features.
 ============================================================
-Question 12
-Scenario
+Question 12 --> Scenario
 AWS monthly cloud cost suddenly increases by 40% without any major product release.
 ⸻
 Issue
@@ -804,8 +795,7 @@ Q3. What AWS tools help optimize costs?
 
 AWS Cost Explorer, Trusted Advisor, Compute Optimizer, AWS Budgets, and Cost Anomaly Detection.
 ========================≠==================================
-Question 13
-Scenario
+Question 13 --> Scenario
 An application’s memory usage continuously increases until Kubernetes eventually kills the pod with an OOMKilled event.
 ⸻
 Issue
@@ -859,8 +849,7 @@ Q3. Why doesn’t restarting the pod solve the problem?
 
 It restores service temporarily but doesn’t eliminate the underlying application defect.
 ==============================================================
-Question 14
-Scenario
+Question 14 --> Scenario
 An entire Kubernetes production cluster becomes unavailable because of a regional outage.
 ⸻
 Issue
@@ -917,8 +906,7 @@ Q3. Which Kubernetes backup tool do you prefer?
 Velero for cluster resources and persistent volume backups.
 
 =============================================================
-Question 15
-Scenario
+Question 15 --> Scenario
 You receive a critical alert at 2:00 AM stating that the production application is completely unavailable.
 ⸻
 Issue
