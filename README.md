@@ -46,18 +46,237 @@ ingress/service port mismatch
 For example, I would say: ‘The app worked locally, but in Kubernetes it failed because the environment variable for DB hostname was different and the service name in-cluster was not matching the local config. Once the config was corrected and validated through pod exec and connectivity checks, the issue was resolved.’”
 
 6) How do you rollback a failed deployment safely in production?
-Sample answer
-“I treat rollback as a controlled operation, not just a command. First, I verify whether the issue is actually caused by the latest release. I check release timestamps, change records, monitoring, logs, and blast radius. If the new release is clearly causing user impact, I rollback to the last known stable version.
-In Kubernetes, that could mean rolling back the Deployment/Helm release. But I also verify whether there were schema changes, config changes, feature flags, or dependency changes, because rolling back code alone may not fully restore service if the issue came from config or DB migration.
-A safe rollback process for me includes:
 
-confirm impact and root area
-rollback deployment version
-validate pods/readiness/endpoints
-monitor error rate and latency
-confirm user journey is restored
+Interview Answer
 
-A practical example: if users started seeing errors immediately after a release, I would rollback the release version, validate that the older pods are healthy, confirm traffic is routed correctly, and then keep monitoring to ensure the issue is actually resolved.”
+I treat a rollback as a controlled recovery process, not just executing a rollback command. My primary goal is to restore service quickly while minimizing additional risk.
+
+First, I confirm that the latest deployment is actually the cause of the issue.
+
+I verify:
+
+* Deployment timestamps.
+* Monitoring dashboards.
+* Error rates.
+* Application logs.
+* Recent infrastructure or configuration changes.
+
+If the issue clearly correlates with the new release, I initiate a rollback to the last known stable version.
+
+In Kubernetes, this may involve rolling back the Deployment or Helm release. However, before rolling back, I also verify whether there were:
+
+* Database schema migrations.
+* ConfigMap or Secret changes.
+* Feature flag changes.
+* Infrastructure modifications.
+* Dependency updates.
+
+This is important because rolling back the application alone may not restore the service if the underlying issue is related to configuration or database changes.
+
+After the rollback, I validate:
+
+* Deployment rollout status.
+* Pod health.
+* Readiness probes.
+* Service endpoints.
+* Ingress or Load Balancer health.
+* Error rates.
+* Latency.
+* Critical user journeys.
+
+Even after the rollback completes successfully, I continue monitoring the environment to ensure the service is fully stable and that no secondary issues remain.
+
+My objective is not just to execute a rollback, but to verify that users have actually recovered and then perform a root cause analysis to prevent recurrence.
+
+⸻
+
+Production Example (EKS)
+
+During one production deployment, the application started returning HTTP 500 errors immediately after the release.
+
+I first confirmed through Grafana and CloudWatch that the error rate increased exactly after the deployment.
+
+We initiated a Helm rollback to the previous stable release.
+
+After the rollback, I verified:
+
+* All pods were Ready.
+* Service endpoints were healthy.
+* ALB target health checks were passing.
+* Application latency returned to normal.
+* User transactions completed successfully.
+
+We continued monitoring for the next 30 minutes before declaring the incident resolved.
+
+Later, the RCA identified that a configuration change introduced an invalid API endpoint, which was corrected before the next deployment.
+
+⸻
+
+Cross Questions (Very Important)
+
+⸻
+
+Cross Question 1
+
+Interviewer:
+
+Would you always roll back immediately?
+
+Answer
+
+No.
+
+First, I verify that the latest deployment is responsible.
+
+If the issue is caused by a database outage, DNS issue, expired certificate, or infrastructure failure, rolling back the application won’t solve the problem.
+
+⸻
+
+Cross Question 2
+
+Interviewer:
+
+How do you know the deployment caused the issue?
+
+Answer
+
+I correlate:
+
+* Deployment timestamps
+* Monitoring dashboards
+* Error rates
+* Application logs
+* Distributed traces
+* User reports
+
+If the errors started immediately after deployment, it’s a strong indicator that the release introduced the issue.
+
+⸻
+
+Cross Question 3
+
+Interviewer:
+
+What if rollback doesn’t fix the issue?
+
+Answer
+
+Then I investigate:
+
+* Database migrations
+* ConfigMaps
+* Secrets
+* Feature flags
+* Infrastructure changes
+* DNS
+* Load Balancer
+* External dependencies
+
+Rollback only restores application code—it doesn’t automatically reverse runtime or infrastructure changes.
+
+⸻
+
+Cross Question 4
+
+Interviewer:
+
+How do you roll back in Kubernetes?
+
+Answer
+
+Deployment:
+kubectl rollout undo deployment/<deployment-name>
+kubectl rollout status deployment/<deployment-name>
+Interviewer:
+
+How do you roll back a Helm release?
+
+Answer
+
+First, check release history:
+helm history <release-name>
+helm rollback <release-name> <revision>
+Finally, verify pods, services, and application health.
+
+⸻
+
+Cross Question 6
+
+Interviewer:
+
+How do you verify rollback succeeded?
+
+Answer
+
+I verify:
+
+* Pods are Ready
+* No CrashLoopBackOff
+* Service endpoints exist
+* Ingress is healthy
+* Load Balancer health checks pass
+* Error rate decreases
+* Latency returns to normal
+* User transactions succeed
+
+⸻
+
+Cross Question 7
+
+Interviewer:
+
+Would rollback also revert the database?
+
+Answer
+
+Not necessarily.
+
+Database schema changes are often independent of the application rollback.
+
+That’s why production deployments should use backward-compatible database migrations whenever possible.
+
+⸻
+
+Cross Question 8
+
+Interviewer:
+
+What deployment strategy reduces rollback risk?
+
+Answer
+
+I prefer:
+
+* Blue-Green deployments
+* Canary deployments
+* Progressive delivery
+* Feature flags
+
+These approaches reduce the blast radius and allow faster recovery.
+
+⸻
+
+Cross Question 9
+
+Interviewer:
+
+What do you monitor after rollback?
+
+Answer
+
+I monitor:
+
+* HTTP error rate
+* P95/P99 latency
+* CPU and memory
+* Pod restarts
+* Readiness
+* User transactions
+* Business KPIs
+* Application logs
+
+Only after these stabilize do I consider the incident resolved.
+
 
 7) Monitoring alerts fired after deployment — how do you validate real issue vs false alert?
 Sample answer
