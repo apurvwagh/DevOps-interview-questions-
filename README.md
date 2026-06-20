@@ -182,17 +182,66 @@ ingress/load balancer timing
 A real-world style answer: ‘If pods are healthy but latency increases, I check request trace path, dependency response times, and whether a new release changed query behavior or increased synchronous calls.’”
 
 18) Rollback didn’t fix the issue — what next?
-Sample answer
-“If rollback didn’t fix the issue, that tells me the problem may not be fully in the application version. I investigate config changes, database changes, feature flags, expired credentials, infrastructure drift, or downstream dependency issues. Sometimes rollback restores code but not the runtime condition.
-So I ask:
+If a rollback doesn’t resolve the issue, I don’t assume the application is still the problem. A rollback only restores the previous application version—it doesn’t revert changes to the runtime environment, infrastructure, or external dependencies.
 
-Was there a config/secret change?
-Was there a DB migration?
-Did traffic pattern change?
-Is dependency/downstream unhealthy?
-Is there stale cache or queue backlog?
+My next step is to investigate everything that changed around the deployment.
 
-This answer shows maturity because not every production issue is solved by reverting code. Sometimes rollback is only the first mitigation, not the final fix.”
+I typically check:
+
+* Configuration changes – Were ConfigMaps, environment variables, or application properties modified?
+* Secrets and credentials – Have any API keys, certificates, or tokens expired or changed?
+* Database changes – Were schema migrations executed? Are they backward compatible?
+* Infrastructure changes – Any Kubernetes, network, load balancer, DNS, or Terraform changes?
+* Dependencies – Are databases, caches, message queues, or external APIs healthy?
+* Traffic patterns – Has there been a sudden traffic spike, autoscaling event, or DDoS-like behavior?
+* Caching or queues – Is there stale cache, queue backlog, or delayed message processing?
+
+I also compare system metrics, logs, traces, deployment history, and infrastructure events around the time the issue started. The objective is to identify what changed besides the application code.
+
+In my experience, rollback is often the first mitigation to reduce user impact, but it’s not always the final solution because many production issues are caused by configuration, infrastructure, or dependency changes rather than the application itself.
+⸻
+Production Example (AWS + Kubernetes)
+
+During one deployment, users started receiving HTTP 500 errors. We immediately rolled back the application, but the errors continued.
+
+Since the rollback didn’t help, we investigated other recent changes. We found that a database schema migration had already been applied during the deployment. The previous application version expected the old schema, making the rollback incompatible with the updated database.
+
+We restored compatibility by updating the schema and ensuring future migrations were backward compatible. We also changed our deployment strategy so database migrations were validated before application rollout.
+⸻
+If the Interviewer Asks:
+
+“What would you check first after rollback fails?”
+
+You can answer:
+
+1. Application configuration
+2. Secrets and certificates
+3. Database health and migrations
+4. Infrastructure changes
+5. Load Balancer and Ingress
+6. Kubernetes pod health
+7. Cloud resources (CPU, Memory, Disk, Network)
+8. External dependencies
+9. Recent deployments or infrastructure changes
+10. Monitoring dashboards and traces
+⸻
+Common Reasons Rollback Doesn’t Work
+
+These are worth mentioning because they reflect real production experience:
+
+* Database migration already executed
+* Configuration or ConfigMap changes
+* Expired certificates or secrets
+* Infrastructure drift
+* DNS changes
+* Load Balancer misconfiguration
+* Kubernetes networking issues
+* Cache corruption
+* Queue backlog
+* External API outage
+* Cloud resource exhaustion
+* Incorrect feature flag settings
+
 
 19) How do you debug intermittent failures (not reproducible)?
 Sample answer
