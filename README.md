@@ -228,11 +228,51 @@ Remote state is used for team collaboration, security, and consistency. In enter
 In practice, remote backend also helps with auditability and operational control, especially when multiple engineers or pipelines manage the same environments.”
 
 22) How do you detect and fix infrastructure drift?
-Sample answer
-“Infrastructure drift happens when actual infrastructure no longer matches the desired IaC configuration — usually due to manual changes, partial failures, or unmanaged updates. I detect it by running Terraform plan regularly, reviewing cloud changes, and using operational controls to reduce out-of-band modifications.
-To fix drift, I first understand whether the manual change was intentional or accidental. Then I either bring the config in line with reality or restore the infrastructure back to the desired state. I avoid blind applies on critical infrastructure because drift correction can trigger destructive changes.
-A mature answer is: ‘I treat drift as both a technical and process issue. I detect it with IaC checks and reduce it by enforcing infrastructure changes through pipelines rather than manual console changes.’”
 
+Infrastructure drift occurs when the actual infrastructure differs from what’s defined in Infrastructure as Code (Terraform). This usually happens because of manual console changes, emergency fixes, failed deployments, or changes made outside the CI/CD pipeline.
+
+To detect drift, I primarily use terraform plan, which compares the Terraform state with the actual infrastructure. In production, I also schedule regular plan executions through CI/CD and review AWS CloudTrail logs to identify manual console changes. Some organizations also use AWS Config to detect configuration drift.
+
+Before fixing drift, I first determine whether the change was intentional or accidental.
+
+* If the change was approved, I update the Terraform code and commit it to Git so Terraform becomes the source of truth.
+* If it was an unauthorized or accidental change, I use Terraform to restore the infrastructure to the desired state.
+
+I never run terraform apply blindly in production. I carefully review the execution plan because drift correction can sometimes recreate or destroy critical resources, leading to downtime.
+
+Finally, I try to prevent drift by restricting manual console access, enforcing all infrastructure changes through CI/CD pipelines, enabling code reviews, and maintaining Terraform as the single source of truth.
+⸻
+If the interviewer asks, “Have you handled this in production?”
+
+You can answer:
+
+Yes. We had a case where someone manually changed the EC2 Security Group in the AWS console to temporarily allow external access. During our scheduled Terraform plan, we detected that the Security Group rules no longer matched the Terraform configuration.
+
+We first confirmed with the application owner that the change was temporary. Since it was no longer required, we removed the manual rule through Terraform instead of editing it directly in the console. This restored the infrastructure to the desired state while keeping Terraform as the source of truth.
+
+⸻
+
+Interview Tip
+
+A strong answer always follows this structure:
+
+1. What is infrastructure drift?
+2. How do you detect it?
+    * terraform plan
+    * AWS Config
+    * CloudTrail
+    * CI/CD drift checks
+3. How do you fix it?
+    * Understand the reason for the drift.
+    * Update Terraform if the change is valid.
+    * Revert the infrastructure if it’s unauthorized.
+4. How do you prevent it?
+    * No manual console changes
+    * CI/CD-only deployments
+    * Code reviews
+    * Least-privilege IAM
+    * Terraform as the single source of truth
+“
 
 ====================================================================================================================================================================================================================================================
 
