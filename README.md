@@ -6,11 +6,268 @@ In the CD stage, we deploy first to lower environments like Dev or QA, run smoke
 In one of my real examples, I worked on pipelines where deployment changes also involved secrets/config handling and monitoring validation post-release. So for me, CI/CD is not just ‘build and deploy’; it includes code quality, secure secrets handling, observability checks, and rollback readiness.”
 
 2) Deployment succeeded but app is not accessible. How do you troubleshoot?
-Sample answer
-“I troubleshoot this layer by layer instead of assuming it’s an application issue. First, I verify whether the pods are actually running and ready, because a successful deployment object does not always mean the application is healthy. I check pod status, readiness probe, liveness probe, restart count, logs, and recent events.
-Next, I validate service routing — whether the Service is pointing to the correct labels, whether endpoints are populated, and whether ingress/load balancer configuration is correct. If the pods are healthy but traffic is not flowing, I check ingress rules, TLS, target groups, security groups, and network policies if applicable.
-Then I test connectivity from inside the cluster and outside the cluster. If internal access works but external access fails, the issue is probably ingress, DNS, firewall, or load balancer related. If even internal access fails, then I check application startup, port mismatch, env vars, secrets, and downstream dependencies like DB or cache.
-A real-world style example would be: deployment went green, but users couldn’t access the app. On validation, the pods were healthy, but the readiness probe path was incorrect after the new release. Because readiness never passed consistently, service endpoints were unstable, and traffic was not routed properly.”
+A successful deployment doesn’t necessarily mean the application is healthy or accessible. I troubleshoot layer by layer, starting from the application and moving outward to the network.
+
+First, I verify the deployment and pod health.
+
+I check:
+
+* Are all pods in the Running state?
+* Are they Ready?
+* Any CrashLoopBackOff or restarts?
+* Any recent Kubernetes events?
+* Application logs for startup errors.
+
+Next, I verify the Service.
+
+I ensure:
+
+* The Service selector matches the pod labels.
+* Service endpoints are populated.
+* The targetPort matches the application’s listening port.
+
+Then, I validate the Ingress or Load Balancer.
+
+I check:
+
+* Routing rules.
+* Backend health.
+* TLS certificates.
+* ALB/NLB target health.
+* Ingress Controller logs.
+
+If the infrastructure looks healthy, I test connectivity.
+
+* Can I access the application from inside the cluster?
+* Can I access it externally?
+
+If internal access works but external access fails, I investigate DNS, Load Balancer, firewall rules, or Ingress configuration.
+
+If internal access also fails, I investigate the application itself, including:
+
+* Startup configuration.
+* Environment variables.
+* Secrets and ConfigMaps.
+* Port configuration.
+* Database or external dependencies.
+
+Finally, I correlate logs, metrics, traces, and recent deployment changes to identify the root cause.
+
+My approach is always to isolate the layer where traffic stops flowing rather than assuming the application is at fault.
+
+⸻
+
+Production Example (AWS EKS)
+
+During one deployment, the CI/CD pipeline completed successfully, and Kubernetes reported the Deployment as successful. However, users couldn’t access the application.
+
+I first confirmed that all pods were Running, but noticed they weren’t consistently Ready.
+
+The readiness probe had been updated to /health, while the application still exposed /healthz.
+
+Since the readiness probe failed, Kubernetes didn’t keep the pods in the Service endpoints. The Load Balancer therefore had no consistently healthy backend targets, resulting in 503 Service Unavailable for users.
+
+After correcting the readiness probe path and redeploying, the pods became Ready, the Service endpoints populated correctly, and the application was accessible again.
+
+kubectl get deployment
+kubectl rollout status deployment/<deployment-name>
+
+kubectl get pods
+kubectl describe pod <pod-name>
+kubectl logs <pod-name>
+kubectl logs <pod-name> --previous
+
+kubectl get svc
+kubectl describe svc <service-name>
+kubectl get endpoints <service-name>
+
+kubectl get ingress
+kubectl describe ingress <ingress-name>
+
+kubectl get events --sort-by=.lastTimestamp
+
+Cross Question 1
+
+Interviewer:
+
+Deployment is successful. Does that mean the application is healthy?
+
+Answer
+
+No.
+
+A successful Deployment only means Kubernetes successfully created or updated the Deployment object and ReplicaSet.
+
+The application can still fail because of:
+
+* Readiness failures
+* Application crashes
+* Configuration issues
+* Database connectivity
+* Service routing problems
+
+⸻
+
+Cross Question 2
+
+Interviewer:
+
+Pods are Running. Why is the application still inaccessible?
+
+Answer
+
+Because Running doesn’t mean Ready.
+
+Possible reasons:
+
+* Readiness probe failing
+* Service selector mismatch
+* No endpoints
+* Wrong targetPort
+* Ingress issue
+* Load Balancer health check failure
+* Network Policy blocking traffic
+
+⸻
+
+Cross Question 3
+
+Interviewer:
+
+How do you verify that the Service is routing traffic?
+
+Answer
+
+I check:
+kubectl get endpoints <service-name>
+
+If the endpoints list is empty, the Service has no healthy backend pods to route traffic to.
+
+⸻
+
+Cross Question 4
+
+Interviewer:
+
+Internal access works, but external access doesn’t. What does that indicate?
+
+Answer
+
+That usually points to an issue outside the application, such as:
+
+* Ingress configuration
+* Load Balancer
+* DNS
+* TLS certificates
+* Security Groups
+* Firewall rules
+
+⸻
+
+Cross Question 5
+
+Interviewer:
+
+External access works, but the application returns HTTP 500. What do you check?
+
+Answer
+
+Then the request is reaching the application.
+
+I would investigate:
+
+* Application logs
+* Database connectivity
+* External APIs
+* Configuration
+* Secrets
+* Environment variables
+
+⸻
+
+Cross Question 6
+
+Interviewer:
+
+How do you verify the application is listening on the correct port?
+
+Answer
+
+I compare:
+
+* Deployment containerPort
+* Service targetPort
+* Application startup logs
+
+A mismatch prevents the Service from reaching the application.
+
+⸻
+
+Cross Question 7
+
+Interviewer:
+
+How do you distinguish between an application issue and an infrastructure issue?
+
+Answer
+
+I test layer by layer:
+
+* Can the pod respond locally?
+* Can the Service reach the pod?
+* Can the Ingress reach the Service?
+* Can the Load Balancer reach the Ingress?
+* Can the client reach the Load Balancer?
+
+The layer where communication fails is where I focus my investigation.
+
+⸻
+
+Cross Question 8
+
+Interviewer:
+
+What AWS services would you check?
+
+Answer
+
+On EKS, I would check:
+
+* ALB/NLB Target Group health
+* CloudWatch Logs
+* CloudWatch Metrics
+* Security Groups
+* Route Tables
+* VPC networking
+* Route 53 (DNS)
+* ACM certificates (if HTTPS)
+
+Client
+   ↓
+DNS
+   ↓
+Load Balancer
+   ↓
+Ingress
+   ↓
+Service
+   ↓
+Endpoints
+   ↓
+Pod (Running + Ready?)
+   ↓
+Application
+   ↓
+Database / External APIs
+
+A concise framework that interviewers like is:
+
+1. Application – Pod status, logs, readiness, restarts.
+2. Kubernetes – Service, endpoints, labels, ports.
+3. Networking – Ingress, Load Balancer, DNS, Network Policies.
+4. Dependencies – Database, cache, external APIs.
+5. Infrastructure – Cloud networking, security, certificates, recent changes.
+
 
 3) How do you identify whether the issue is application, DB, or network?
 Sample answer
