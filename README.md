@@ -113,18 +113,69 @@ If readiness fails, the pod is removed from service endpoints but the container 
 A practical example: if a liveness probe is too aggressive during startup, the app keeps restarting before it fully initializes. If readiness probe points to the wrong endpoint, the app may run but receive no traffic. So probe tuning is operationally critical.”
 
 13) How do you debug high CPU / memory / OOMKilled issues in Kubernetes?
-Sample answer
-“I first confirm whether the issue is transient or sustained. Then I inspect pod resource usage, container limits/requests, and the exact termination reason. For OOMKilled, I confirm whether memory limits are too low or the application is leaking memory.
-My debugging path is:
 
-check current and historical resource metrics
-verify limits/requests
-inspect logs near crash time
-correlate with traffic spikes/new release/background jobs
-compare with previous stable release
+When I see high CPU, high memory usage, or an OOMKilled event, I first determine whether the issue is temporary or persistent. My goal is to identify the root cause before making configuration changes.
 
-For high CPU, I check whether it’s expected from traffic growth or caused by inefficient processing, retry storms, or hot loops. For memory, I look for unbounded caches, leaks, or oversized payload handling.
-A strong example is: ‘After deployment, CPU spiked across pods. I correlated that with a traffic increase and a code path change that caused excessive retries to a dependency. After rollback and fix, CPU stabilized.’”
+My troubleshooting approach is:
+
+First, I verify the symptoms.
+
+* Is the issue affecting one pod or multiple pods?
+* Did it start after a deployment?
+* Is it related to increased traffic or scheduled jobs?
+
+Next, I check resource utilization.
+
+* CPU and memory usage.
+* Historical metrics.
+* Requests and limits.
+* Node resource utilization.
+
+For an OOMKilled pod, I verify:
+
+* Whether the container exceeded its memory limit.
+* If the configured memory limit is too low.
+* Whether there’s a memory leak or unbounded cache.
+* Large payload processing or inefficient application behavior.
+
+For high CPU, I investigate whether it’s expected or abnormal.
+Common causes include:
+
+* Traffic spikes.
+* Inefficient algorithms.
+* Retry storms.
+* Infinite loops.
+* Excessive logging.
+* Dependency latency causing repeated retries.
+
+I also correlate logs, metrics, deployment history, and traffic patterns. If the issue started immediately after a deployment, I compare the new release with the previous stable version to determine whether the application introduced inefficient processing.
+
+I avoid simply increasing resource limits without understanding the root cause because that only masks the underlying problem.
+⸻
+Production Example (CPU Spike)
+
+After a deployment on EKS, CPU utilization increased from around 40% to over 95% across all application pods.
+
+I checked the deployment timeline and confirmed the spike began immediately after the release. Using Grafana, I noticed that requests to an external API had increased significantly.
+
+The new application version introduced aggressive retry logic without exponential backoff. When the downstream service became slow, every pod repeatedly retried failed requests, driving CPU usage much higher.
+
+We rolled back the deployment to stabilize production, then updated the retry mechanism with exponential backoff and circuit breaking. CPU usage returned to normal after the fix.
+⸻
+Production Example (OOMKilled)
+
+In another incident, several pods entered OOMKilled status.
+
+I confirmed this using kubectl describe pod, which showed the termination reason as OOMKilled.
+
+Grafana indicated that memory usage steadily increased over time rather than spiking suddenly. After reviewing the application, the development team identified a memory leak caused by objects remaining in memory longer than expected.
+
+As a short-term mitigation, we increased the memory limit to restore service stability. The long-term fix was correcting the memory leak in the application code.
+Would you immediately increase the memory limit?”
+
+A strong answer is:
+
+No. Increasing the limit may temporarily reduce incidents, but it’s only a mitigation. First, I determine whether the problem is caused by an application memory leak, traffic growth, incorrect resource configuration, or inefficient processing. Once the root cause is identified, I apply the appropriate long-term fix.
 
 14) What happens when a node becomes NotReady?
 
