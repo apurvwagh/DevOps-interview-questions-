@@ -177,6 +177,7 @@ If the application loses database connectivity, becomes overloaded, or a depende
 Kubernetes immediately removes the pod from the Service endpoints but keeps the container running, allowing it to recover without a restart.
 ⸻
 Cross Question 5
+
 Interviewer:
 
 Why not use only a liveness probe?
@@ -208,6 +209,7 @@ If the application becomes deadlocked or hangs indefinitely, the readiness probe
 
 That’s why a liveness probe is needed to recover from unrecoverable failures.
 ⸻
+
 Cross Question 7 (Very Important)
 
 Interviewer:
@@ -224,6 +226,7 @@ Once the startup probe succeeds, Kubernetes starts evaluating the readiness and 
 
 This prevents applications from being restarted before they finish starting.
 ⸻
+
 Cross Question 8
 
 Interviewer:
