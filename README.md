@@ -101,10 +101,25 @@ If state drift exists, I reconcile it carefully — either by import, state corr
 A strong interview example is: ‘I had a partial apply scenario where some resources were already created, but the pipeline failed before completion. I validated the actual resources, checked state consistency, corrected the configuration issue, reran plan, and only then proceeded with a controlled apply.’”
 
 11) Pod is running but not receiving traffic — what will you check?
-Sample answer
-“If the pod is running but not getting traffic, I validate the full request path. Running status alone is not enough. First, I check whether the pod is actually Ready. If readiness is failing, Kubernetes won’t send traffic even if the pod is in Running state.
-Next, I check whether the Service selectors match the pod labels and whether endpoints are populated. Then I validate ingress rules, target ports, service ports, and any network policies. If external traffic is failing, I also check DNS, LB health checks, ingress controller logs, and TLS config.
-A practical answer would be: ‘I start with readiness and service endpoints. Then I move outward—service, ingress, load balancer, DNS. In many cases the issue is label mismatch, wrong targetPort, or readiness not passing consistently.’”
+
+Client
+   ↓
+DNS
+   ↓
+Load Balancer
+   ↓
+Ingress
+   ↓
+Service
+   ↓
+Endpoints
+   ↓
+Pod (Ready?)
+   ↓
+Application
+   ↓
+Database / External APIs
+
 
 12) Difference between readiness and liveness probe + real impact
 Kubernetes provides health probes to determine the state of an application.
