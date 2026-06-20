@@ -242,6 +242,7 @@ I never run terraform apply blindly in production. I carefully review the execut
 
 Finally, I try to prevent drift by restricting manual console access, enforcing all infrastructure changes through CI/CD pipelines, enabling code reviews, and maintaining Terraform as the single source of truth.
 ⸻
+
 If the interviewer asks, “Have you handled this in production?”
 
 You can answer:
