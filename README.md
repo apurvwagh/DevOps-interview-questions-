@@ -25,11 +25,55 @@ Network health — DNS resolution, routing, security rules, latency, connectivit
 For example, in a production-like scenario, if API latency suddenly increases while CPU is normal, I don’t blame the app immediately. I check database query timings, downstream service latency, and network path first.”
 
 4) Pod is in CrashLoopBackOff — what steps will you take?
-Sample answer
-“My approach is structured. First, I describe the pod and inspect events to identify whether the failure is due to image, command, config, probes, resource pressure, or dependency failure. Then I check the current logs and previous logs because often the container crashes before the latest logs are enough.
-I validate the startup command, entrypoint, environment variables, mounted secrets/config maps, and whether the application is trying to connect to something unavailable during initialization. I also check resource usage — for example, if the pod is getting OOMKilled, then the root cause is different from an app crash.
-Then I compare this deployment with the last known working version. Many CrashLoopBackOff issues come from env var mismatch, secret changes, image tag mistakes, wrong port, or readiness/liveness misconfiguration.
-A strong example answer is: ‘I had a situation where a pod entered CrashLoopBackOff after deployment. I checked describe output and previous logs, and found that the application failed during startup because a required secret was not mounted correctly. After validating the secret reference and redeploying, the application came up normally.’”
+CrashLoopBackOff means the container starts, crashes, Kubernetes restarts it, and after repeated failures Kubernetes increases the delay between restart attempts (backoff).
+
+My first objective is to identify why the application is crashing, not just why it’s restarting.
+
+I follow a structured troubleshooting process.
+
+First, I inspect the pod events.
+I use kubectl describe pod to check the termination reason, restart count, probe failures, image pull issues, or scheduling events.
+
+Next, I review both the current and previous logs.
+Since the container may crash immediately after startup, I use the previous logs to capture the actual error before the restart.
+
+Then, I verify the application configuration.
+I check:
+
+* Environment variables
+* Secrets and ConfigMaps
+* Startup command and entrypoint
+* Mounted volumes
+* Image version
+
+I also verify resource usage.
+If the container was terminated due to OOMKilled, the troubleshooting approach is different from an application startup failure.
+
+Next, I validate:
+
+* Liveness and readiness probe configuration
+* Database or external API connectivity
+* DNS resolution
+* Recent deployments or configuration changes
+
+Finally, I compare the deployment with the last known working version to identify what changed.
+
+In production, the most common causes of CrashLoopBackOff are application startup failures, missing secrets, incorrect environment variables, probe misconfiguration, image issues, and memory exhaustion.
+
+⸻
+
+Production Example (EKS)
+
+During one deployment, a Java application entered CrashLoopBackOff immediately after release.
+
+I first checked kubectl describe pod and noticed repeated restarts.
+
+Then I reviewed the previous container logs and found that the application failed during startup because it couldn’t read a database password from a Kubernetes Secret.
+
+The Secret name had changed during deployment, but the Deployment manifest still referenced the old Secret.
+
+After updating the Secret reference and redeploying the application, the pod started successfully and became Ready.
+
 
 5) Application works locally but fails in Kubernetes — debugging approach
 Sample answer
