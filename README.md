@@ -127,17 +127,64 @@ For high CPU, I check whether it’s expected from traffic growth or caused by i
 A strong example is: ‘After deployment, CPU spiked across pods. I correlated that with a traffic increase and a code path change that caused excessive retries to a dependency. After rollback and fix, CPU stabilized.’”
 
 14) What happens when a node becomes NotReady?
-Sample answer
-“When a node becomes NotReady, Kubernetes marks it as unhealthy because the control plane is no longer receiving expected heartbeats or status. Existing workloads may continue briefly depending on what exactly failed, but scheduling of new pods to that node stops, and affected pods may later be rescheduled elsewhere if the cluster can recover capacity.
-Operationally, I check:
 
-node conditions and events
-kubelet status
-network connectivity between node and control plane
-disk pressure / memory pressure / container runtime health
-cloud instance health if managed cluster
+When a Kubernetes node becomes NotReady, it means the control plane is no longer receiving regular heartbeats from the node, usually because the kubelet has stopped reporting its status or there’s a network or infrastructure issue.
 
-The impact depends on whether workloads have replicas on other nodes. In production, the goal is to protect availability by ensuring replicas, autoscaling, and proper pod distribution are already designed into the platform.”
+Once the node is marked NotReady, Kubernetes immediately stops scheduling new pods onto that node.
+
+Existing pods may continue running for a short period if the node is still functioning, but if the node remains unavailable beyond the configured timeout, the Node Controller marks those pods for eviction. If replicas are available and there is sufficient cluster capacity, Kubernetes reschedules the affected pods onto healthy nodes.
+
+During troubleshooting, I follow a structured approach:
+
+* Check the node conditions using kubectl describe node.
+* Verify whether the kubelet service is running.
+* Check node events and Kubernetes events.
+* Verify network connectivity between the node and the control plane.
+* Check CPU, memory, and disk pressure.
+* Verify container runtime health (Docker or containerd).
+* If it’s a cloud-managed cluster, verify the EC2 or VM instance health.
+
+The business impact depends on the application architecture. If workloads have multiple replicas distributed across different nodes and Availability Zones, users may not notice any interruption. However, if critical applications are running as a single replica on the failed node, service disruption is likely until the workload is rescheduled.
+
+In production, I reduce this risk by designing for high availability using multiple replicas, Pod Anti-Affinity, Pod Disruption Budgets, Cluster Autoscaler, and node groups spread across multiple Availability Zones.
+⸻
+Production Example (AWS EKS)
+
+In one production EKS cluster, an EC2 instance became unreachable due to an underlying infrastructure issue.
+
+Kubernetes marked the node as NotReady after it stopped receiving kubelet heartbeats.
+
+I confirmed the issue by checking the node conditions and events. The node was no longer communicating with the control plane, and after the eviction timeout, Kubernetes rescheduled the affected pods onto healthy worker nodes.
+
+Since our deployments had multiple replicas across three Availability Zones, users experienced little to no downtime. The Cluster Autoscaler later launched a replacement worker node to restore cluster capacity.
+⸻
+What Happens Internally?
+A senior engineer should know this sequence:
+
+1. Worker node stops sending heartbeats.
+2. Control plane detects missed heartbeats.
+3. Node status changes to NotReady.
+4. Kubernetes stops scheduling new pods on that node.
+5. Existing pods remain temporarily if the node is still partially functional.
+6. If the node doesn’t recover within the eviction timeout, pods are evicted.
+7. ReplicaSets/Deployments create replacement pods on healthy nodes.
+8. Cluster Autoscaler may provision a new node if required.
+⸻
+Common Reasons a Node Becomes NotReady
+
+* Kubelet stopped or crashed
+* Network partition between node and control plane
+* EC2 or VM failure
+* High CPU utilization
+* Memory exhaustion
+* Disk pressure
+* Disk full
+* Container runtime failure (Docker/containerd)
+* Kernel panic
+* Node reboot
+* Cloud infrastructure issue
+* Certificate expiration
+* Security group or firewall changes
 
 15) Your service returns 502/503 after deployment — root cause possibilities?
 HTTP 502 and 503 errors after a deployment usually indicate that the Load Balancer or Ingress cannot successfully communicate with the backend application. My first step is to determine whether the issue is at the application layer, Kubernetes layer, or infrastructure layer.
