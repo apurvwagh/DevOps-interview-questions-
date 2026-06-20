@@ -107,10 +107,177 @@ Next, I check whether the Service selectors match the pod labels and whether end
 A practical answer would be: ‘I start with readiness and service endpoints. Then I move outward—service, ingress, load balancer, DNS. In many cases the issue is label mismatch, wrong targetPort, or readiness not passing consistently.’”
 
 12) Difference between readiness and liveness probe + real impact
-Sample answer
-“Readiness probe tells Kubernetes whether the container is ready to receive traffic. Liveness probe tells Kubernetes whether the container is still alive and should keep running. The key difference is traffic routing versus restart behavior.
-If readiness fails, the pod is removed from service endpoints but the container is not necessarily restarted. If liveness fails, Kubernetes restarts the container. So misconfiguring these probes can directly cause downtime or unnecessary restarts.
-A practical example: if a liveness probe is too aggressive during startup, the app keeps restarting before it fully initializes. If readiness probe points to the wrong endpoint, the app may run but receive no traffic. So probe tuning is operationally critical.”
+Kubernetes provides health probes to determine the state of an application.
+
+Readiness Probe checks whether the application is ready to receive traffic. If the readiness probe fails, Kubernetes removes the pod from the Service endpoints, so no new traffic is sent to it. However, the container continues running because it may recover.
+
+Liveness Probe checks whether the application is still healthy. If the liveness probe fails repeatedly, Kubernetes assumes the application is unhealthy and restarts the container automatically.
+
+The key difference is:
+
+* Readiness = Traffic Control
+* Liveness = Container Restart
+
+In production, proper probe configuration is critical. For example, if a liveness probe is too aggressive during application startup, Kubernetes may continuously restart the container before it finishes initializing, resulting in a CrashLoopBackOff.
+
+Similarly, if the readiness probe is misconfigured, the application may be running correctly, but Kubernetes won’t send any traffic to it, causing users to experience 503 Service Unavailable errors.
+⸻
+Cross Question 1
+Interviewer:
+What happens if the readiness probe fails?
+
+Answer
+
+If the readiness probe fails, Kubernetes removes that pod from the Service endpoints.
+
+The pod continues running, but no new traffic is routed to it.
+
+Kubernetes keeps checking the readiness probe, and once it succeeds again, the pod is automatically added back to the Service endpoints without restarting the container.
+⸻
+Cross Question 2
+Interviewer:
+
+What happens if the liveness probe fails?
+
+Answer
+
+If the liveness probe fails continuously based on the configured failure threshold, Kubernetes restarts the container.
+
+This is useful when the application is deadlocked or unresponsive and cannot recover on its own.
+⸻
+Cross Question 3
+Interviewer:
+
+Can a pod be Running but Not Ready?
+
+Answer
+
+Yes.
+
+This is very common during application startup.
+
+The container process is running, so the pod status is Running, but the readiness probe hasn’t passed yet.
+
+Kubernetes waits until the readiness probe succeeds before routing traffic to the pod.
+
+This is one of the favorite interviewer questions.
+⸻
+Cross Question 4
+
+Interviewer:
+
+Can a pod be Ready but later become Not Ready?
+
+Answer
+
+Yes.
+
+If the application loses database connectivity, becomes overloaded, or a dependency becomes unavailable, the readiness probe may start failing.
+
+Kubernetes immediately removes the pod from the Service endpoints but keeps the container running, allowing it to recover without a restart.
+⸻
+Cross Question 5
+Interviewer:
+
+Why not use only a liveness probe?
+
+Answer
+
+Because restarting the application isn’t always the correct action.
+
+Sometimes the application is healthy but temporarily unable to serve requests—for example:
+
+* Database unavailable
+* Cache unavailable
+* Application warming up
+* High load
+
+In these cases, removing the pod from traffic is preferable to restarting it.
+⸻
+Cross Question 6
+
+Interviewer:
+
+Why not use only a readiness probe?
+
+Answer
+
+A readiness probe only controls whether the pod receives traffic.
+
+If the application becomes deadlocked or hangs indefinitely, the readiness probe alone won’t restart it.
+
+That’s why a liveness probe is needed to recover from unrecoverable failures.
+⸻
+Cross Question 7 (Very Important)
+
+Interviewer:
+
+What is a Startup Probe?
+
+Answer
+
+A startup probe is designed for applications that take a long time to initialize.
+
+While the startup probe is running, Kubernetes ignores both liveness and readiness probes.
+
+Once the startup probe succeeds, Kubernetes starts evaluating the readiness and liveness probes.
+
+This prevents applications from being restarted before they finish starting.
+⸻
+Cross Question 8
+
+Interviewer:
+
+Why do applications go into CrashLoopBackOff because of probes?
+
+Answer
+
+If the liveness probe starts checking too early, before the application has finished initializing, Kubernetes assumes the application is unhealthy and restarts it.
+
+This repeats continuously, resulting in a CrashLoopBackOff.
+
+We can prevent this by configuring:
+
+* initialDelaySeconds
+* failureThreshold
+* timeoutSeconds
+* Or by using a startup probe.
+⸻
+Cross Question 9
+
+Interviewer:
+
+Which probe affects the Service Endpoints?
+
+Answer
+
+Only the readiness probe.
+
+When it fails, Kubernetes removes the pod from the Service endpoints, so it stops receiving traffic.
+⸻
+Cross Question 10 (Production Scenario)
+
+Interviewer:
+
+Users receive 503 after deployment. What will you check first?
+
+Answer
+
+My first step is to verify whether the new pods are Ready.
+
+kubectl get pods
+kubectl describe pod <pod-name>
+kubectl get endpoints
+kubectl describe svc
+If the pods are Running but not Ready, the Service will have no healthy endpoints, which commonly results in 503 errors.
+⸻
+Production Example
+
+In one EKS deployment, our application took about 60 seconds to start because it loaded configuration and established database connections.
+
+The liveness probe was configured with an initial delay of only 10 seconds. Kubernetes assumed the application was unhealthy and restarted it repeatedly, leading to a CrashLoopBackOff.
+
+We introduced a startup probe and increased the liveness probe’s initial delay. Once the application had enough time to initialize, it became Ready and the deployment completed successfully.
 
 13) How do you debug high CPU / memory / OOMKilled issues in Kubernetes?
 
