@@ -94,11 +94,200 @@ check runner health and recent platform changes
 A realistic example would be a pipeline suddenly failing because a cloud credential expired or a package manager mirror was unavailable. In that case, the application code is fine — the failure is environmental. I always separate ‘code issue’ from ‘pipeline environment issue’ early to save debugging time.”
 
 10) Terraform apply failed midway — how will you recover?
-Sample answer
-“If Terraform apply fails midway, my first concern is state consistency. I don’t immediately rerun apply blindly. First, I read the error carefully and identify whether the failure came from auth, quota, dependency ordering, provider issue, or resource conflict.
-Then I check the Terraform state versus actual cloud resources. Sometimes some resources are created successfully but not fully reflected the way we expect. I run plan again after understanding the failure and validate whether Terraform wants to create, replace, or destroy anything unexpectedly.
-If state drift exists, I reconcile it carefully — either by import, state correction, or fixing the underlying issue before rerunning. In team environments, remote backend and locking are important so only one apply is in progress.
-A strong interview example is: ‘I had a partial apply scenario where some resources were already created, but the pipeline failed before completion. I validated the actual resources, checked state consistency, corrected the configuration issue, reran plan, and only then proceeded with a controlled apply.’
+
+If a Terraform apply fails midway, my first priority is state consistency. I never rerun terraform apply immediately because some resources may already have been created, modified, or partially configured.
+
+My approach is:
+
+First, I identify why the apply failed.
+Common causes include:
+
+* Authentication or IAM permission issues.
+* Cloud provider API errors.
+* Resource quota limits.
+* Dependency or ordering issues.
+* Network interruptions.
+* Resource conflicts.
+
+Next, I compare the Terraform state with the actual cloud infrastructure.
+
+I verify:
+
+* Which resources were created successfully.
+* Which resources failed.
+* Whether the Terraform state accurately reflects the current infrastructure.
+
+Then I run terraform plan to understand what Terraform wants to do next. I carefully review whether it plans to create, update, replace, or destroy any resources unexpectedly.
+
+If there’s a state mismatch, I resolve it carefully using the appropriate approach, such as importing existing resources into the state, correcting the configuration, or updating the state where necessary.
+
+Only after I’m confident the state and infrastructure are consistent do I rerun a controlled terraform apply.
+
+In enterprise environments, using a remote backend with state locking ensures that only one engineer or CI/CD pipeline modifies the infrastructure at a time, reducing the risk of state corruption.
+
+⸻
+
+Production Example
+
+In one project, our Terraform pipeline failed while provisioning AWS infrastructure because the execution role didn’t have permission to create a Route 53 record.
+
+By that point, the VPC, subnets, security groups, and EC2 instances had already been created successfully.
+
+Instead of rerunning terraform apply immediately, I first reviewed the error, verified the resources in AWS, and confirmed that the Terraform state matched the created infrastructure.
+
+After updating the IAM permissions, I ran terraform plan to ensure Terraform only intended to create the missing Route 53 record. Once the plan looked correct, I executed terraform apply, and the deployment completed successfully without affecting the existing resources.
+Cross Questions (Very Important)
+
+⸻
+
+Cross Question 1
+
+Interviewer:
+
+Why shouldn’t you immediately rerun terraform apply?
+
+Answer
+
+Because some resources may already exist.
+
+Rerunning without reviewing the plan could result in duplicate resource creation, unintended replacements, or destruction of existing infrastructure.
+
+⸻
+
+Cross Question 2
+
+Interviewer:
+
+What if a resource exists in AWS but not in Terraform state?
+
+Answer
+
+Terraform treats it as unmanaged.
+
+I would verify that the existing resource is the one I want Terraform to manage, then use terraform import to bring it into the state before applying further changes.
+
+⸻
+
+Cross Question 3
+
+Interviewer:
+
+How do you check for state consistency?
+
+Answer
+
+I compare:
+
+* Terraform state
+* terraform plan output
+* Actual cloud resources
+* CI/CD logs
+
+The objective is to ensure Terraform’s view matches reality before making additional changes.
+
+⸻
+
+Cross Question 4
+
+Interviewer:
+
+What if the state file becomes corrupted?
+
+Answer
+
+In production, we use a remote backend with versioning and backups.
+
+If corruption occurs, I restore the appropriate state version after verifying it reflects the current infrastructure, then run terraform plan before making any changes.
+
+⸻
+
+Cross Question 5
+
+Interviewer:
+
+What is Terraform state locking?
+
+Answer
+
+State locking prevents multiple users or pipelines from modifying the same state file simultaneously.
+
+For example, with an S3 backend and DynamoDB locking, only one terraform apply can run at a time, preventing state corruption.
+
+⸻
+
+Cross Question 6
+
+Interviewer:
+
+Can you edit the state file manually?
+
+Answer
+
+Only as a last resort.
+
+Manual state editing is risky because it can corrupt the infrastructure mapping.
+
+I prefer using Terraform commands such as:
+
+* terraform import
+* terraform state mv
+* terraform state rm
+
+These are safer and preserve state integrity.
+
+⸻
+
+Cross Question 7
+
+Interviewer:
+
+What if terraform plan wants to destroy production resources unexpectedly?
+
+Answer
+
+I would stop immediately and investigate.
+
+Unexpected destruction usually indicates:
+
+* State drift
+* Configuration changes
+* Resource recreation
+* Provider behavior changes
+
+I would identify the root cause before applying any changes.
+
+⸻
+
+Cross Question 8
+
+Interviewer:
+
+How do you prevent partial applies?
+
+Answer
+
+I reduce the risk by:
+
+* Reviewing terraform plan before every apply.
+* Using remote state with locking.
+* Running changes through CI/CD.
+* Applying least-privilege IAM while ensuring required permissions.
+* Testing changes in lower environments first.
+* Breaking large infrastructure changes into smaller, manageable deployments.
+
+⸻
+
+Easy Framework to Remember
+
+When answering this question, follow these steps:
+
+1. Read and understand the error.
+2. Identify the root cause.
+3. Compare Terraform state with actual infrastructure.
+4. Review terraform plan carefully.
+5. Fix state or configuration if necessary.
+6. Run a controlled terraform apply only after validation.
+
 
 12) Pod is running but not receiving traffic — what will you check?
 
