@@ -73,6 +73,182 @@ Then I reviewed the previous container logs and found that the application faile
 The Secret name had changed during deployment, but the Deployment manifest still referenced the old Secret.
 
 After updating the Secret reference and redeploying the application, the pod started successfully and became Ready.
+kubectl get pods
+kubectl describe pod <pod-name>
+kubectl logs <pod-name>
+kubectl logs <pod-name> --previous
+kubectl get events --sort-by=.lastTimestamp
+kubectl describe deployment <deployment-name>
+kubectl top pod <pod-name>
+kubectl get secrets
+kubectl get configmap
+
+Cross Question 1
+
+Interviewer:
+
+What does CrashLoopBackOff actually mean?
+
+Answer
+
+It means the container starts, exits unexpectedly, and Kubernetes repeatedly restarts it.
+
+After multiple failures, Kubernetes increases the restart interval (backoff) to avoid continuous rapid restarts.
+
+⸻
+
+Cross Question 2
+
+Interviewer:
+
+Why do you check kubectl logs --previous?
+
+Answer
+
+Because the container may restart before I can view the current logs.
+
+--previous shows the logs from the last terminated container, which often contain the actual startup error.
+
+⸻
+
+Cross Question 3
+
+Interviewer:
+
+What are the most common causes of CrashLoopBackOff?
+
+Answer
+
+* Missing Secret
+* Missing ConfigMap
+* Incorrect environment variables
+* Wrong startup command
+* Application startup failure
+* OOMKilled
+* Liveness probe failure
+* Wrong image tag
+* Port mismatch
+* Database unavailable
+* External API failure
+* Permission issues
+
+⸻
+
+Cross Question 4
+
+Interviewer:
+
+How do you know if it’s OOMKilled?
+kubectl describe pod <pod-name>
+Last State:
+Terminated
+Reason: OOMKilled
+If that’s the reason, I investigate memory usage, resource limits, and possible memory leaks rather than application logic.
+
+⸻
+
+Cross Question 5
+
+Interviewer:
+
+What if logs show nothing?
+
+Answer
+
+Then I investigate:
+
+* Pod events
+* kubectl describe
+* Image entrypoint
+* Startup command
+* Secrets
+* ConfigMaps
+* Mounted volumes
+* Liveness and readiness probes
+* Container runtime events
+* Node health
+
+Sometimes the application exits before producing any logs.
+
+⸻
+
+Cross Question 6
+
+Interviewer:
+
+How can a liveness probe cause CrashLoopBackOff?
+
+Answer
+
+If the liveness probe starts checking too early or the health check is misconfigured, Kubernetes repeatedly kills and restarts a healthy application before it finishes initializing.
+
+A startup probe or adjusting initialDelaySeconds can prevent this.
+
+⸻
+
+Cross Question 7
+
+Interviewer:
+
+What if the pod works locally but crashes in Kubernetes?
+
+Answer
+
+I compare:
+
+* Environment variables
+* Secrets
+* ConfigMaps
+* Mounted volumes
+* Resource limits
+* Service accounts and RBAC
+* DNS and network access
+* Startup commands
+
+The Kubernetes runtime environment often differs from local development.
+
+⸻
+
+Cross Question 8
+
+Interviewer:
+
+How do you know whether it’s an application issue or an infrastructure issue?
+
+Answer
+
+I correlate:
+
+* Application logs
+* Kubernetes events
+* Resource metrics
+* Node health
+* Recent deployments
+* Cloud infrastructure health
+
+For example:
+
+* OOMKilled → Resource issue
+* Secret missing → Configuration issue
+* Database connection refused → Dependency issue
+* Image not found → Deployment issue
+
+⸻
+
+Easy Framework to Remember
+
+When answering this question, think in this order:
+
+1. Describe the pod
+2. Check events
+3. Review current and previous logs
+4. Check Secrets and ConfigMaps
+5. Verify startup command and image
+6. Check probes
+7. Review CPU, memory, and OOMKilled
+8. Check dependencies
+9. Compare with the last working deployment
+
 
 
 5) Application works locally but fails in Kubernetes — debugging approach
