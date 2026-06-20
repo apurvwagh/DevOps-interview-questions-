@@ -134,6 +134,7 @@ The pod continues running, but no new traffic is routed to it.
 
 Kubernetes keeps checking the readiness probe, and once it succeeds again, the pod is automatically added back to the Service endpoints without restarting the container.
 ⸻
+
 Cross Question 2
 Interviewer:
 
@@ -145,6 +146,7 @@ If the liveness probe fails continuously based on the configured failure thresho
 
 This is useful when the application is deadlocked or unresponsive and cannot recover on its own.
 ⸻
+
 Cross Question 3
 Interviewer:
 
@@ -162,6 +164,7 @@ Kubernetes waits until the readiness probe succeeds before routing traffic to th
 
 This is one of the favorite interviewer questions.
 ⸻
+
 Cross Question 4
 Interviewer:
 
@@ -175,6 +178,7 @@ If the application loses database connectivity, becomes overloaded, or a depende
 
 Kubernetes immediately removes the pod from the Service endpoints but keeps the container running, allowing it to recover without a restart.
 ⸻
+
 Cross Question 5
 Interviewer:
 
@@ -193,6 +197,7 @@ Sometimes the application is healthy but temporarily unable to serve requests—
 
 In these cases, removing the pod from traffic is preferable to restarting it.
 ⸻
+
 Cross Question 6
 Interviewer:
 
@@ -240,6 +245,7 @@ We can prevent this by configuring:
 * failureThreshold
 * timeoutSeconds
 * Or by using a startup probe.
+
 ⸻
 Cross Question 9
 Interviewer:
@@ -252,6 +258,7 @@ Only the readiness probe.
 
 When it fails, Kubernetes removes the pod from the Service endpoints, so it stops receiving traffic.
 ⸻
+
 Cross Question 10 (Production Scenario)
 Interviewer:
 
