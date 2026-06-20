@@ -98,9 +98,185 @@ Sample answer
 “If Terraform apply fails midway, my first concern is state consistency. I don’t immediately rerun apply blindly. First, I read the error carefully and identify whether the failure came from auth, quota, dependency ordering, provider issue, or resource conflict.
 Then I check the Terraform state versus actual cloud resources. Sometimes some resources are created successfully but not fully reflected the way we expect. I run plan again after understanding the failure and validate whether Terraform wants to create, replace, or destroy anything unexpectedly.
 If state drift exists, I reconcile it carefully — either by import, state correction, or fixing the underlying issue before rerunning. In team environments, remote backend and locking are important so only one apply is in progress.
-A strong interview example is: ‘I had a partial apply scenario where some resources were already created, but the pipeline failed before completion. I validated the actual resources, checked state consistency, corrected the configuration issue, reran plan, and only then proceeded with a controlled apply.’”
+A strong interview example is: ‘I had a partial apply scenario where some resources were already created, but the pipeline failed before completion. I validated the actual resources, checked state consistency, corrected the configuration issue, reran plan, and only then proceeded with a controlled apply.’
 
-11) Pod is running but not receiving traffic — what will you check?
+12) Pod is running but not receiving traffic — what will you check?
+
+If a pod is Running but not receiving traffic, I don’t assume the application is healthy because Running only means the container process is active. It doesn’t mean Kubernetes is routing traffic to it.
+
+I troubleshoot from the pod outward through the entire request path.
+
+First, I check the pod’s readiness status.
+If the readiness probe is failing, Kubernetes removes the pod from the Service endpoints, so it won’t receive any traffic even though it’s running.
+
+Next, I verify the Service configuration.
+
+* Does the Service selector match the pod labels?
+* Are the Service endpoints populated?
+* Is the targetPort correctly mapped to the container port?
+
+Then, I check the Ingress or Load Balancer.
+
+* Are the routing rules correct?
+* Are backend health checks passing?
+* Are there any errors in the Ingress Controller logs?
+
+I also verify networking and security.
+
+* Network Policies
+* DNS resolution
+* TLS or certificate configuration
+* Security Groups (on cloud platforms)
+
+Finally, I review application logs, metrics, and recent deployments to determine whether the issue is caused by configuration changes, application startup delays, or infrastructure changes.
+
+In production, the most common causes are failed readiness probes, Service selector mismatches, incorrect target ports, or Ingress misconfiguration.
+
+⸻
+
+Production Example (EKS)
+
+During one deployment, all pods were in the Running state, but users received 503 Service Unavailable.
+
+I first checked the pod status and noticed that none of the pods were Ready.
+
+The readiness probe was pointing to /health, while the application exposed /healthz.
+
+Since the readiness probe always failed, Kubernetes never added the pods to the Service endpoints.
+
+After correcting the probe configuration, the pods became Ready, appeared in the Service endpoints, and traffic was restored without changing the application code.
+
+kubectl get pods
+kubectl describe pod <pod-name>
+kubectl get svc
+kubectl describe svc <service-name>
+kubectl get endpoints <service-name>
+kubectl describe ingress <ingress-name>
+kubectl logs <pod-name>
+kubectl get networkpolicy
+Cross Question 1
+
+Interviewer:
+
+The pod is Running. Does that mean it’s receiving traffic?
+
+Answer
+
+No.
+
+A pod can be Running but Not Ready.
+
+Kubernetes only routes traffic to pods that pass the readiness probe and are listed in the Service endpoints.
+
+⸻
+
+Cross Question 2
+
+Interviewer:
+
+How do you know if the pod is part of the Service?
+kubectl get endpoints <service-name>
+kubectl describe service <service-name>
+If the pod IP is missing from the endpoints, Kubernetes is not routing traffic to that pod.
+Cross Question 3
+
+Interviewer:
+
+How do you verify a Service selector?
+kubectl describe svc my-service
+kubectl get pods --show-labels
+The Service selector must exactly match the pod labels. A mismatch means the Service won’t discover the pod.
+
+⸻
+
+Cross Question 4
+
+Interviewer:
+
+What happens if the targetPort is incorrect?
+
+Answer
+
+The Service forwards traffic to a port where the application isn’t listening.
+
+As a result, requests fail even though the pod is running.
+
+⸻
+
+Cross Question 5
+
+Interviewer:
+
+How do you verify the application is listening on the correct port?
+
+Answer
+
+I would:
+
+* Review the Deployment manifest.
+* Verify containerPort.
+* Check the Service targetPort.
+* Review application startup logs.
+* Use kubectl exec if needed to inspect the container.
+
+⸻
+
+Cross Question 6
+
+Interviewer:
+
+If Service endpoints exist but users still can’t access the application, what next?
+
+Answer
+
+I would investigate:
+
+* Ingress configuration
+* Load Balancer health
+* DNS resolution
+* TLS certificates
+* Network Policies
+* Security Groups
+* Application logs
+* Backend dependencies
+
+⸻
+
+Cross Question 7
+
+Interviewer:
+
+How do Network Policies affect traffic?
+
+Answer
+
+Even if the pod is Ready, a restrictive Network Policy can block traffic between pods or namespaces.
+
+I would inspect the policies to ensure the required ingress and egress traffic is allowed.
+
+⸻
+
+Cross Question 8
+
+Interviewer:
+
+What if the readiness probe is passing but traffic still doesn’t reach the pod?
+
+Answer
+
+Then I move to the next layers:
+
+1. Service configuration
+2. Endpoints
+3. Ingress
+4. Load Balancer
+5. DNS
+6. Network Policies
+7. Application logs
+8. External dependencies
+
+This helps isolate where the traffic is being blocked.
+
 
 Client
    ↓
