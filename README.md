@@ -3620,13 +3620,13 @@ Q3. What is a blameless postmortem?
 A structured review that focuses on improving systems and processes rather than assigning individual blame.
  
 
-24) Difference between count vs for_each
+16) Difference between count vs for_each
 Sample answer
 “Both are used to create multiple resources, but they behave differently. count is index-based and is useful when resources are nearly identical. for_each is key-based and better when resources are defined by unique names or maps.
 In production IaC, I prefer for_each when identity matters because it is more stable. With count, if the list order changes, resource addressing may shift and cause unintended replacement. With for_each, the key remains stable, so lifecycle is more predictable.
 So in interview, I’d say: ‘I use count for simple repeated resources and for_each when I want better control, readability, and safer changes for uniquely named resources.’”
 
-25) How do you achieve zero-downtime deployments?
+17) How do you achieve zero-downtime deployments?
 Sample answer
 “Zero-downtime deployment means users should continue to get service while the new version is rolled out. In Kubernetes, that typically means having multiple replicas, proper readiness probes, rolling update strategy, and enough capacity so the old pods are only terminated after the new pods are actually ready.
 Depending on business criticality, I may also use blue-green or canary strategies. The core idea is:
@@ -3638,9 +3638,28 @@ monitor during rollout
 
 My interview answer would be: ‘I design zero-downtime using readiness-driven rolling deployments, controlled traffic switching, and post-deploy validation. For critical releases, I prefer canary or blue-green depending on risk and infrastructure design.’”
 
-25) Difference between Blue-Green, Canary, Rolling deployment
+18) Difference between Blue-Green, Canary, Rolling deployment
 Sample answer
 “Rolling deployment gradually replaces old instances with new ones. It is simple and efficient, but if the issue is subtle, some users may still hit the bad version during rollout.
 Blue-Green deployment keeps two full environments: current and new. Traffic switches only when the new environment is validated. It gives safer rollback but requires more infrastructure.
 Canary deployment releases the new version to a small percentage of users first. It is best when I want controlled exposure and metric-based validation before full rollout.
 In interview, I’d answer: ‘Rolling is efficient for normal releases, blue-green is strong for safer cutover, and canary is best when I want gradual risk-controlled validation in production.’”
+
+19)How To Secure Your Kubernetes Cluster in Production
+Kubernetes gives you enormous flexibility in how you run workloads. That flexibility is also what makes it easy to misconfigure. A cluster with default settings, no network policies, and containers running as root is not a production ready cluster, it is a set of open doors. Security in Kubernetes is not a single setting you toggle on. It is a layered set of controls that together limit what can happen if something goes wrong.
+Today we cover the most important security controls in Kubernetes.
+Authentication, Authorization, and RBAC
+Every request to the Kubernetes API server goes through two checks before anything happens.
+Authentication answers the question of who is making the request - is this a human user, a service account, or a pod?
+Authorization answers what that identity is allowed to do. Kubernetes uses Role Based Access Control as its authorization mechanism, and understanding how RBAC works is the foundation of everything else.
+
+RBAC has two core object types that work together. Roles define what actions can be performed on which resources. A Role might say: get, list, and watch pods in a specific namespace. A ClusterRole says the same but applies cluster wide rather than being scoped to a single namespace.
+RoleBindings and ClusterRoleBindings then assign those roles to specific identities, a user, a group, or a service account. The separation is important: the Role describes capabilities, the Binding describes who has them.
+The most common RBAC mistake is over permissioning. A service account that only needs to read ConfigMaps in one namespace should not have cluster admin. A developer who needs to view pod logs should not have the ability to delete namespaces. The principle of least privilege applies here exactly as it does everywhere else in security. Every role you create should grant only the permissions the identity actually needs and nothing more. Audit your RBAC rules regularly, permission creep in Kubernetes is real and it accumulates silently.
+Network Policies: Controlling pod-to-pod traffic
+By default, every pod in a Kubernetes cluster can reach every other pod, regardless of namespace. There are no network level restrictions. In a small cluster with trusted workloads this is manageable. In a multi tenant cluster or any environment handling sensitive data, it is a significant risk. If one pod is compromised, it can freely connect to any other pod in the cluster.
+
+Network Policies are Kubernetes objects that define rules for which pods can communicate with which other pods and on which ports. They work at the IP and port level inside the cluster and are enforced by the network plugin, not Kubernetes itself. This means you need a CNI plugin that supports NetworkPolicy enforcement, Canal, Calico, Cilium, and Weave all do. Flannel alone does not.
+The recommended approach is to start with a default deny policy in every namespace. An empty podSelector with policyType: Ingress blocks all inbound traffic to all pods in the namespace. You then add specific allow policies for the traffic that actually needs to flow. A policy allowing the web pod to reach the db pod on port 3748 is explicit, auditable, and scoped precisely to what is needed. Everything else stays blocked. This deny-by-default posture means that a new pod added to the namespace has no network access until someone explicitly creates a policy for it, which is the correct default behaviour in a production environment.
+
+
