@@ -196,17 +196,58 @@ This answer shows maturity because not every production issue is solved by rever
 
 19) How do you debug intermittent failures (not reproducible)?
 Sample answer
-“For intermittent failures, I rely less on local reproduction and more on correlation. I look for patterns in time, load, instance, region, dependency, deployment history, autoscaling events, and network conditions.
-I compare successful vs failed requests and check whether failures align with:
 
-scale events
-specific nodes/pods
-one AZ/region
-dependency timeouts
-certificate/token expiry windows
-traffic bursts
+Intermittent failures are usually the most challenging because they cannot be reproduced consistently. In such cases, I focus on collecting evidence rather than trying to reproduce the issue immediately.
 
-My answer in interview would be: ‘For intermittent issues, I collect evidence around failure windows and compare distributed signals—metrics, logs, traces, events—because these issues often come from timing, scaling, or dependency instability rather than deterministic code bugs.’”
+My first step is to identify patterns around the failure:
+
+* Does it happen only during peak traffic?
+* Is it affecting a specific node, pod, Availability Zone, or region?
+* Did it start after a deployment, autoscaling event, or infrastructure change?
+* Is a downstream dependency such as the database or an external API involved?
+
+Next, I correlate multiple observability signals instead of relying only on logs:
+
+* Metrics – CPU, memory, latency, error rates, network usage.
+* Logs – Application, Kubernetes, and infrastructure logs.
+* Distributed traces – To identify where requests are slowing down or failing.
+* Events – Kubernetes events, autoscaling activities, deployments, node restarts, and cloud infrastructure events.
+
+I compare successful requests with failed requests to identify differences. Many intermittent issues are caused by timing, scaling, network instability, resource contention, or dependency failures rather than application code.
+
+If needed, I temporarily increase logging, enable debug logs for the affected component, or add additional monitoring to capture more details during the next occurrence.
+
+My goal is not just to resolve the issue but to identify the root cause and implement preventive measures to avoid recurrence.
+⸻
+Production Example (AWS + Kubernetes)
+
+In one production environment, users occasionally received HTTP 502 errors, but only a few times a day. The issue couldn’t be reproduced in lower environments.
+
+I analyzed the failure timestamps and compared them with Kubernetes events. I found that the failures consistently occurred during pod scale-up events triggered by the Horizontal Pod Autoscaler.
+
+The new pods were receiving traffic before they were fully initialized because the readiness probe wasn’t configured correctly.
+
+As a result, the Load Balancer routed requests to pods that weren’t ready, causing intermittent failures.
+
+We corrected the readiness probe configuration, adjusted the startup probe, and configured the Load Balancer to send traffic only to healthy pods. After these changes, the intermittent failures were eliminated.
+⸻
+Common Causes of Intermittent Failures
+
+Mentioning these shows production experience:
+
+* Autoscaling events
+* Pod restarts
+* Incorrect readiness/liveness probes
+* Network latency or packet loss
+* DNS resolution issues
+* Database connection pool exhaustion
+* External API timeouts
+* Load Balancer health check failures
+* Certificate or token expiration
+* Memory leaks
+* CPU throttling
+* Race conditions
+* Temporary cloud service degradation
 
 20) Logs show no errors but users complain — how do you approach?
 
