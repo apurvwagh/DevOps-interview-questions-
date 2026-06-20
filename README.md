@@ -140,18 +140,97 @@ cloud instance health if managed cluster
 The impact depends on whether workloads have replicas on other nodes. In production, the goal is to protect availability by ensuring replicas, autoscaling, and proper pod distribution are already designed into the platform.”
 
 15) Your service returns 502/503 after deployment — root cause possibilities?
-Sample answer
-“502/503 usually indicate a gateway, upstream, or availability issue rather than just a code exception. After deployment, common causes include readiness failures, no healthy backend endpoints, ingress misconfiguration, target port mismatch, upstream app crash, timeout to dependency, or sudden overload.
-So I check:
+HTTP 502 and 503 errors after a deployment usually indicate that the Load Balancer or Ingress cannot successfully communicate with the backend application. My first step is to determine whether the issue is at the application layer, Kubernetes layer, or infrastructure layer.
 
-ingress/controller logs
-service endpoints
-pod readiness
-app startup errors
-resource pressure
-dependency failures
+I follow a structured troubleshooting process.
 
-A practical answer is: ‘If 502/503 appears right after release, I first verify whether the new pods are healthy and registered as service endpoints. If not, it is often readiness or port configuration. If endpoints are healthy, I investigate upstream dependency timeouts or ingress routing issues.’”
+First, I verify whether the new pods are healthy.
+
+* Are all pods in the Running state?
+* Are the readiness and liveness probes passing?
+* Are there any CrashLoopBackOff or restart events?
+
+Next, I check the Kubernetes Service and Endpoints.
+
+* Has the Service discovered the new pods?
+* Are the pod labels correctly matching the Service selector?
+* Is the targetPort correctly configured?
+
+Then, I investigate the Ingress or Load Balancer.
+
+* Review Ingress Controller or ALB/NLB logs.
+* Verify routing rules and backend health.
+* Confirm health checks are passing.
+
+If the infrastructure looks healthy, I move to the application layer.
+
+* Review application startup logs.
+* Check whether the application is listening on the expected port.
+* Verify environment variables and ConfigMaps.
+* Ensure secrets are mounted correctly.
+
+Finally, I investigate downstream dependencies.
+
+* Database connectivity.
+* Redis or cache availability.
+* External APIs.
+* DNS resolution.
+* Certificate or authentication issues.
+
+If everything appears healthy, I compare metrics, logs, traces, and deployment history to identify what changed during the release.
+
+In production, 502/503 errors are most commonly caused by readiness probe failures, missing service endpoints, port mismatches, application startup delays, or unhealthy downstream dependencies.
+⸻
+Production Example (AWS EKS)
+
+During one deployment on Amazon EKS, users immediately started receiving 503 Service Unavailable errors.
+
+I first checked the Ingress Controller and confirmed that requests were reaching Kubernetes. Then I verified the Service endpoints and found that no pods had been registered as healthy backends.
+
+Further investigation showed that the readiness probe was configured with a very short initial delay. Since the application required about 45 seconds to initialize, Kubernetes marked the pods as unready, so the Service had no healthy endpoints.
+
+We updated the readiness probe by increasing the initial delay and failure threshold. Once the pods became Ready, Kubernetes added them to the Service endpoints, and the 503 errors were resolved.
+⸻
+Common Root Causes (Senior-Level Knowledge)
+
+Mentioning these demonstrates practical production experience:
+
+Kubernetes Issues
+
+* Readiness probe failures
+* Liveness probe failures
+* CrashLoopBackOff
+* Incorrect Service selector labels
+* No Service endpoints
+* Wrong targetPort
+* Wrong containerPort
+* Failed rolling update
+* Pod scheduling failures
+* Insufficient CPU or memory
+
+Networking Issues
+
+* Ingress misconfiguration
+* Load Balancer health check failures
+* DNS resolution issues
+* Network Policies blocking traffic
+* Service mesh routing issues (e.g., Istio)
+
+Application Issues
+
+* Application startup failure
+* Port binding mismatch
+* Configuration errors
+* Missing environment variables
+* Secret or ConfigMap issues
+
+Dependency Issues
+
+* Database unavailable
+* Redis unavailable
+* External API timeouts
+* Certificate expiration
+* Authentication failures
 
 16) How do you troubleshoot a P1 production incident step-by-step?
 Sample answer
