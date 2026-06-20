@@ -163,7 +163,6 @@ Kubernetes waits until the readiness probe succeeds before routing traffic to th
 This is one of the favorite interviewer questions.
 ⸻
 Cross Question 4
-
 Interviewer:
 
 Can a pod be Ready but later become Not Ready?
@@ -177,7 +176,6 @@ If the application loses database connectivity, becomes overloaded, or a depende
 Kubernetes immediately removes the pod from the Service endpoints but keeps the container running, allowing it to recover without a restart.
 ⸻
 Cross Question 5
-
 Interviewer:
 
 Why not use only a liveness probe?
@@ -196,7 +194,6 @@ Sometimes the application is healthy but temporarily unable to serve requests—
 In these cases, removing the pod from traffic is preferable to restarting it.
 ⸻
 Cross Question 6
-
 Interviewer:
 
 Why not use only a readiness probe?
@@ -211,7 +208,6 @@ That’s why a liveness probe is needed to recover from unrecoverable failures.
 ⸻
 
 Cross Question 7 (Very Important)
-
 Interviewer:
 
 What is a Startup Probe?
@@ -228,7 +224,6 @@ This prevents applications from being restarted before they finish starting.
 ⸻
 
 Cross Question 8
-
 Interviewer:
 
 Why do applications go into CrashLoopBackOff because of probes?
@@ -247,7 +242,6 @@ We can prevent this by configuring:
 * Or by using a startup probe.
 ⸻
 Cross Question 9
-
 Interviewer:
 
 Which probe affects the Service Endpoints?
@@ -259,7 +253,6 @@ Only the readiness probe.
 When it fails, Kubernetes removes the pod from the Service endpoints, so it stops receiving traffic.
 ⸻
 Cross Question 10 (Production Scenario)
-
 Interviewer:
 
 Users receive 503 after deployment. What will you check first?
