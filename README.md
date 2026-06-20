@@ -209,17 +209,77 @@ traffic bursts
 My answer in interview would be: ‘For intermittent issues, I collect evidence around failure windows and compare distributed signals—metrics, logs, traces, events—because these issues often come from timing, scaling, or dependency instability rather than deterministic code bugs.’”
 
 20) Logs show no errors but users complain — how do you approach?
-Sample answer
-“I never conclude ‘no issue’ just because logs are clean. Logs are only one signal. If users are impacted, I trust user experience metrics and request-path validation first. I check error rate, latency, frontend or edge symptoms, network path, ingress behavior, downstream dependencies, and regional differences.
-Sometimes logs are quiet because:
 
-log level is too low
-timeout happens upstream
-request never reaches the service
-the issue is performance, not exception
-dependency failure is handled poorly but not logged
+If users are reporting an issue but the application logs show no errors, I don’t assume the system is healthy. Logs are only one part of observability. My first priority is to validate the user impact and trace the entire request path.
 
-A strong answer is: ‘If logs show no errors, I shift to metrics, traces, request flow validation, and dependency health to find silent failures or performance degradation.’”
+I follow a structured troubleshooting approach:
+
+First, I verify the symptoms.
+
+* Is the issue affecting all users or only specific regions?
+* Is it intermittent or continuous?
+* Did it start after a deployment or infrastructure change?
+
+Next, I check metrics because performance problems don’t always generate application errors.
+
+* Request latency (P95/P99)
+* Error rates (4xx/5xx)
+* CPU and memory utilization
+* Pod restarts
+* Network throughput
+* Database latency
+
+Then I use distributed tracing to follow a request across services. This helps identify where the request is slowing down or failing, even if every service logs “success.”
+
+I also validate each layer of the request path:
+
+* DNS resolution
+* Load Balancer or Ingress
+* Kubernetes Services
+* Pods and container health
+* Database
+* External APIs
+* Network connectivity
+
+Sometimes the application logs are clean because:
+
+* The log level is too restrictive.
+* The request never reaches the application due to a load balancer or ingress issue.
+* A timeout occurs upstream.
+* A dependency is slow but returns a response instead of an error.
+* The issue is latency rather than an exception.
+
+Finally, I correlate logs, metrics, traces, deployment history, and infrastructure changes to identify the root cause instead of relying on logs alone.
+⸻
+
+Production Example (AWS + Kubernetes)
+
+In one production incident, users reported that the application was taking nearly 20 seconds to load, but the application logs showed no errors.
+
+I first checked our dashboards and noticed that application error rates were normal, but the P99 latency had increased significantly.
+
+Then I checked the Kubernetes Ingress and found that one backend service was timing out because the database response time had increased due to high CPU utilization on the RDS instance.
+
+Since the database was still responding, the application never logged an exception—it was simply waiting longer for the query to complete.
+
+We temporarily increased database capacity, optimized the slow queries, and latency returned to normal.
+
+This incident reinforced that metrics and traces often reveal problems that logs alone cannot.
+⸻
+
+If the Interviewer Asks:
+
+“What tools would you use?”
+
+You can answer:
+
+* Logs: Splunk / ELK / CloudWatch Logs
+* Metrics: Prometheus, Grafana, CloudWatch
+* Tracing: OpenTelemetry, Jaeger, Zipkin
+* Kubernetes: kubectl logs, kubectl describe, kubectl top, kubectl get events
+* AWS: CloudWatch Metrics, ALB Target Health, VPC Flow Logs, RDS Performance Insights
+* Networking: curl, ping, traceroute, nslookup, dig
+
 
 21) What is Terraform state and why remote state is used?
 Terraform state is a file that keeps track of the infrastructure Terraform manages. It acts as a mapping between the Terraform configuration and the actual resources running in the cloud.
