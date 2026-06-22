@@ -81,7 +81,7 @@ The API server validates it and stores the desired state in etcd.
 Then the scheduler selects a worker node, and the kubelet on that node creates the pod and starts the containers.
 Since kubectl apply is declarative, it only updates what has changed instead of recreating everything.
  
-================================================================================
+====================================================
 4. How does scheduler decide node placement?
  
 The Kubernetes scheduler decides node placement in two main steps.
@@ -91,7 +91,7 @@ First, it filters nodes to find which ones are eligible. It checks things like a
 Then, from the remaining nodes, it scores them to pick the best one. It prefers nodes with balanced resource usage, better locality, or ones that match affinity rules.
  
 So in simple terms, it first finds nodes that *can* run the pod, and then chooses the one that’s *best* for it.
-=============================================================================
+=====================================================
  
 5) What happens if a node dies?
 If a node dies, Kubernetes detects it through the node heartbeat mechanism. When the control plane stops receiving updates from that node, it marks the node as NotReady.
@@ -99,19 +99,19 @@ If a node dies, Kubernetes detects it through the node heartbeat mechanism. When
 After a short timeout, Kubernetes assumes the pods on that node are lost and reschedules new copies of those pods onto healthy nodes, as long as they’re managed by a controller like a Deployment or ReplicaSet.
  
 So from the user’s perspective, workloads recover automatically, although there may be a short downtime until new pods start running on other nodes.
-=========================================================================
+=======================================================
 
 6)  How do containers communicate across nodes?
 In Kubernetes, containers communicate across nodes through the cluster networking model managed by the CNI plugin. Each pod gets its own IP address, and Kubernetes ensures that every pod can reach every other pod directly, even if they’re on different nodes.
 When one pod sends traffic to another pod on a different node, the packet first goes through the node’s network interface. The CNI plugin, like Calico or AWS VPC CNI in EKS, handles routing by mapping pod IPs to the correct node and forwarding the traffic across the cluster network.
 From the application’s perspective, it feels like everything is on one flat network, but underneath the CNI plugin manages routing, encapsulation, and network policies to make cross-node communication work reliably.
-==============================================================================
+========================================================
  
 7 ) How does networking work specifically in AWS EKS?
 In AWS EKS, networking works using the AWS VPC CNI plugin. Unlike some other Kubernetes setups, pods don’t get virtual overlay IPs — instead, each pod gets a real IP address from the VPC subnet.
 When a node starts, AWS attaches multiple ENIs and secondary IPs to it. These IPs are then assigned to pods. Because pods use actual VPC IPs, they can communicate with other pods, AWS services, or even on-prem systems directly through the VPC routing tables without NAT.
 Security groups, route tables, and NACLs still control traffic, so networking in EKS integrates closely with standard AWS networking rather than creating a completely separate network layer.
-=================================================================================
+==========================================================
  
 8 ) Explain deployment vs statefulset vs daemonset.
  
@@ -122,11 +122,11 @@ a real production examples version
 In production, we use Deployments for stateless services like frontend apps, backend APIs, or microservices because they can scale easily and don’t need fixed identities.
 StatefulSets are used for things like databases, Kafka, or Elasticsearch where each pod needs stable storage, a fixed name, and ordered startup so the data remains consistent.
 DaemonSets are used for tools that must run on every node, like log collectors, monitoring agents, or security scanners, so each node always has one instance running.
-==================================================================================
+=======================================================
  
 9 )why does that actually matter? What problem does it solve compared to random pod names in a Deployment?
 Because each pod gets a stable DNS name tied to that fixed name. So other services or pods always know exactly where to reach a specific replica. Also each pod keeps its own dedicated storage — if mysql-0 restarts, it reconnects to the same data volume, not someone else's. In a Deployment, pods get random names and don't have dedicated storage, which would corrupt a database.
-===================================================================================
+===================================================
  
 10 ) Explain service types.
 Kubernetes has mainly four service types.
@@ -140,7 +140,7 @@ In production, we usually use ClusterIP for internal communication between micro
 For public access, we typically use LoadBalancer because it integrates with the cloud provider and gives us a proper external endpoint for users.
 NodePort is rarely used in production directly, but it can be useful for testing or when setting up an external load balancer manually.
 ExternalName is used when a service inside Kubernetes needs to access something outside the cluster, like a managed database or third-party API, using a consistent service name.
-====================================================================================
+=====================================================
 11. What happens when traffic hits a service?
  
 When traffic hits a Kubernetes Service, it first reaches the service’s virtual IP. Kubernetes then forwards that request to one of the pods behind the service.
@@ -148,13 +148,13 @@ This routing is handled by kube-proxy, which uses iptables or IPVS rules on each
 So from the client’s perspective, they talk to one stable service IP, and Kubernetes automatically distributes the requests to the correct pods in the background.
 a step-by-step flow including Ingress and LoadBalancer
  
-1. When a user sends a request from the internet, it first reaches the cloud LoadBalancer created by Kubernetes.
-2. The LoadBalancer forwards the traffic to the Ingress controller running inside the cluster.
-3. The Ingress then checks its routing rules, like domain name or path, and decides which service should handle the request.
-4. The request is sent to that Kubernetes Service, which acts as a stable internal endpoint.
-5. Finally, the service forwards the traffic to one of the healthy pods running the application.
+   When a user sends a request from the internet, it first reaches the cloud LoadBalancer created by Kubernetes.
+ The LoadBalancer forwards the traffic to the Ingress controller running inside the cluster.
+ The Ingress then checks its routing rules, like domain name or path, and decides which service should handle the request.
+The request is sent to that Kubernetes Service, which acts as a stable internal endpoint.
+Finally, the service forwards the traffic to one of the healthy pods running the application.
 So the flow is: Internet → LoadBalancer → Ingress → Service → Pod.
-=================================================================================
+=====================================================
  
 12) Explain Ingress flow end to end.
 When a user makes a request to a domain, it first reaches the external LoadBalancer created for the Ingress controller.
@@ -164,7 +164,7 @@ The Ingress controller reads the Ingress rules, which define routing based on ho
 The request is then sent to that Service, which forwards it to one of the healthy pods running the application.
  
 So the full flow is: User → DNS → LoadBalancer → Ingress Controller → Service → Pod.
-====================================================================================
+======================================================
 13 ) what is HPA in Kubernetes:
  
 HPA stands for Horizontal Pod Autoscaler. It automatically scales the number of pod replicas up or down based on real time metrics like CPU and memory usage.
@@ -184,7 +184,7 @@ In production, we had a backend API that handled user requests, and traffic used
 When traffic increased, pod CPU usage crossed the threshold, so HPA automatically increased the number of pods to handle the load. Once traffic dropped later, HPA gradually scaled the pods back down to save resources.
  
 This helped us handle traffic spikes without manual intervention and kept the application responsive while optimizing infrastructure usage.
-===================================================================================
+=======================================================
 14. Diffrence B/w Application load balancer(ALB) and Network Load Balancer(NLB)
  
 “ALB works at Layer 7 and is used for HTTP/HTTPS traffic. It supports intelligent routing like path-based and host-based routing, which is ideal for microservices architectures.
@@ -192,10 +192,10 @@ NLB works at Layer 4 and handles TCP/UDP traffic with very high performance and 
 ALB → for Ingress / web traffic
 NLB → for exposing services requiring TCP performance
  
-==================================================================================
+==========================================================
  15) How will you check the threshold of the pods. And prepare for auto scaling
 To check pod thresholds, I monitor CPU and memory usage using kubectl top pods, which requires the metrics server. Based on the resource usage, I define CPU and memory requests in the deployment. Then I configure a Horizontal Pod Autoscaler that scales pods automatically when resource utilization crosses a defined threshold, for example 70% CPU usage. I verify autoscaling using kubectl get hpa and kubectl describe hpa.
-==================================================================================
+==========================================================
  
 16) Explain how you implemented auto-scaling on EKS. How does HPA work?
  
@@ -203,7 +203,7 @@ On EKS, we use two levels of auto-scaling:
 HPA (Horizontal Pod Autoscaler): Watches metrics like CPU/memory utilisation (via Metrics Server). When CPU on a pod exceeds, say, 70%, HPA creates more pod replicas. When load drops, it scales back. I defined HPA in YAML specifying minReplicas, maxReplicas, and the target CPU percentage.
 Cluster Autoscaler: When HPA wants to create pods but there's no node capacity, Cluster Autoscaler triggers AWS Auto Scaling Groups to add EC2 nodes. When nodes are underutilised, it drains and terminates them to save cost.
 In our retail app project, we configured HPA targeting 60% CPU. During load tests, it scaled from 2 to 8 replicas in about 90 seconds, then scaled back as load dropped — with zero downtime."
-====================================================================================
+=========================================================
  
 17) A pod is in CrashLoopBackOff state. How do you debug it?
 CrashLoopBackOff means the container starts, crashes, and Kubernetes keeps restarting it with exponential backoff. My debugging steps:
@@ -213,7 +213,7 @@ Step 3: Check resource limits — if CPU/memory limits are too low, the containe
 Step 4: Check liveness probe configuration — if the probe timeout is too short or the path is wrong, K8s kills the pod thinking it's unhealthy.
 Step 5: kubectl exec -it <pod-name> -- /bin/sh to get a shell if the pod starts momentarily.
 Common root causes I've seen: wrong env variables (DB connection string), misconfigured secrets, or app failing to start because of a dependency not being ready.
-===================================================================================
+=======================================================
  
 18)What are Kubernetes Namespaces and why do you use them?
 "Namespaces provide virtual clusters within a physical cluster — they're used to isolate resources and apply policies per team or environment.
@@ -225,7 +225,7 @@ Why we use them:
 4. Network policies: Restrict traffic between namespaces for security.
  
 In our EKS setup, we have namespaces like production, staging, monitoring (for Prometheus/Grafana), and argocd — each with appropriate RBAC.
-====================================================================================
+=======================================================
  
 19 ) What is Helm and how have you used it?
 "Helm is the package manager for Kubernetes — it lets you define, install, and upgrade applications using charts, which are templated K8s YAML files.
@@ -235,12 +235,12 @@ Instead of maintaining separate YAML files per environment, Helm lets you have o
 How I use it: I use Helm charts for deploying applications like Prometheus, Grafana, and ingress-nginx. For our own microservices, I've created custom Helm charts that ArgoCD deploys by referencing the chart from a Git repo. This way environment-specific config is cleanly separated from the chart template.
  
 Key commands I use: helm install, helm upgrade --install, helm rollback, helm template (to debug generated YAML before applying).
-=================================================================================
+=======================================================
  
 20) What is Kubernetes and why use it over plain Docker?
 Kubernetes is a container orchestration tool. Docker alone is fine for running containers on a single machine, but in production you need to manage hundreds of containers across multiple machines. Kubernetes does that automatically — it handles deployment, scaling, self-healing, load balancing, and rolling updates. That's why teams use it over plain Docker.
  
-==================================================================================
+======================================================
  
 21) How does auto-healing work in Kubernetes?
 Each node has a component called kubelet. It constantly monitors the containers running on that node and reports their status to the API server. If a container or pod goes down, the controller manager detects that the actual state doesn't match the desired state. It then creates a new pod, and the scheduler decides which node to place it on. That's how Kubernetes automatically heals itself."
@@ -250,7 +250,7 @@ API Server ==> Central communication hub
 Controller Manager ==> Detects desired vs actual state mismatch
 Scheduler ==> Decides which node gets the new podkube-proxyHandles network rules
  
-=================================================================================
+========================================================
 22. A pod is in Pending state and it has been like that for 10 minutes. How would you troubleshoot it? What are the possible reasons?
  
 "A Pending pod means the scheduler cannot find a suitable node to place it. Here is how I troubleshoot:
