@@ -91,7 +91,9 @@ I would verify:
 0.0.0.0/0 → Internet Gateway
     Internet Gateway is attached to the VPC.
 * The subnet is public. 
-  
+
+
+  =====================
 
 2) You shared an AMI with another AWS account, but they still can’t launch an instance from it. What’s usually missed?
 
