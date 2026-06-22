@@ -358,8 +358,76 @@ Answer:
 
 ==============================
 
+7: In EKS, your stateful pod using an EBS volume is stuck in Pending. Why doesn't it reschedule?
 
+Ans: EBS volumes are limited to a single Availability Zone. If EKS places the pod on a node in a different AZ, the volume cannot attach. Make sure your node group includes nodes in the same AZ as the volume.
+The most common reason is an Availability Zone mismatch.
 
+Amazon EBS volumes are AZ-specific and can only be attached to EC2 instances within the same Availability Zone.
+
+If the Persistent Volume was created in:
+ap-south-1a
+and Kubernetes schedules the pod on a node in:
+ap-south-1b
+the volume cannot attach and the pod remains Pending.
+
+I would check the PV, PVC, node AZ, and scheduler events.
+Interviewer:
+
+What Kubernetes object is responsible for this scheduling logic?
+
+Answer:
+
+Volume Node Affinity.
+
+The scheduler checks:
+
+* Pod requirements
+* Node labels
+* Volume location
+
+The pod can only run on nodes that can access the volume.
+
+Interviewer:
+
+What if I need storage accessible from multiple AZs?
+
+Answer:
+
+Use:
+
+Amazon EFS
+
+Benefits:
+
+* Multi-AZ
+* Shared filesystem
+* Multiple pods can mount simultaneously
+  
+Access Mode:ReadWriteMany (RWX)
+EBS is block storage.
+
+EFS is shared file storage.
+
+Interviewer:
+
+A node in the volume’s AZ failed. What happens?
+
+Answer:
+
+Kubernetes attempts to reschedule the pod.
+
+However, if no worker nodes exist in that AZ:
+Volume cannot attach
+Pod remains Pending
+
+To avoid this:
+
+* Maintain worker nodes in all required AZs.
+* Use Cluster Autoscaler/Karpenter.
+* Use EFS if true multi-AZ storage is required.
+
+  ============================
 
 
 
