@@ -165,7 +165,7 @@ The request is then sent to that Service, which forwards it to one of the health
  
 So the full flow is: User → DNS → LoadBalancer → Ingress Controller → Service → Pod.
 
-======================================================
+
 13 ) what is HPA in Kubernetes:
  
 HPA stands for Horizontal Pod Autoscaler. It automatically scales the number of pod replicas up or down based on real time metrics like CPU and memory usage.
