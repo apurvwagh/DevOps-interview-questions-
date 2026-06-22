@@ -205,8 +205,10 @@ ALB → for Ingress / web traffic
 NLB → for exposing services requiring TCP performance
  
 ==========================================================
+
  15) How will you check the threshold of the pods. And prepare for auto scaling
 To check pod thresholds, I monitor CPU and memory usage using kubectl top pods, which requires the metrics server. Based on the resource usage, I define CPU and memory requests in the deployment. Then I configure a Horizontal Pod Autoscaler that scales pods automatically when resource utilization crosses a defined threshold, for example 70% CPU usage. I verify autoscaling using kubectl get hpa and kubectl describe hpa.
+
 ==========================================================
  
 16) Explain how you implemented auto-scaling on EKS. How does HPA work?
@@ -215,6 +217,7 @@ On EKS, we use two levels of auto-scaling:
 HPA (Horizontal Pod Autoscaler): Watches metrics like CPU/memory utilisation (via Metrics Server). When CPU on a pod exceeds, say, 70%, HPA creates more pod replicas. When load drops, it scales back. I defined HPA in YAML specifying minReplicas, maxReplicas, and the target CPU percentage.
 Cluster Autoscaler: When HPA wants to create pods but there's no node capacity, Cluster Autoscaler triggers AWS Auto Scaling Groups to add EC2 nodes. When nodes are underutilised, it drains and terminates them to save cost.
 In our retail app project, we configured HPA targeting 60% CPU. During load tests, it scaled from 2 to 8 replicas in about 90 seconds, then scaled back as load dropped — with zero downtime."
+
 =========================================================
  
 17) A pod is in CrashLoopBackOff state. How do you debug it?
