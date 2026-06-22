@@ -1009,6 +1009,35 @@ As a result:
 “I would use VPC Endpoints to access AWS services privately from within the VPC. For S3 and DynamoDB, I would create Gateway Endpoints, and for services like Secrets Manager, ECR, CloudWatch, and Systems Manager, I would use Interface Endpoints (PrivateLink). This keeps traffic on the AWS network, improves security, reduces NAT Gateway dependency, and lowers costs.”
 
 
+11) 9: What is the difference between NACL and Security groups ? Explain with a use case ?
+
+Ans: For example, I want to design a security architecture, I would use a combination of NACLs and security groups. 
+  NACL: At the subnet level, I would configure NACLs to enforce inbound and outbound traffic restrictions based on source and destination IP addresses, ports, and protocols. 
+  NACLs are stateless and can provide an additional layer of defense by filtering traffic at the subnet boundary.
+  SG: At the instance level, I would leverage security groups to control inbound and outbound traffic. Security groups are stateful and operate at the instance level. 
+  By carefully defining security group rules, I can allow or deny specific traffic to and from the instances based on the application's security requirements.
+  By combining NACLs and security groups, I can achieve granular security controls at both the network and instance level, providing defense-in-depth for the sensitive application.
+
+12) What is the difference between IAM users, groups, roles and policies ?
+
+An IAM User represents a person or application and has long-term credentials. An IAM Group is a collection of users used for centralized permission management. An IAM Role provides temporary credentials and is commonly assumed by AWS services such as EC2, EKS, Lambda, and ECS. An IAM Policy is a JSON document that defines what actions are allowed or denied on specific AWS resources. In production, I prefer IAM Roles over IAM Users wherever possible because they eliminate the need to manage long-term credentials.”
+
+Ans: 1) IAM User: An IAM user is an identity within AWS that represents an individual or application needing access to AWS resources. 
+        IAM users have permanent long-term credentials, such as a username and password, or access keys (Access Key ID and Secret Access Key). 
+        IAM users can be assigned directly to IAM policies or added to IAM groups for easier management of permissions.
+     2) IAM Role: An IAM role is similar to an IAM user but is not associated with a specific individual. 
+        Instead, it is assumed by entities such as IAM users, applications, or services to obtain temporary security credentials. 
+        IAM roles are useful when you want to grant permissions to entities that are external to your AWS account or when you want to delegate access to AWS resources across accounts. 
+        IAM roles have policies attached to them that define the permissions granted when the role is assumed.
+     3) IAM Group: An IAM group is a collection of IAM users. By organizing IAM users into groups, you can manage permissions collectively.
+        IAM groups make it easier to assign permissions to multiple users simultaneously. Users within an IAM group inherit the permissions assigned to that group.
+        For example, you can create a "Developers" group and assign appropriate policies to grant permissions required for developers across your organization.
+     4) IAM Policy: An IAM policy is a document that defines permissions and access controls in AWS. IAM policies can be attached to IAM users, 
+        IAM roles, and IAM groups to define what actions can be performed on which AWS resources. 
+        IAM policies use JSON (JavaScript Object Notation) syntax to specify the permissions and can be created and managed independently of the users, roles, or groups.
+        IAM policies consist of statements that include the actions allowed or denied, the resources on which the actions can be performed, and any additional conditions.
+
+
 
 
 
