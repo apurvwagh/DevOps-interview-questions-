@@ -171,12 +171,12 @@ So the full flow is: User → DNS → LoadBalancer → Ingress Controller → Se
 HPA stands for Horizontal Pod Autoscaler. It automatically scales the number of pod replicas up or down based on real time metrics like CPU and memory usage.
 Here is how it works:
  
-1. First we install the metrics server in the cluster. It collects CPU and memory usage data from all pods and nodes.
-2. HPA continuously watches these metrics.
-3. We define thresholds in the HPA config — like scale up if CPU usage exceeds 70%.
-4. We also set a minimum and maximum replica count — for example minimum 2 pods and maximum 10 pods.
-5. If traffic increases and CPU crosses the threshold, HPA automatically creates new pod replicas.
-6. When traffic reduces, HPA scales down the pods to save resources.
+ First we install the metrics server in the cluster. It collects CPU and memory usage data from all pods and nodes.
+ HPA continuously watches these metrics.
+ We define thresholds in the HPA config — like scale up if CPU usage exceeds 70%.
+ We also set a minimum and maximum replica count — for example minimum 2 pods and maximum 10 pods.
+ If traffic increases and CPU crosses the threshold, HPA automatically creates new pod replicas.
+ When traffic reduces, HPA scales down the pods to save resources.
  
 This way our application handles traffic spikes automatically without manual intervention.
 a real production scenario explanation
@@ -186,6 +186,7 @@ When traffic increased, pod CPU usage crossed the threshold, so HPA automaticall
  
 This helped us handle traffic spikes without manual intervention and kept the application responsive while optimizing infrastructure usage.
 
+
 14. Diffrence B/w Application load balancer(ALB) and Network Load Balancer(NLB)
  
 “ALB works at Layer 7 and is used for HTTP/HTTPS traffic. It supports intelligent routing like path-based and host-based routing, which is ideal for microservices architectures.
@@ -193,7 +194,6 @@ NLB works at Layer 4 and handles TCP/UDP traffic with very high performance and 
 ALB → for Ingress / web traffic
 NLB → for exposing services requiring TCP performance
  
-
 
  15) How will you check the threshold of the pods. And prepare for auto scaling
 To check pod thresholds, I monitor CPU and memory usage using kubectl top pods, which requires the metrics server. Based on the resource usage, I define CPU and memory requests in the deployment. Then I configure a Horizontal Pod Autoscaler that scales pods automatically when resource utilization crosses a defined threshold, for example 70% CPU usage. I verify autoscaling using kubectl get hpa and kubectl describe hpa.
@@ -205,7 +205,6 @@ On EKS, we use two levels of auto-scaling:
 HPA (Horizontal Pod Autoscaler): Watches metrics like CPU/memory utilisation (via Metrics Server). When CPU on a pod exceeds, say, 70%, HPA creates more pod replicas. When load drops, it scales back. I defined HPA in YAML specifying minReplicas, maxReplicas, and the target CPU percentage.
 Cluster Autoscaler: When HPA wants to create pods but there's no node capacity, Cluster Autoscaler triggers AWS Auto Scaling Groups to add EC2 nodes. When nodes are underutilised, it drains and terminates them to save cost.
 In our retail app project, we configured HPA targeting 60% CPU. During load tests, it scaled from 2 to 8 replicas in about 90 seconds, then scaled back as load dropped — with zero downtime."
-
 
  
 17) A pod is in CrashLoopBackOff state. How do you debug it?
