@@ -1038,6 +1038,20 @@ Ans: 1) IAM User: An IAM user is an identity within AWS that represents an indiv
         IAM policies consist of statements that include the actions allowed or denied, the resources on which the actions can be performed, and any additional conditions.
 
 
+13) You have a private subnet in your VPC that contains a number of instances that should not have direct internet access.
+    However, you still need to be able to securely access these instances for administrative purposes. How would you set up a bastion host to facilitate this access?
+
+Ans: To securely access the instances in the private subnet, you can set up a bastion host (also known as a jump host or jump box). 
+     The bastion host acts as a secure entry point to your private subnet. Here's how you can set up a bastion host:
+      1) Create a new EC2 instance in a public subnet, which will serve as the bastion host. Ensure that this instance has a public IP address or is associated with an Elastic IP address for persistent access.
+      2) Configure the security group for the bastion host to allow inbound SSH (or RDP for Windows) traffic from your IP address or a restricted range of trusted IP addresses. 
+         This limits access to the bastion host to authorized administrators only.
+      3) Place the instances in the private subnet and configure their security groups to allow inbound SSH (or RDP) traffic from the bastion host security group.
+      SSH (or RDP) into the bastion host using your private key or password. From the bastion host, you can then SSH (or RDP) into the instances in the private subnet using their private IP addresses.
+
+
+
+
 
 
 
