@@ -1192,7 +1192,6 @@ Answer:
 “Many legacy environments were built before Session Manager became widely adopted. Some organizations also have tooling or compliance processes built around SSH. However, for new environments, Session Manager is usually the more secure and operationally efficient choice.”
 
 
-14) ============================================================================================================================================================================
 12. If you are unable to connect to an EC2 instance from your local machine, 
 there could be several possible reasons:
 
