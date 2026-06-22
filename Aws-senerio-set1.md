@@ -93,4 +93,181 @@ I would verify:
 * The subnet is public. 
   
 
-2) 
+2) 2: You shared an AMI with another AWS account, but they still can’t launch an instance from it. What’s usually missed?
+
+Ans: Sharing the AMI isn’t enough. You also need to share the associated EBS snapshot. Without that, the AMI looks valid but fails at launch.
+
+Cross Question 1
+
+Interviewer:
+
+Why does AWS need the snapshot if the AMI is already shared?
+
+Answer:
+
+An AMI contains:
+
+* OS configuration
+* Launch settings
+* Block device mappings
+* References to EBS snapshots
+
+The actual disk data resides in the EBS snapshots.
+
+During launch, AWS creates EBS volumes from those snapshots. If snapshot permissions are missing, AWS cannot create the volume.
+
+⸻
+
+Cross Question 2
+
+Interviewer:
+
+How do you share an EBS snapshot?
+
+Answer:
+
+1. Open EC2 Console.
+2. Go to Snapshots.
+3. Select the snapshot.
+4. Actions → Modify Permissions.
+5. Add the target AWS Account ID.
+
+Cross Question 3
+
+Interviewer:
+
+The AMI and snapshot are shared, but the launch still fails. What else could be wrong?
+
+Answer:
+
+The snapshot may be encrypted using a KMS key.
+
+The target account must also have permission to use that KMS key.
+
+This is a very common issue in enterprise environments.
+
+⸻
+
+Cross Question 4
+
+Interviewer:
+
+How do you share an encrypted AMI?
+
+Answer:
+
+Three things must be shared:
+
+1. AMI
+2. EBS Snapshot
+3. KMS Key
+
+The KMS key policy must allow the target account.
+
+Without KMS permissions, instance launch fails because AWS cannot decrypt the snapshot.
+Interviewer:
+
+5: In a production environment, what is your preferred method—sharing or copying?
+
+Answer:
+
+For production, I prefer copying the AMI into the destination account.
+
+Reasons:
+
+* Independent ownership.
+* No dependency on source account.
+* Better disaster recovery.
+* Easier lifecycle management.
+* Avoids accidental deletion by source account.
+
+⸻
+
+
+“When an AMI is shared but instance launch fails, the most common issue is that the associated EBS snapshot wasn’t shared. If the snapshot is encrypted, the KMS key permissions must also be shared. I would verify AMI permissions, snapshot permissions, KMS access, and review EC2 launch error messages to identify the exact failure point.”
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
