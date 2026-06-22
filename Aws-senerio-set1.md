@@ -1192,6 +1192,134 @@ Answer:
 “Many legacy environments were built before Session Manager became widely adopted. Some organizations also have tooling or compliance processes built around SSH. However, for new environments, Session Manager is usually the more secure and operationally efficient choice.”
 
 
+14) ============================================================================================================================================================================
+12. If you are unable to connect to an EC2 instance from your local machine, 
+there could be several possible reasons:
+
+Ans :1. Security group rules
+     2. Subnet level: Network access control lists (ACLs)
+     3. Route table configuration: Ensure that the route table is configured correctly to allow traffic to and from the instance
+     4. Instance state:  Running or not running
+     5. Network connectivity issues
+
+
+When I cannot connect to an EC2 instance, I troubleshoot layer by layer, starting from the instance and moving outward through the network.
+
+Step 1: Verify Instance State
+
+First, confirm the instance is running.
+
+Step 2: Verify Public IP
+
+For direct internet access, the instance must have:
+Without a public IP, direct SSH/RDP from the internet is impossible.
+
+Step 3: Check Security Groups
+
+For Linux:
+Inbound Rule
+Port 22
+Source = My IP
+A missing Security Group rule is one of the most common causes.
+
+Step 4: Verify Network ACLs
+
+Security Groups are stateful.
+
+NACLs are stateless.
+
+Check:
+Inbound SSH/RDP allowed
+Outbound Ephemeral Ports allowed
+
+22 TCP Allow
+1024-65535 Allow
+
+Incorrect NACLs can silently drop traffic.
+
+Step 5: Verify Route Tables
+
+Public subnet route table should contain:
+0.0.0.0/0 → Internet Gateway
+
+Step 6: Verify Internet Gateway
+
+Ensure: ig
+is attached to the VPC.
+
+Missing IGW is a common issue in newly created environments.
+
+Step 7: Verify SSH Service
+
+Sometimes networking is correct but SSH is down.
+
+Using EC2 Serial Console or Session Manager: Check whether SSH service is running.
+
+Step 8: Verify Key Pair
+
+Common SSH error:Permission denied (publickey)
+
+Possible causes:
+
+* Wrong key
+* Lost key
+* Incorrect permissions
+
+Example:chmod 400 mykey.pem
+
+Interviewer:
+
+The instance has no Public IP. How would you connect?
+
+Answer:
+
+Options:
+
+1. Bastion Host
+2. VPN
+3. AWS Systems Manager Session Manager
+
+Preferred:
+
+AWS Systems Manager Session Manager
+
+No SSH port required.
+
+Interviewer:
+
+How would you troubleshoot if this happens in production at 2 AM?
+
+Answer:
+
+My order would be:
+
+1. Instance running?
+2. Public IP available?
+3. Security Group?
+4. Route Table?
+5. Internet Gateway?
+6. NACL?
+7. SSH service?
+8. OS firewall?
+9. Reachability Analyzer?
+10. Session Manager access?
+
+This structured approach quickly isolates the failure point.
+
+⸻
+
+
+“I troubleshoot EC2 connectivity layer by layer. First, I verify the instance is running and has a public IP. Then I check Security Groups, NACLs, route tables, and Internet Gateway configuration. If networking is correct, I verify the SSH/RDP service, key pair, username, and OS firewall. Finally, I use Reachability Analyzer or Session Manager to isolate the issue. This systematic approach helps identify whether the problem is network, authentication, or operating-system related.”
+
+Interviewer’s Favorite Follow-Up
+
+Interviewer: “SSH is timing out. Security Group is open. What would you check next?”
+
+Answer:
+
+“I would immediately check the subnet’s NACL and route table. Security Groups are stateful, but NACLs are stateless and can silently drop traffic even when Security Groups are configured correctly.”
+
+
 
 
 
