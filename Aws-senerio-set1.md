@@ -264,12 +264,99 @@ After attaching the correct parameter group and rebooting the instance, query pe
 
 ==================
 
+4) You enabled IAM roles for service accounts in EKS, but your pod can’t access S3. The role looks fine. What’s the catch?
 
+Ans: The pod must be using a service account with the right annotation linking to the IAM role. If the pod defaults to the default service account or the annotation is missing, the role doesn’t apply.
 
+ The most common issue is that the pod is not using the Service Account that is annotated with the IAM role.
 
+With IRSA, permissions are not attached directly to the pod. The pod must use a Kubernetes Service Account that contains the annotation:
+eks.amazonaws.com/role-arn: arn:aws:iam::<account-id>:role/s3-access-role
 
+If the pod is using the default Service Account or the annotation is missing, the pod won’t assume the IAM role and S3 access will fail.
 
+Interviewer:
 
+How do you verify which Service Account the pod is using?
+kubectl get pod <pod-name> -o yaml
+serviceAccountName: my-service-account
+
+Interviewer:
+
+What is the OIDC Provider and why is it needed?
+
+Answer:
+
+IRSA uses OIDC (OpenID Connect) to authenticate Kubernetes Service Accounts with AWS IAM.
+
+The pod receives a projected token.
+
+AWS STS validates the token against the EKS OIDC Provider and issues temporary credentials.
+
+Without an OIDC Provider, IRSA cannot function.
+
+The IAM role may be correct, but with IRSA the pod must use a Service Account that is annotated with the role ARN. I would verify the Service Account, annotation, IAM trust policy, OIDC provider, and confirm from inside the pod using aws sts get-caller-identity that the role is actually being assumed.”
+
+============================
+
+5) ALB is marking your targets as unhealthy, but hitting the app directly works fine.
+
+Ans: ALB health checks are strict. If your app returns a 301 or a login page without a clean 200 OK, it’ll fail the check even if the app seems fine in the browser.
+
+The first thing I would check is the ALB health check path and response code. ALB health checks are strict and typically expect a 200 OK response. If the application returns a 301/302 redirect, login page, or any other non-success response, ALB marks the target unhealthy even though users can access the application. I would validate the health endpoint, port, security groups, and CloudWatch target health metrics.”
+
+Interviewer:
+
+The endpoint returns 200 from EC2 itself, but ALB still marks it unhealthy. What next?
+
+Answer:
+
+I would verify:
+
+1. Security Group between ALB and EC2
+2. NACL rules
+3. Correct health check port
+4. Correct health check path
+5. Host header requirements
+6. TLS/HTTPS mismatch
+7. Application binding
+
+==========================
+
+6: You pushed a new image to ECR and updated your ECS task definition, but it still runs the old version.
+
+Ans: If you're using mutable tags like latest, ECS often pulls from cache. Unless you force a new digest or use a unique tag per version, you’ll keep running stale containers.
+Interviewer:
+
+Have you faced this in production?
+
+Answer:
+
+Yes.
+
+A team was using:
+They pushed a new image expecting ECS to update automatically.
+
+However:
+
+* No new task definition revision was created.
+* Existing tasks continued using the previously resolved image digest.
+
+  and automatically generated a new task definition revision during deployment.
+
+The issue never occurred again.
+
+⸻
+
+“The most common cause is using mutable tags such as latest. ECS tasks may continue running the image digest already associated with the task definition. I would verify the task definition revision, image digest, and running tasks. In production, I always use immutable image tags and create a new task definition revision for every deployment, followed by a service update or force-new-deployment.”
+
+Interviewer: “How do you roll back if deployment v1.0.26 fails?”
+
+Answer:
+
+“Since I use immutable tags and task definition revisions, I simply update the ECS service to the previous task definition revision (for example, revision 45 instead of 46). ECS redeploys the known-good image immediately, making rollback fast and reliable.”
+
+==============================
 
 
 
