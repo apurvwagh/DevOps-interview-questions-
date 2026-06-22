@@ -577,6 +577,165 @@ DB SG
 
 “I would design a VPC across at least two Availability Zones with separate public, application, and database subnets. Public subnets would host an ALB connected to an Internet Gateway. Application servers would run in private subnets behind Auto Scaling Groups, while the database tier would use RDS Multi-AZ in dedicated private database subnets. NAT Gateways would provide outbound internet access for private resources. Security Groups would restrict communication between tiers, and CloudWatch, WAF, Route 53, and CloudTrail would be integrated for monitoring, security, and operational visibility.”
 
+============================================
+
+9) Your organization has a VPC with multiple subnets. You want to restrict outbound internet access for resources in one subnet, but allow outbound internet access for resources in another subnet. How would you achieve this?
+
+I would use different route tables for different subnets.
+
+Subnet A (Internet Access Allowed)
+
+Associate the subnet with a route table containing:
+Destination      Target
+10.0.0.0/16      Local
+0.0.0.0/0        NAT Gateway (Private Subnet) or
+0.0.0.0/0 → Internet Gateway
+
+if it is a public subnet.
+
+This allows outbound internet access.
+
+⸻
+
+Subnet B (Internet Access Restricted)
+
+Associate it with a separate route table:
+Destination      Target
+10.0.0.0/16      Local
+no
+0.0.0.0/0
+route exists.
+
+As a result, resources can communicate within the VPC but cannot reach the internet.
+
+                    Internet
+                        |
+                 Internet Gateway
+                        |
+        ---------------------------------
+        |                               |
+   Public Subnet                  Public Subnet
+        |                               |
+        |                          NAT Gateway
+        |                               |
+   App Subnet A                  App Subnet B
+ (Internet Allowed)          (Internet Restricted)
+
+Route Table A                Route Table B
+0.0.0.0/0 → NAT             No 0.0.0.0/0 Route
+
+Cross Question 1
+
+Interviewer:
+
+Why not use Security Groups instead?
+
+Answer:
+
+Security Groups are primarily used to control traffic at the instance level.
+
+Although Security Groups can restrict outbound traffic, the recommended network-level control is through route tables.
+
+If no route exists:0.0.0.0/0
+traffic never leaves the subnet.
+
+This is more secure and easier to manage.
+
+⸻
+
+Cross Question 2
+
+Interviewer:
+
+Can NACLs be used?
+
+Answer:
+
+Yes.
+
+A NACL can explicitly deny outbound traffic.
+
+Example:Rule 100
+DENY
+Destination: 0.0.0.0/0
+However, using route tables is cleaner because traffic never reaches the internet path.
+
+NACLs are generally an additional layer of control.
+
+Interviewer:
+
+What if the subnet needs access only to AWS services like S3 but not the internet?
+
+Answer:
+
+I would use a VPC Endpoint.
+
+For S3:
+
+Amazon S3
+
+Traffic flow:
+
+Private Subnet
+      ↓
+VPC Endpoint
+      ↓
+S3
+No NAT Gateway or Internet Gateway required.
+Interviewer:
+
+What is the difference between NAT Gateway and Internet Gateway?
+
+Answer:
+
+Internet Gateway
+Inbound: Yes
+Outbound: Yes Used by public subnets.
+
+NAT gateway
+Inbound: No
+Outbound: Yes
+Used by private subnets.
+
+Private instances can access the internet, but the internet cannot initiate connections back.
+
+Interviewer:
+
+You have 3 subnets:
+
+* Web
+* Application
+* Database
+
+Which should have internet access?
+
+Answer:
+
+Web Tier
+
+* Public subnet
+* Internet access required
+
+Application Tier
+
+* Private subnet
+* Outbound via NAT Gateway only
+
+Database Tier
+
+* Private subnet
+* No internet access
+
+Typical flow:
+Internet
+   ↓
+ALB
+   ↓
+Web/App Tier
+   ↓
+Database Tier
+I would associate each subnet with a different route table. For the subnet that requires internet access, I would configure a default route (0.0.0.0/0) to an Internet Gateway or NAT Gateway. For the subnet that should not access the internet, I would remove the default route and allow only local VPC routes. This provides subnet-level control over outbound internet connectivity while maintaining internal VPC communication.”
+
 
 
 
