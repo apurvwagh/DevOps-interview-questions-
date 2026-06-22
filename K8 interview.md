@@ -26,7 +26,7 @@ So in short:
 👉 Control plane manages and decides
 👉 Worker nodes run the applications
 
-==================================
+
  
 3. What happens if a container crashes?
 In Kubernetes, the kubelet detects that the container stopped and restarts it based on the pod’s restart policy. If the container keeps failing, Kubernetes marks it as CrashLoopBackOff
@@ -51,7 +51,7 @@ Once the root cause is clear, I fix the issue, redeploy, and monitor the pod to 
  
    To check node health: kubectl get nodes, kubectl describe node <node-name>
    
-============================================================================
+
  
  3) What happens when you run kubectl apply?
  
@@ -83,7 +83,6 @@ The API server validates it and stores the desired state in etcd.
 Then the scheduler selects a worker node, and the kubelet on that node creates the pod and starts the containers.
 Since kubectl apply is declarative, it only updates what has changed instead of recreating everything.
  
-====================================================
 
 4. How does scheduler decide node placement?
  
@@ -95,8 +94,6 @@ Then, from the remaining nodes, it scores them to pick the best one. It prefers 
  
 So in simple terms, it first finds nodes that *can* run the pod, and then chooses the one that’s *best* for it.
 
-=====================================================
- 
 5) What happens if a node dies?
 If a node dies, Kubernetes detects it through the node heartbeat mechanism. When the control plane stops receiving updates from that node, it marks the node as NotReady.
  
@@ -104,20 +101,18 @@ After a short timeout, Kubernetes assumes the pods on that node are lost and res
  
 So from the user’s perspective, workloads recover automatically, although there may be a short downtime until new pods start running on other nodes.
 
-=======================================================
 
 6)  How do containers communicate across nodes?
 In Kubernetes, containers communicate across nodes through the cluster networking model managed by the CNI plugin. Each pod gets its own IP address, and Kubernetes ensures that every pod can reach every other pod directly, even if they’re on different nodes.
 When one pod sends traffic to another pod on a different node, the packet first goes through the node’s network interface. The CNI plugin, like Calico or AWS VPC CNI in EKS, handles routing by mapping pod IPs to the correct node and forwarding the traffic across the cluster network.
 From the application’s perspective, it feels like everything is on one flat network, but underneath the CNI plugin manages routing, encapsulation, and network policies to make cross-node communication work reliably.
 
-========================================================
 7 ) How does networking work specifically in AWS EKS?
 In AWS EKS, networking works using the AWS VPC CNI plugin. Unlike some other Kubernetes setups, pods don’t get virtual overlay IPs — instead, each pod gets a real IP address from the VPC subnet.
 When a node starts, AWS attaches multiple ENIs and secondary IPs to it. These IPs are then assigned to pods. Because pods use actual VPC IPs, they can communicate with other pods, AWS services, or even on-prem systems directly through the VPC routing tables without NAT.
 Security groups, route tables, and NACLs still control traffic, so networking in EKS integrates closely with standard AWS networking rather than creating a completely separate network layer.
 
-==========================================================
+
 8 ) Explain deployment vs statefulset vs daemonset.
  
 Deployment is used for stateless applications where every pod is identical and interchangeable — like a frontend or backend service. If a pod dies, a new one comes up and works the same way.
