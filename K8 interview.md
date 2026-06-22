@@ -25,9 +25,10 @@ Kube-proxy – handles networking and routing traffic to the right pods.
 So in short:
 👉 Control plane manages and decides
 👉 Worker nodes run the applications
+
 ==================================
  
-2. What happens if a container crashes?
+3. What happens if a container crashes?
 In Kubernetes, the kubelet detects that the container stopped and restarts it based on the pod’s restart policy. If the container keeps failing, Kubernetes marks it as CrashLoopBackOff
 and keeps retrying with delays while exposing logs so we can debug the issue.
 step-by-step debugging-
@@ -49,6 +50,7 @@ Once the root cause is clear, I fix the issue, redeploy, and monitor the pod to 
    If needed, check resource usage: kubectl top pod <pod-name> -n <namespace>
  
    To check node health: kubectl get nodes, kubectl describe node <node-name>
+   
 ============================================================================
  
  3) What happens when you run kubectl apply?
@@ -82,6 +84,7 @@ Then the scheduler selects a worker node, and the kubelet on that node creates t
 Since kubectl apply is declarative, it only updates what has changed instead of recreating everything.
  
 ====================================================
+
 4. How does scheduler decide node placement?
  
 The Kubernetes scheduler decides node placement in two main steps.
@@ -91,6 +94,7 @@ First, it filters nodes to find which ones are eligible. It checks things like a
 Then, from the remaining nodes, it scores them to pick the best one. It prefers nodes with balanced resource usage, better locality, or ones that match affinity rules.
  
 So in simple terms, it first finds nodes that *can* run the pod, and then chooses the one that’s *best* for it.
+
 =====================================================
  
 5) What happens if a node dies?
@@ -99,18 +103,21 @@ If a node dies, Kubernetes detects it through the node heartbeat mechanism. When
 After a short timeout, Kubernetes assumes the pods on that node are lost and reschedules new copies of those pods onto healthy nodes, as long as they’re managed by a controller like a Deployment or ReplicaSet.
  
 So from the user’s perspective, workloads recover automatically, although there may be a short downtime until new pods start running on other nodes.
+
 =======================================================
 
 6)  How do containers communicate across nodes?
 In Kubernetes, containers communicate across nodes through the cluster networking model managed by the CNI plugin. Each pod gets its own IP address, and Kubernetes ensures that every pod can reach every other pod directly, even if they’re on different nodes.
 When one pod sends traffic to another pod on a different node, the packet first goes through the node’s network interface. The CNI plugin, like Calico or AWS VPC CNI in EKS, handles routing by mapping pod IPs to the correct node and forwarding the traffic across the cluster network.
 From the application’s perspective, it feels like everything is on one flat network, but underneath the CNI plugin manages routing, encapsulation, and network policies to make cross-node communication work reliably.
+
 ========================================================
  
 7 ) How does networking work specifically in AWS EKS?
 In AWS EKS, networking works using the AWS VPC CNI plugin. Unlike some other Kubernetes setups, pods don’t get virtual overlay IPs — instead, each pod gets a real IP address from the VPC subnet.
 When a node starts, AWS attaches multiple ENIs and secondary IPs to it. These IPs are then assigned to pods. Because pods use actual VPC IPs, they can communicate with other pods, AWS services, or even on-prem systems directly through the VPC routing tables without NAT.
 Security groups, route tables, and NACLs still control traffic, so networking in EKS integrates closely with standard AWS networking rather than creating a completely separate network layer.
+
 ==========================================================
  
 8 ) Explain deployment vs statefulset vs daemonset.
@@ -122,10 +129,12 @@ a real production examples version
 In production, we use Deployments for stateless services like frontend apps, backend APIs, or microservices because they can scale easily and don’t need fixed identities.
 StatefulSets are used for things like databases, Kafka, or Elasticsearch where each pod needs stable storage, a fixed name, and ordered startup so the data remains consistent.
 DaemonSets are used for tools that must run on every node, like log collectors, monitoring agents, or security scanners, so each node always has one instance running.
+
 =======================================================
  
 9 )why does that actually matter? What problem does it solve compared to random pod names in a Deployment?
 Because each pod gets a stable DNS name tied to that fixed name. So other services or pods always know exactly where to reach a specific replica. Also each pod keeps its own dedicated storage — if mysql-0 restarts, it reconnects to the same data volume, not someone else's. In a Deployment, pods get random names and don't have dedicated storage, which would corrupt a database.
+
 ===================================================
  
 10 ) Explain service types.
@@ -140,6 +149,7 @@ In production, we usually use ClusterIP for internal communication between micro
 For public access, we typically use LoadBalancer because it integrates with the cloud provider and gives us a proper external endpoint for users.
 NodePort is rarely used in production directly, but it can be useful for testing or when setting up an external load balancer manually.
 ExternalName is used when a service inside Kubernetes needs to access something outside the cluster, like a managed database or third-party API, using a consistent service name.
+
 =====================================================
 11. What happens when traffic hits a service?
  
@@ -154,6 +164,7 @@ a step-by-step flow including Ingress and LoadBalancer
 The request is sent to that Kubernetes Service, which acts as a stable internal endpoint.
 Finally, the service forwards the traffic to one of the healthy pods running the application.
 So the flow is: Internet → LoadBalancer → Ingress → Service → Pod.
+
 =====================================================
  
 12) Explain Ingress flow end to end.
@@ -164,6 +175,7 @@ The Ingress controller reads the Ingress rules, which define routing based on ho
 The request is then sent to that Service, which forwards it to one of the healthy pods running the application.
  
 So the full flow is: User → DNS → LoadBalancer → Ingress Controller → Service → Pod.
+
 ======================================================
 13 ) what is HPA in Kubernetes:
  
