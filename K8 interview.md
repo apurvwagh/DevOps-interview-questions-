@@ -185,7 +185,7 @@ In production, we had a backend API that handled user requests, and traffic used
 When traffic increased, pod CPU usage crossed the threshold, so HPA automatically increased the number of pods to handle the load. Once traffic dropped later, HPA gradually scaled the pods back down to save resources.
  
 This helped us handle traffic spikes without manual intervention and kept the application responsive while optimizing infrastructure usage.
-=======================================================
+
 14. Diffrence B/w Application load balancer(ALB) and Network Load Balancer(NLB)
  
 “ALB works at Layer 7 and is used for HTTP/HTTPS traffic. It supports intelligent routing like path-based and host-based routing, which is ideal for microservices architectures.
@@ -193,12 +193,11 @@ NLB works at Layer 4 and handles TCP/UDP traffic with very high performance and 
 ALB → for Ingress / web traffic
 NLB → for exposing services requiring TCP performance
  
-==========================================================
+
 
  15) How will you check the threshold of the pods. And prepare for auto scaling
 To check pod thresholds, I monitor CPU and memory usage using kubectl top pods, which requires the metrics server. Based on the resource usage, I define CPU and memory requests in the deployment. Then I configure a Horizontal Pod Autoscaler that scales pods automatically when resource utilization crosses a defined threshold, for example 70% CPU usage. I verify autoscaling using kubectl get hpa and kubectl describe hpa.
 
-==========================================================
  
 16) Explain how you implemented auto-scaling on EKS. How does HPA work?
  
@@ -207,7 +206,7 @@ HPA (Horizontal Pod Autoscaler): Watches metrics like CPU/memory utilisation (vi
 Cluster Autoscaler: When HPA wants to create pods but there's no node capacity, Cluster Autoscaler triggers AWS Auto Scaling Groups to add EC2 nodes. When nodes are underutilised, it drains and terminates them to save cost.
 In our retail app project, we configured HPA targeting 60% CPU. During load tests, it scaled from 2 to 8 replicas in about 90 seconds, then scaled back as load dropped — with zero downtime."
 
-=========================================================
+
  
 17) A pod is in CrashLoopBackOff state. How do you debug it?
 CrashLoopBackOff means the container starts, crashes, and Kubernetes keeps restarting it with exponential backoff. My debugging steps:
@@ -217,7 +216,7 @@ Step 3: Check resource limits — if CPU/memory limits are too low, the containe
 Step 4: Check liveness probe configuration — if the probe timeout is too short or the path is wrong, K8s kills the pod thinking it's unhealthy.
 Step 5: kubectl exec -it <pod-name> -- /bin/sh to get a shell if the pod starts momentarily.
 Common root causes I've seen: wrong env variables (DB connection string), misconfigured secrets, or app failing to start because of a dependency not being ready.
-=======================================================
+
  
 18)What are Kubernetes Namespaces and why do you use them?
 "Namespaces provide virtual clusters within a physical cluster — they're used to isolate resources and apply policies per team or environment.
@@ -229,7 +228,7 @@ Why we use them:
 4. Network policies: Restrict traffic between namespaces for security.
  
 In our EKS setup, we have namespaces like production, staging, monitoring (for Prometheus/Grafana), and argocd — each with appropriate RBAC.
-=======================================================
+
  
 19 ) What is Helm and how have you used it?
 "Helm is the package manager for Kubernetes — it lets you define, install, and upgrade applications using charts, which are templated K8s YAML files.
@@ -239,12 +238,12 @@ Instead of maintaining separate YAML files per environment, Helm lets you have o
 How I use it: I use Helm charts for deploying applications like Prometheus, Grafana, and ingress-nginx. For our own microservices, I've created custom Helm charts that ArgoCD deploys by referencing the chart from a Git repo. This way environment-specific config is cleanly separated from the chart template.
  
 Key commands I use: helm install, helm upgrade --install, helm rollback, helm template (to debug generated YAML before applying).
-=======================================================
+
  
 20) What is Kubernetes and why use it over plain Docker?
 Kubernetes is a container orchestration tool. Docker alone is fine for running containers on a single machine, but in production you need to manage hundreds of containers across multiple machines. Kubernetes does that automatically — it handles deployment, scaling, self-healing, load balancing, and rolling updates. That's why teams use it over plain Docker.
  
-======================================================
+
  
 21) How does auto-healing work in Kubernetes?
 Each node has a component called kubelet. It constantly monitors the containers running on that node and reports their status to the API server. If a container or pod goes down, the controller manager detects that the actual state doesn't match the desired state. It then creates a new pod, and the scheduler decides which node to place it on. That's how Kubernetes automatically heals itself."
@@ -254,7 +253,7 @@ API Server ==> Central communication hub
 Controller Manager ==> Detects desired vs actual state mismatch
 Scheduler ==> Decides which node gets the new podkube-proxyHandles network rules
  
-========================================================
+
 22. A pod is in Pending state and it has been like that for 10 minutes. How would you troubleshoot it? What are the possible reasons?
  
 "A Pending pod means the scheduler cannot find a suitable node to place it. Here is how I troubleshoot:
@@ -271,7 +270,7 @@ Step 4 — Once I fix the issue, the scheduler automatically places the pod."
 | `kubectl get pvc -n <ns>` | Check if PVCs exist and are bound |
 | `kubectl describe node <node-name>` | Check taints and resource allocation |
  
-===========================================
+
 23. ClusterIP vs NodePort vs LoadBalancer
  
 There are three main service types:
@@ -285,7 +284,7 @@ ClusterIP ==> Inside cluster only ==> Internal communication ==> Free
 NodePort ==> Outside cluster ==> Testing, small apps ==> Free
 LoadBalancer ==> Outside cluster ==> Production apps ==> Paid
  
-===========================
+
 24. ConfigMap vs Secret:
  
 "Both ConfigMap and Secret are used to separate configuration from application code, but they serve different purposes.
@@ -303,16 +302,17 @@ Data type Non-sensitive Sensitive
 Encoding Plain text Base64 encoded
 Example App port, env name, config file Password, API key, JWT token
 Usage Env variable or mounted file Env variable or mounted file
-==========================================
+
 25. Taints and Tolerations
 Taints and Tolerations are used to control which pods can be scheduled on which nodes.
 A Taint is applied on a node — it tells the scheduler to reject all pods that don't have a matching toleration. A Toleration is applied on a pod — it gives the pod permission to be scheduled on a tainted node.
 A real world example — if you have dedicated high memory nodes for databases, you taint those nodes so that only database pods with matching tolerations can run there. Regular application pods cannot use those nodes. This helps in resource management and workload isolation.
-==========================================
+
+
 26 Liveness vs Readiness Probe
 Liveness probe checks if app is alive. If it fails, Kubernetes restarts the container. Use case — app is stuck in deadlock.
 Readiness probe checks if app is ready for traffic. If it fails, Kubernetes removes pod from endpoints but does not restart it. Use case — app is still loading data on startup.
-============================================
+
 
 27. What is Kubernetes and how does it work?
 
@@ -341,7 +341,6 @@ When I deploy YAML, request goes to API server → stored in etcd → scheduler 
 
 In production on EKS, I manage deployments through Helm and CI/CD pipelines where Kubernetes automatically handles rolling updates and self-healing.
 
-==========================================================================
 
 28. What are Pods?
 
@@ -362,7 +361,7 @@ In production we usually keep one application container per pod and use sidecars
 
 Pods are ephemeral, so we should never store critical data inside pods
 
-=============================================
+
 
 29)Difference between Deployment and StatefulSet
 
@@ -392,7 +391,6 @@ For APIs I use Deployment because pods can be replaced anytime.
 
 For databases I use StatefulSet because pod identity and storage persistence are important.
 
-⸻
 
 30)What are ReplicaSets?
 
@@ -406,7 +404,6 @@ Deployment internally manages ReplicaSets.
 
 Normally I don’t create ReplicaSets directly; Deployment handles them.
 
-=========================================================
 
 31) Kubernetes Services and types
 
@@ -436,7 +433,6 @@ In EKS we expose applications using:
 
 LoadBalancer + Ingress controller.
 
-=======================================================
 
 32)ConfigMap vs Secret
 
