@@ -188,6 +188,82 @@ Reasons:
 
 “When an AMI is shared but instance launch fails, the most common issue is that the associated EBS snapshot wasn’t shared. If the snapshot is encrypted, the KMS key permissions must also be shared. I would verify AMI permissions, snapshot permissions, KMS access, and review EC2 launch error messages to identify the exact failure point.”
 
+=============================
+
+3: You restored an RDS snapshot for staging, but some queries behave differently than production. 
+
+Ans: When you restore from a snapshot, RDS assigns the default parameter group by default. Custom parameter groups from production are not restored automatically. 
+If not manually reassigned, staging may run with different settings, leading to changes in query behavior or performance.
+
+Your Answer:
+
+One possible reason is that the restored RDS instance is using a different parameter group.
+
+When an RDS snapshot is restored, AWS may associate the instance with the default parameter group unless the original custom parameter group is manually attached.
+
+Differences in parameters such as memory allocation, query cache settings, optimizer behavior, timeouts, or logging can cause query execution plans and performance to differ from production.
+
+⸻
+
+Cross Question 1
+
+Interviewer:
+
+What is a Parameter Group?
+
+Answer:
+
+A Parameter Group is a collection of database engine configuration settings.
+
+It’s similar to:
+
+* MySQL → my.cnf
+* PostgreSQL → postgresql.conf
+
+  Interviewer:
+
+Q How would you ensure every restored environment matches production?
+
+Answer:
+
+I would automate provisioning using Terraform.
+
+The RDS definition would explicitly include:
+
+* Parameter Group
+* Option Group
+* Engine Version
+* Storage Type
+* Monitoring Configuration
+
+This prevents manual mistakes during snapshot restores.
+
+⸻
+
+Real Production Scenario
+
+Interviewer:
+
+Have you seen this issue in production?
+
+Answer:
+
+Yes. A staging environment restored from production snapshots showed significantly slower queries.
+
+Investigation revealed:
+
+* Production used a custom parameter group.
+* Staging was attached to the default parameter group.
+* innodb_buffer_pool_size and connection settings differed.
+
+After attaching the correct parameter group and rebooting the instance, query performance matched production.
+
+⸻
+
+“When an RDS snapshot is restored, I first verify that the same Parameter Group, Option Group, instance class, storage type, and engine version are being used. A common issue is that the restored database gets associated with a default Parameter Group instead of the production custom Parameter Group, which can change optimizer behavior and query performance.”
+
+==================
+
 
 
 
