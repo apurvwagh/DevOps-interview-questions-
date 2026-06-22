@@ -428,10 +428,154 @@ To avoid this:
 * Use EFS if true multi-AZ storage is required.
 
   ============================
+  
+8) You have been assigned to design a VPC architecture for a 2-tier application. The application needs to be highly available and scalable. 
+How would you design the VPC architecture?
 
+For a highly available and scalable 3-tier application, I would design the VPC across at least 2 or 3 Availability Zones.
 
+Tier 1 – Web Layer (Public Subnets)
 
+* Create Public Subnets in each AZ.
+* Deploy an Application Load Balancer (ALB).
+* Internet Gateway attached to the VPC.
+* Route Table:0.0.0.0/0 → Internet Gateway
 
+Purpose:
+
+* Accept internet traffic.
+* Distribute requests across application servers.
+
+⸻
+
+Tier 2 – Application Layer (Private Subnets)
+
+* Create Private App Subnets in each AZ.
+* Deploy EC2 instances or EKS pods.
+* Use Auto Scaling Groups.
+* No public IPs assigned.
+
+Purpose:
+
+* Process business logic.
+* Scale horizontally based on demand.
+
+⸻
+
+Tier 3 – Database Layer (Private DB Subnets)
+
+* Create dedicated Database Subnets.
+* Deploy RDS Multi-AZ.
+* No internet access.
+
+Purpose:
+
+* Securely store application data.
+* Automatic failover during AZ outages.
+
+⸻
+
+Internet Access for Private Resources
+
+Deploy NAT Gateways:
+
+AZ-A → NAT Gateway A
+AZ-B → NAT Gateway B
+Private subnet route table:
+0.0.0.0/0 → NAT Gateway
+
+This allows:
+
+* OS patching
+* Package downloads
+* Docker image pulls
+
+without exposing servers publicly.
+
+                           Internet
+                               |
+                         Route 53 (DNS)
+                               |
+                        +--------------+
+                        |     ALB      |
+                        | (Public Sub) |
+                        +--------------+
+                          /          \
+                         /            \
+                        /              \
+               +-------------+   +-------------+
+               | Public AZ-A |   | Public AZ-B |
+               +-------------+   +-------------+
+                      |                 |
+               +-------------+   +-------------+
+               | App Server  |   | App Server  |
+               | EC2/EKS Pod |   | EC2/EKS Pod |
+               | Private Sub |   | Private Sub |
+               +-------------+   +-------------+
+                      |                 |
+                      +-------+ +-------+
+                              | |
+                    +----------------------+
+                    |   RDS Multi-AZ       |
+                    | Primary + Standby    |
+                    | Private DB Subnets   |
+                    +----------------------+
+
+                      |                 |
+               +-------------+   +-------------+
+               | NAT GW AZ-A |   | NAT GW AZ-B |
+               +-------------+   +-------------+
+                      |                 |
+               +-------------+   +-------------+
+               | Internet GW |---| Attached to |
+               +-------------+   |     VPC     |
+                                 +-------------+
+VPC (10.0.0.0/16)
+
+├── Public Subnet AZ-A (10.0.1.0/24)
+│   ├── ALB
+│   └── NAT Gateway-A
+│
+├── Public Subnet AZ-B (10.0.2.0/24)
+│   ├── ALB
+│   └── NAT Gateway-B
+│
+├── Private App Subnet AZ-A (10.0.11.0/24)
+│   └── EC2 / EKS Nodes
+│
+├── Private App Subnet AZ-B (10.0.12.0/24)
+│   └── EC2 / EKS Nodes
+│
+├── Private DB Subnet AZ-A (10.0.21.0/24)
+│   └── RDS Primary
+│
+└── Private DB Subnet AZ-B (10.0.22.0/24)
+    └── RDS Standby
+    
+traffic flow
+
+User
+  ↓
+Route53
+  ↓
+ALB (Public Subnets)
+  ↓
+Application Servers (Private Subnets)
+  ↓
+RDS Multi-AZ (Private DB Subnets)
+
+Security Group
+
+ALB SG
+ └── Allow 80/443 from Internet
+
+APP SG
+ └── Allow 80/443 from ALB SG only
+
+DB SG
+ └── Allow 3306 from APP SG only
+
+“I would design a VPC across at least two Availability Zones with separate public, application, and database subnets. Public subnets would host an ALB connected to an Internet Gateway. Application servers would run in private subnets behind Auto Scaling Groups, while the database tier would use RDS Multi-AZ in dedicated private database subnets. NAT Gateways would provide outbound internet access for private resources. Security Groups would restrict communication between tiers, and CloudWatch, WAF, Route 53, and CloudTrail would be integrated for monitoring, security, and operational visibility.”
 
 
 
