@@ -123,12 +123,10 @@ In production, we use Deployments for stateless services like frontend apps, bac
 StatefulSets are used for things like databases, Kafka, or Elasticsearch where each pod needs stable storage, a fixed name, and ordered startup so the data remains consistent.
 DaemonSets are used for tools that must run on every node, like log collectors, monitoring agents, or security scanners, so each node always has one instance running.
 
-=======================================================
  
 9 )why does that actually matter? What problem does it solve compared to random pod names in a Deployment?
 Because each pod gets a stable DNS name tied to that fixed name. So other services or pods always know exactly where to reach a specific replica. Also each pod keeps its own dedicated storage — if mysql-0 restarts, it reconnects to the same data volume, not someone else's. In a Deployment, pods get random names and don't have dedicated storage, which would corrupt a database.
 
-===================================================
  
 10 ) Explain service types.
 Kubernetes has mainly four service types.
@@ -143,7 +141,6 @@ For public access, we typically use LoadBalancer because it integrates with the 
 NodePort is rarely used in production directly, but it can be useful for testing or when setting up an external load balancer manually.
 ExternalName is used when a service inside Kubernetes needs to access something outside the cluster, like a managed database or third-party API, using a consistent service name.
 
-=====================================================
 11. What happens when traffic hits a service?
  
 When traffic hits a Kubernetes Service, it first reaches the service’s virtual IP. Kubernetes then forwards that request to one of the pods behind the service.
@@ -158,7 +155,6 @@ The request is sent to that Kubernetes Service, which acts as a stable internal 
 Finally, the service forwards the traffic to one of the healthy pods running the application.
 So the flow is: Internet → LoadBalancer → Ingress → Service → Pod.
 
-=====================================================
  
 12) Explain Ingress flow end to end.
 When a user makes a request to a domain, it first reaches the external LoadBalancer created for the Ingress controller.
