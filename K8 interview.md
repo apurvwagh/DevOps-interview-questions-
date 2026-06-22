@@ -28,7 +28,7 @@ So in short:
 
 
  
-3. What happens if a container crashes?
+2 What happens if a container crashes?
 In Kubernetes, the kubelet detects that the container stopped and restarts it based on the pod’s restart policy. If the container keeps failing, Kubernetes marks it as CrashLoopBackOff
 and keeps retrying with delays while exposing logs so we can debug the issue.
 step-by-step debugging-
