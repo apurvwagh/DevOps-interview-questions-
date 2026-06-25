@@ -2,103 +2,74 @@ K8 interview Q
 
 1. Explain Kubernetes architecture.
 Kubernetes architecture is basically divided into two main parts: Control Plane and Worker Nodes.
- 
 The control plane is the brain of Kubernetes.
 It makes decisions like where to run containers, when to restart them, and how to maintain the desired state of the cluster.
- 
 Inside the control plane there are a few key components:
- 
+
 API Server – this is the entry point. Whenever we run kubectl commands, they go to the API server.
 Scheduler – it decides on which node a pod should run based on CPU, memory, and other rules.
-Controller Manager – it keeps checking if the cluster state matches what we want.
-For example, if a pod dies, it creates a new one.
+Controller Manager – it keeps checking if the cluster state matches what we want. For example, if a pod dies, it creates a new one.
 etcd – this is the database of Kubernetes. It stores the entire cluster configuration and state.
- 
+
 Then we have the worker nodes, which are the machines where our actual applications run.
- 
 Each worker node has:
- 
+
 Kubelet – agent that talks to the control plane and ensures containers are running properly.
-Pods – it is the smalest unit in the kubernetes, which runs the containers
+Pods – it is the smallest unit in the Kubernetes, which runs the containers.
 Kube-proxy – handles networking and routing traffic to the right pods.
- 
+
 So in short:
 👉 Control plane manages and decides
 👉 Worker nodes run the applications
 
-
- 
-2 What happens if a container crashes?
-In Kubernetes, the kubelet detects that the container stopped and restarts it based on the pod’s restart policy. If the container keeps failing, Kubernetes marks it as CrashLoopBackOff
-and keeps retrying with delays while exposing logs so we can debug the issue.
-step-by-step debugging-
+2) What happens if a container crashes?
+In Kubernetes, the kubelet detects that the container stopped and restarts it based on the pod’s restart policy. If the container keeps failing, Kubernetes marks it as CrashLoopBackOff and keeps retrying with delays while exposing logs so we can debug the issue.
+Step-by-step debugging:
 If a container crashes, first I check the pod status using kubectl get pods to confirm the failure and see if it’s restarting repeatedly.
 Then I check logs using kubectl logs to understand the application error. If logs aren’t enough, I describe the pod with kubectl describe pod to check events like image pull errors, resource limits, or probe failures.
 If needed, I check resource usage to see if the container is hitting memory or CPU limits. I also verify environment variables, secrets, and configuration changes that may have caused the crash.
 Once the root cause is clear, I fix the issue, redeploy, and monitor the pod to ensure it stabilizes.
- 
-   First, check pod status: kubectl get pods -n <namespace>
- 
-   Then check logs of the container: kubectl logs <pod-name> -n <namespace>
- 
-   If the pod has multiple containers: kubectl logs <pod-name> -c <container-name> -n <namespace>
- 
-   If the container keeps restarting, check previous logs: kubectl logs <pod-name> --previous -n <namespace>
- 
-   Next, inspect pod events and errors: kubectl describe pod <pod-name> -n <namespace>
- 
-   If needed, check resource usage: kubectl top pod <pod-name> -n <namespace>
- 
-   To check node health: kubectl get nodes, kubectl describe node <node-name>
-   
+kubectl get pods -n <namespace>
+kubectl logs <pod-name> -n <namespace>
+kubectl logs <pod-name> -c <container-name> -n <namespace>
+kubectl logs <pod-name> --previous -n <namespace>
+kubectl describe pod <pod-name> -n <namespace>
+kubectl top pod <pod-name> -n <namespace>
+kubectl get nodes
+kubectl describe node <node-name>
 
- 
- 3) What happens when you run kubectl apply?
- 
+
+3) What happens when you run kubectl apply?
 When we run kubectl apply, Kubernetes basically reads the YAML file and tries to make the cluster match that configuration.
- 
 First, kubectl sends the request to the API Server.
 The API server is the entry point for all Kubernetes operations.
- 
 Then the API server validates the YAML — it checks if the fields are correct and allowed.
- 
 If everything is valid, the configuration gets stored in etcd, which is the cluster’s database.
- 
 After that, the control plane components take over:
- 
-The Scheduler decides which worker node should run the pod.
- 
-The Controller Manager ensures the desired state is maintained.
- 
-The Kubelet on the chosen worker node receives instructions and starts the containers using the container runtime.
-So in short:
- 
-- kubectl apply sends config to API server
-- API server validates and stores it in etcd
-- Scheduler picks node
-- Kubelet creates the pod on worker node
- 
-When we run kubectl apply, the YAML configuration is sent to the API server.
-The API server validates it and stores the desired state in etcd.
-Then the scheduler selects a worker node, and the kubelet on that node creates the pod and starts the containers.
-Since kubectl apply is declarative, it only updates what has changed instead of recreating everything.
- 
 
-4. How does scheduler decide node placement?
- 
-The Kubernetes scheduler decides node placement in two main steps.
- 
-First, it filters nodes to find which ones are eligible. It checks things like available CPU and memory, node selectors, taints and tolerations, and whether the node can actually run that pod.
- 
-Then, from the remaining nodes, it scores them to pick the best one. It prefers nodes with balanced resource usage, better locality, or ones that match affinity rules.
- 
-So in simple terms, it first finds nodes that *can* run the pod, and then chooses the one that’s *best* for it.
+The Scheduler decides which worker node should run the pod.
+The Controller Manager ensures the desired state is maintained.
+The Kubelet on the chosen worker node receives instructions and starts the containers using the container runtime.
+
+So in short:
+kubectl apply sends config to API server
+API server validates and stores it in etcd
+Scheduler picks node
+Kubelet creates the pod on worker node
+
+When we run kubectl apply, the YAML configuration is sent to the API server. The API server validates it and stores the desired state in etcd. Then the scheduler selects a worker node, and the kubelet on that node creates the pod and starts the containers. Since kubectl apply is declarative, it only updates what has changed instead of recreating everything.
+
+4) How does scheduler decide node placement?
+The Kubernetes scheduler decides node placement in two main steps:
+First, it filters nodes to find which ones are eligible.
+It checks things like available CPU and memory, node selectors, taints and tolerations, and whether the node can actually run that pod.
+Then, from the remaining nodes, it scores them to pick the best one.
+It prefers nodes with balanced resource usage, better locality, or ones that match affinity rules.
+So in simple terms, it first finds nodes that can run the pod, and then chooses the one that’s best for it.
 
 5) What happens if a node dies?
 If a node dies, Kubernetes detects it through the node heartbeat mechanism. When the control plane stops receiving updates from that node, it marks the node as NotReady.
- 
 After a short timeout, Kubernetes assumes the pods on that node are lost and reschedules new copies of those pods onto healthy nodes, as long as they’re managed by a controller like a Deployment or ReplicaSet.
- 
 So from the user’s perspective, workloads recover automatically, although there may be a short downtime until new pods start running on other nodes.
 
 
