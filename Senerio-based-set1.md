@@ -1,7 +1,7 @@
 === Devops 15 senerio based Question
 
-Question 1
-Scenario
+**Question 1
+Scenario**
 **A Kubernetes deployment appears healthy, and all pods are in the Running state. However, users receive HTTP 503 Service Unavailable errors when accessing the application.**
 
 Issue
