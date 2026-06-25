@@ -12,7 +12,7 @@ Users cannot access the application even though Kubernetes reports that all pods
 
 ⸻
 
-Root Cause Analysis (RCA)
+**Root Cause Analysis (RCA)**
 
 Possible causes include:
 
