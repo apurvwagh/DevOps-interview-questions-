@@ -66,7 +66,7 @@ This effectively blocks all infrastructure changes.
 
 ==============================================================================
 
-How can you integrate Terraform with CI/CD pipelines?
+11) How can you integrate Terraform with CI/CD pipelines?
 
 Terraform can be integrated with CI/CD pipelines to automate the deployment and management of infrastructure. Here's the typical process:
 
@@ -75,7 +75,10 @@ Set up a CI/CD pipeline that monitors changes to the Terraform code repository.
 In the pipeline, execute Terraform commands such as init, validate, and plan to ensure the configurations are valid and generate an execution plan.
 Use Terraform apply command to create or modify infrastructure based on the approved changes.
 Optionally, leverage infrastructure testing and verification tools to validate the deployed infrastructure.
-Finally, trigger additional pipeline stages for application deployment, testing, and release.2. How can you manage Terraform state locking for team collaboration?
+Finally, trigger additional pipeline stages for application deployment, testing, and release.
+
+==============================================================================
+12) How can you manage Terraform state locking for team collaboration?
 
 Terraform state locking is crucial for preventing concurrent modifications to the same infrastructure. To manage state locking for team collaboration, you can use a remote backend with built-in state locking support.
 
@@ -83,36 +86,48 @@ Terraform supports various remote backends like Amazon S3, Azure Storage, or Has
 
 This prevents conflicts and data corruption when multiple team members are working on the same infrastructure concurrently.
 
-3. How can you manage multiple environments with separate Terraform state files?
+==============================================================================
+
+13) How can you manage multiple environments with separate Terraform state files?
 
 To manage multiple environments with separate Terraform state files, you can      leverage Terraform workspaces or separate directories for each environment. Each environment's infrastructure can be defined in its own set of Terraform configurations. By using workspaces, you can keep the infrastructure definitions within the same root module but maintain separate state files for each environment.
 
 Alternatively, you can use separate directories for each environment and maintain separate state files manually. Managing separate state files ensures the isolation and independent management of each environment's infrastructure.
 
-4. Explain using the "Terraform.tfvars" file for variable assignment.
+==============================================================================
+
+14) Explain using the "Terraform.tfvars" file for variable assignment.
 
 The "Terraform.tfvars" file is used to assign values to variables declared within Terraform configurations. Instead of defining variables directly within the configuration files, you can store them in the "Terraform.tfvars" file, which Terraform automatically loads.
 
 This approach simplifies the management of variable values, especially when working with sensitive or environment-specific information. By separating variable assignments from the configuration files, you can provide different "Terraform.tfvars" files for different environments or teams, allowing for more flexible and reusable configurations.
 
-5. How can you automate the execution of Terraform commands using scripting languages?
+==============================================================================
+
+15) How can you automate the execution of Terraform commands using scripting languages?
 
 The automation of Terraform commands can be achieved by leveraging scripting languages such as Bash, Python, or PowerShell. Scripting languages provide the ability to orchestrate and execute Terraform commands programmatically. For example, you can write scripts that automate the execution of Terraform init, plan, and apply commands, passing in the necessary arguments and handling any required input or authentication. These scripts can be integrated into CI/CD pipelines, scheduled jobs, or other automation frameworks to enable the continuous and automated management of infrastructure.
 
-6. What are Terraform "backend configurations," and how do they affect state storage?
+==============================================================================
+
+16) What are Terraform "backend configurations," and how do they affect state storage?
 
 Terraform "backend configurations" define the settings for storing and retrieving the Terraform state file. They determine where the state is stored, such as a local file or a remote storage system like Amazon S3 or HashiCorp Consul. Backend configurations are specified in the Terraform configuration file using the backend block. The choice of backend affects how Terraform manages and retrieves state data, providing features like remote state locking and collaboration capabilities.
 
-7. Explain the process of using Terraform with external data sources.
+==============================================================================
+
+17) Explain the process of using Terraform with external data sources.
 
 Using Terraform with external data sources involves utilizing data sources to fetch information from external systems or APIs and use that data in your Terraform configurations. The data block is used to define data sources, which can retrieve information like AMIs, security groups, or DNS records. Terraform queries the external system during the planning phase and uses the fetched data to make decisions about resource creation and configuration.
 
-8. What is Terraform's "module registry," and how can you leverage it?
+==============================================================================
 
+18) What is Terraform's "module registry," and how can you leverage it?
 
 Terraform's "module registry" is a central repository for sharing and discovering Terraform modules. The module registry allows users to publish their modules, which are reusable and shareable components of Terraform configurations. By leveraging the module registry, you can easily discover existing modules that address your infrastructure needs, reducing duplication of effort. You can reference modules in your Terraform code using their registry URL and version.
 
+==============================================================================
 
-9. Explain the concept of "remote state data" and how it can be used for cross-configuration communication.
+19) Explain the concept of "remote state data" and how it can be used for cross-configuration communication.
 
 "Remote state data" refers to storing Terraform's state in a remote location, such as a shared storage system or a remote backend. By storing the state remotely, different configurations and teams can share and access the same state data. This enables cross-configuration communication, where one configuration can read data from another configuration's state. It helps facilitate infrastructure dependencies, coordination, and collaboration between different Terraform projects.
