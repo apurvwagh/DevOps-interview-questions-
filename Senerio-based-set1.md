@@ -16,29 +16,21 @@ Possible causes include:
 
 Pods are Running but not Ready.
 
-Readiness probe failures.
+1) Readiness probe failures.
+2) Service selector labels don’t match pod labels.
+3) Service has no endpoints.
+4) Ingress controller configuration issue.
+5) Load Balancer health check failure.
+6) DNS resolution issue.
+7) NetworkPolicy blocking traffic.
+8) Backend dependency (Database/Redis/API) unavailable.
+9) Recent deployment introduced a configuration error.
 
-Service selector labels don’t match pod labels.
-
-Service has no endpoints.
-
-Ingress controller configuration issue.
-
-Load Balancer health check failure.
-
-DNS resolution issue.
-
-NetworkPolicy blocking traffic.
-
-Backend dependency (Database/Redis/API) unavailable.
-
-Recent deployment introduced a configuration error.
-
-Resolution
+**Resolution**
 
 I troubleshoot the request path layer by layer:
 
-Client
+**Client
 
   ↓
 AWS ALB / NLB
@@ -59,31 +51,26 @@ Pods
 Application
 
   ↓
-Database / External APIs
+Database / External APIs**
 
 Identify the failing layer, restore service, validate application health, and monitor the environment before closing the incident.
 
 ⸻
 
-Prevention
-
-Proper Readiness and Liveness probes
-
-Deployment smoke tests
-
-Canary or Blue-Green deployments
-
-Continuous endpoint monitoring
-
-Prometheus & Grafana alerts
-
-Synthetic monitoring
+**Prevention
+**
+1)Proper Readiness and Liveness probes
+2)Deployment smoke tests
+3) Canary or Blue-Green deployments
+4) Continuous endpoint monitoring
+5) Prometheus & Grafana alerts
+6) Synthetic monitoring
 
 Rollback automation
 
 ⸻
 
-How I Would Answer in the Interview
+**How I Would Answer in the Interview**
 
 “If users are receiving HTTP 503 errors while all Kubernetes pods are running, I wouldn’t assume the application is healthy because a Running pod doesn’t necessarily mean it’s Ready to serve traffic. My first priority is understanding the business impact by determining whether the issue affects all users, a specific region, or only certain APIs.
 
@@ -95,39 +82,28 @@ Once Kubernetes networking is validated, I’d investigate the application itsel
 
 After identifying the root cause, I’d restore service, verify application functionality through health checks and user validation, continue monitoring for stability, document the RCA, and implement preventive improvements such as deployment validation, better monitoring, and automated rollback strategies.”
 
-kubectl get pods -o wide
-
+**kubectl get pods -o wide
 kubectl describe pod
-
 kubectl logs
-
 kubectl get svc
-
 kubectl get endpoints
-
 kubectl describe ingress
-
 kubectl get ingress
-
 kubectl describe service
-
 kubectl get events --sort-by=.metadata.creationTimestamp
-
 kubectl exec -it -- sh
-
 curl http://service-name
-
-nslookup service-name
+nslookup service-name**
 
 Common Follow-up Questions
 
-Q1. Why can a pod be Running but still return 503?
+**Q1. Why can a pod be Running but still return 503?**
 
 Because Running only indicates the container process is active. If the Readiness Probe fails, Kubernetes removes the pod from the Service endpoints, so traffic is not sent to it.
 
 ⸻
 
-Q2. What is the difference between Liveness Probe and Readiness Probe?
+**Q2. What is the difference between Liveness Probe and Readiness Probe?**
 
 Liveness Probe determines whether the container should be restarted.
 
@@ -135,7 +111,7 @@ Readiness Probe determines whether the pod is ready to receive traffic.
 
 ⸻
 
-Q3. How do you identify whether the problem is in the Ingress or the Service?
+**Q3. How do you identify whether the problem is in the Ingress or the Service?**
 
 I test each layer independently:
 
@@ -149,7 +125,7 @@ If the Service works but the Ingress doesn’t, the issue is likely with the Ing
 
 ⸻
 
-Q4. How would you prevent this issue in production?
+**Q4. How would you prevent this issue in production?**
 
 Configure proper readiness probes.
 
