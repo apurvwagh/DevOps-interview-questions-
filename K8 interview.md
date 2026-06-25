@@ -6,10 +6,10 @@ The control plane is the brain of Kubernetes.
 It makes decisions like where to run containers, when to restart them, and how to maintain the desired state of the cluster.
 Inside the control plane there are a few key components:
 
-  API Server – this is the entry point. Whenever we run kubectl commands, they go to the API server.
-  Scheduler – it decides on which node a pod should run based on CPU, memory, and other rules.
-  Controller Manager – it keeps checking if the cluster state matches what we want. For example, if a pod dies, it creates a new one.
-  etcd – this is the database of Kubernetes. It stores the entire cluster configuration and state.
+API Server – this is the entry point. Whenever we run kubectl commands, they go to the API server.
+Scheduler – it decides on which node a pod should run based on CPU, memory, and other rules.
+Controller Manager – it keeps checking if the cluster state matches what we want. For example, if a pod dies, it creates a new one.
+etcd – this is the database of Kubernetes. It stores the entire cluster configuration and state.
 
 Then we have the worker nodes, which are the machines where our actual applications run.
 Each worker node has:
