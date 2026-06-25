@@ -169,5 +169,110 @@ This is useful for partial applies but should be used with caution to avoid unin
 Use terraform plan to check changes before applying.
 Check logs and error messages during terraform apply.
 Enable detailed logs with TF_LOG=DEBUG.
+
+52. What is a Terraform provider?
+    
+Terraform providers are like plugins that let Terraform talk to cloud services like Amazon Web Services or Azure. At the top of your configuration file, you say who the provider is. When you run terraform init, it gets downloaded.
+
+53. What is the Terraform state file?
+
+The state file for Terraform is very important. Terraform.tfstate is the name of the file. It keeps track of your infrastructure. Terraform doesn't know what resources are already there without it. When you work with a team, you should always keep this file somewhere, like Amazon S3 or Terraform Cloud.
+
+54. What are Terraform modules?
+
+Terraform modules are like packages that you can use again and again. You can make a module for something like a private cloud and then use it in a lot of different projects. These modules can take in data. Give output, like functions do in programming.
+
+55. What's the difference between variables.tf and terraform.tfvars?
+
+The variables.tf file is where you say what your variables are called and what kind they are. You set the values for those variables in the terraform.tfvars file. This keeps your configuration file clean and separate from the values that might change.
+
+56. What is terraform taint?
+
+Terraform taint lets you mark a resource so that it will be deleted and then recreated every time you apply your configuration. This is helpful when a resource isn't working properly. Terraform doesn't know about it. But this feature isn't needed anymore in Terraform versions because you can use a replace flag instead.
+
+57. How do you manage remote states?
+
+Using a backend block. Common options: AWS S3 + DynamoDB (for state locking), Azure Blob Storage, Terraform Cloud. State locking prevents concurrent application conflicts in team environments.
+
+58. What is terraform import?
+
+It brings existing, manually created infrastructure under Terraform management. Essential for migrating legacy infrastructure to IaC without rebuilding from scratch.
+
+59. count vs for_each — what's the difference?
+
+Count creates resources by number. for_each iterates over a map or string set, keying each instance uniquely. With count, deleting a middle element triggers recreation of all subsequent resources. for_each handles deletions cleanly by key.
+
+60. What are data sources?
+
+Read-only lookups for existing infrastructure. Use them to reference an existing VPC, AMI, or security group without Terraform managing it.
+
+61. How does Terraform handle resource dependencies?
+
+Automatically, via a dependency graph built from resource references. Use depends on for explicit dependencies that aren't expressed through references.
+
+62. Local vs remote backends?
+
+Local stores state on your machine — fine for solo use. Remote backends (S3, Azure Blob, Terraform Cloud) enable team collaboration, state history, and locking. Always use remote in production.
+
+63. What are Terraform workspaces?
+
+They let you manage multiple environments (dev, staging, prod) from one configuration, each with an isolated state. For complex setups, separate directories per environment are often more maintainable.
+
+63. How do you handle secrets in Terraform?
+
+Mark variables as sensitive = true
+Pass secrets via environment variables (TF_VAR_db_password)
+Use AWS Secrets Manager, Azure Key Vault, or HashiCorp Vault
+Always encrypt your remote state backend — state files can store values in plain text
+
+64. What is the lifecycle block?
+
+Controls resource lifecycle behaviour:
+
+create_before_destroy — Zero-downtime replacements
+prevent_destroy — Guards critical resources from accidental deletion
+ignore_changes — Skips drift on specified attributes
+
+64. How do you refactor a large Terraform codebase?
+
+Extract repeated patterns into modules. Use moved blocks (Terraform 1.1+) to relocate resources in state without recreating them. Separate state by infrastructure layer — networking, compute, data — to reduce blast radius and speed up plans.
+
+65. How do you integrate Terraform into CI/CD?
+
+Standard pipeline: terraform fmt + terraform validate on PRs → plan on review → apply on merge to main. Tools like Atlantis or Terraform Cloud's VCS integration automate this workflow cleanly
+
+66. What is Terraform drift?
+
+When real infrastructure diverges from the recorded state, usually from manual console changes. The Terraform plan detects it. Terraform refresh updates the state to reflect reality. Long-term fix: enforce IaC-only changes through team policy.
+
+67. How do you test Terraform code?
+
+terraform validate — Syntax checks
+TFLint — Provider-specific linting
+Checkov / tfsec — Security static analysis
+Terratest — Integration tests in Go
+terraform test — Native testing framework (added in v1.6)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Review provider documentation and resource dependencies.
 Use terraform refresh to update state if drift is suspected.
