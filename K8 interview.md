@@ -73,18 +73,18 @@ After a short timeout, Kubernetes assumes the pods on that node are lost and res
 So from the user’s perspective, workloads recover automatically, although there may be a short downtime until new pods start running on other nodes.
 
 
-6)  How do containers communicate across nodes?
+**6)  How do containers communicate across nodes?**
 In Kubernetes, containers communicate across nodes through the cluster networking model managed by the CNI plugin. Each pod gets its own IP address, and Kubernetes ensures that every pod can reach every other pod directly, even if they’re on different nodes.
 When one pod sends traffic to another pod on a different node, the packet first goes through the node’s network interface. The CNI plugin, like Calico or AWS VPC CNI in EKS, handles routing by mapping pod IPs to the correct node and forwarding the traffic across the cluster network.
 From the application’s perspective, it feels like everything is on one flat network, but underneath the CNI plugin manages routing, encapsulation, and network policies to make cross-node communication work reliably.
 
-7 ) How does networking work specifically in AWS EKS?
+**7 ) How does networking work specifically in AWS EKS?**
 In AWS EKS, networking works using the AWS VPC CNI plugin. Unlike some other Kubernetes setups, pods don’t get virtual overlay IPs — instead, each pod gets a real IP address from the VPC subnet.
 When a node starts, AWS attaches multiple ENIs and secondary IPs to it. These IPs are then assigned to pods. Because pods use actual VPC IPs, they can communicate with other pods, AWS services, or even on-prem systems directly through the VPC routing tables without NAT.
 Security groups, route tables, and NACLs still control traffic, so networking in EKS integrates closely with standard AWS networking rather than creating a completely separate network layer.
 
 
-8 ) Explain deployment vs statefulset vs daemonset.
+**8 ) Explain deployment vs statefulset vs daemonset.**
  
 Deployment is used for stateless applications where every pod is identical and interchangeable — like a frontend or backend service. If a pod dies, a new one comes up and works the same way.
 StatefulSet is used for stateful applications like databases, where each pod has its own identity, its own storage, and order matters. For example, in a MySQL cluster, the master and replicas need fixed addresses to communicate with each other. StatefulSet gives each pod a stable name like mysql-0, mysql-1 and that name stays the same even after a restart
@@ -95,11 +95,11 @@ StatefulSets are used for things like databases, Kafka, or Elasticsearch where e
 DaemonSets are used for tools that must run on every node, like log collectors, monitoring agents, or security scanners, so each node always has one instance running.
 
  
-9 )why does that actually matter? What problem does it solve compared to random pod names in a Deployment?
+**9 )why does that actually matter? What problem does it solve compared to random pod names in a Deployment?**
 Because each pod gets a stable DNS name tied to that fixed name. So other services or pods always know exactly where to reach a specific replica. Also each pod keeps its own dedicated storage — if mysql-0 restarts, it reconnects to the same data volume, not someone else's. In a Deployment, pods get random names and don't have dedicated storage, which would corrupt a database.
 
  
-10 ) Explain service types.
+**10 ) Explain service types.**
 Kubernetes has mainly four service types.
  
 ClusterIP is the default and exposes the service only inside the cluster. It’s used when services need to talk to each other internally.
@@ -112,7 +112,7 @@ For public access, we typically use LoadBalancer because it integrates with the 
 NodePort is rarely used in production directly, but it can be useful for testing or when setting up an external load balancer manually.
 ExternalName is used when a service inside Kubernetes needs to access something outside the cluster, like a managed database or third-party API, using a consistent service name.
 
-11. What happens when traffic hits a service?
+**11. What happens when traffic hits a service?**
  
 When traffic hits a Kubernetes Service, it first reaches the service’s virtual IP. Kubernetes then forwards that request to one of the pods behind the service.
 This routing is handled by kube-proxy, which uses iptables or IPVS rules on each node to load-balance traffic across the available pods. The service keeps track of healthy pod endpoints, so traffic only goes to running pods.
@@ -127,7 +127,7 @@ Finally, the service forwards the traffic to one of the healthy pods running the
 So the flow is: Internet → LoadBalancer → Ingress → Service → Pod.
 
  
-12) Explain Ingress flow end to end.
+**12) Explain Ingress flow end to end.**
 When a user makes a request to a domain, it first reaches the external LoadBalancer created for the Ingress controller.
  
 That LoadBalancer forwards the request to the Ingress controller pod inside the cluster.
@@ -137,7 +137,7 @@ The request is then sent to that Service, which forwards it to one of the health
 So the full flow is: User → DNS → LoadBalancer → Ingress Controller → Service → Pod.
 
 
-13 ) what is HPA in Kubernetes:
+**13 ) what is HPA in Kubernetes:**
  
 HPA stands for Horizontal Pod Autoscaler. It automatically scales the number of pod replicas up or down based on real time metrics like CPU and memory usage.
 Here is how it works:
@@ -157,8 +157,7 @@ When traffic increased, pod CPU usage crossed the threshold, so HPA automaticall
  
 This helped us handle traffic spikes without manual intervention and kept the application responsive while optimizing infrastructure usage.
 
-
-14. Diffrence B/w Application load balancer(ALB) and Network Load Balancer(NLB)
+**14. Diffrence B/w Application load balancer(ALB) and Network Load Balancer(NLB)**
  
 “ALB works at Layer 7 and is used for HTTP/HTTPS traffic. It supports intelligent routing like path-based and host-based routing, which is ideal for microservices architectures.
 NLB works at Layer 4 and handles TCP/UDP traffic with very high performance and low latency, but it cannot inspect HTTP requests.”
@@ -166,11 +165,11 @@ ALB → for Ingress / web traffic
 NLB → for exposing services requiring TCP performance
  
 
- 15) How will you check the threshold of the pods. And prepare for auto scaling
+ **15) How will you check the threshold of the pods. And prepare for auto scaling**
 To check pod thresholds, I monitor CPU and memory usage using kubectl top pods, which requires the metrics server. Based on the resource usage, I define CPU and memory requests in the deployment. Then I configure a Horizontal Pod Autoscaler that scales pods automatically when resource utilization crosses a defined threshold, for example 70% CPU usage. I verify autoscaling using kubectl get hpa and kubectl describe hpa.
 
  
-16) Explain how you implemented auto-scaling on EKS. How does HPA work?
+**16) Explain how you implemented auto-scaling on EKS. How does HPA work?**
  
 On EKS, we use two levels of auto-scaling:
 HPA (Horizontal Pod Autoscaler): Watches metrics like CPU/memory utilisation (via Metrics Server). When CPU on a pod exceeds, say, 70%, HPA creates more pod replicas. When load drops, it scales back. I defined HPA in YAML specifying minReplicas, maxReplicas, and the target CPU percentage.
@@ -178,7 +177,7 @@ Cluster Autoscaler: When HPA wants to create pods but there's no node capacity, 
 In our retail app project, we configured HPA targeting 60% CPU. During load tests, it scaled from 2 to 8 replicas in about 90 seconds, then scaled back as load dropped — with zero downtime."
 
  
-17) A pod is in CrashLoopBackOff state. How do you debug it?
+**17) A pod is in CrashLoopBackOff state. How do you debug it?**
 CrashLoopBackOff means the container starts, crashes, and Kubernetes keeps restarting it with exponential backoff. My debugging steps:
 Step 1: kubectl describe pod <pod-name> — Check Events section for OOMKilled (out of memory), image pull errors, or failed health checks.
 Step 2: kubectl logs <pod-name> --previous — The --previous flag shows logs from the crashed container, not the new one.
@@ -188,7 +187,7 @@ Step 5: kubectl exec -it <pod-name> -- /bin/sh to get a shell if the pod starts 
 Common root causes I've seen: wrong env variables (DB connection string), misconfigured secrets, or app failing to start because of a dependency not being ready.
 
  
-18)What are Kubernetes Namespaces and why do you use them?
+**18)What are Kubernetes Namespaces and why do you use them?**
 "Namespaces provide virtual clusters within a physical cluster — they're used to isolate resources and apply policies per team or environment.
  
 Why we use them:
@@ -200,7 +199,7 @@ Why we use them:
 In our EKS setup, we have namespaces like production, staging, monitoring (for Prometheus/Grafana), and argocd — each with appropriate RBAC.
 
  
-19 ) What is Helm and how have you used it?
+**19 ) What is Helm and how have you used it?**
 "Helm is the package manager for Kubernetes — it lets you define, install, and upgrade applications using charts, which are templated K8s YAML files.
  
 Instead of maintaining separate YAML files per environment, Helm lets you have one chart with a values.yaml per environment (values-dev.yaml, values-prod.yaml) where you override things like replica count, image tag, and resource limits.
@@ -210,12 +209,12 @@ How I use it: I use Helm charts for deploying applications like Prometheus, Graf
 Key commands I use: helm install, helm upgrade --install, helm rollback, helm template (to debug generated YAML before applying).
 
  
-20) What is Kubernetes and why use it over plain Docker?
+**20) What is Kubernetes and why use it over plain Docker?**
 Kubernetes is a container orchestration tool. Docker alone is fine for running containers on a single machine, but in production you need to manage hundreds of containers across multiple machines. Kubernetes does that automatically — it handles deployment, scaling, self-healing, load balancing, and rolling updates. That's why teams use it over plain Docker.
  
 
  
-21) How does auto-healing work in Kubernetes?
+**21) How does auto-healing work in Kubernetes?**
 Each node has a component called kubelet. It constantly monitors the containers running on that node and reports their status to the API server. If a container or pod goes down, the controller manager detects that the actual state doesn't match the desired state. It then creates a new pod, and the scheduler decides which node to place it on. That's how Kubernetes automatically heals itself."
 Key thing to remember:
 kubelet ==> Health monitoring on each node
@@ -224,7 +223,7 @@ Controller Manager ==> Detects desired vs actual state mismatch
 Scheduler ==> Decides which node gets the new podkube-proxyHandles network rules
  
 
-22. A pod is in Pending state and it has been like that for 10 minutes. How would you troubleshoot it? What are the possible reasons?
+**22. A pod is in Pending state and it has been like that for 10 minutes. How would you troubleshoot it? What are the possible reasons?**
  
 "A Pending pod means the scheduler cannot find a suitable node to place it. Here is how I troubleshoot:
 Step 1 — I run kubectl describe pod -n and look at the events section. It usually tells me the exact reason — either insufficient resources, node selector mismatch, or waiting for PVC.
@@ -241,7 +240,7 @@ Step 4 — Once I fix the issue, the scheduler automatically places the pod."
 | `kubectl describe node <node-name>` | Check taints and resource allocation |
  
 
-23. ClusterIP vs NodePort vs LoadBalancer
+**23. ClusterIP vs NodePort vs LoadBalancer**
  
 There are three main service types:
 ClusterIP — This is the default service type. It gives the service an internal IP address that only works inside the cluster. Pods communicate with each other using this IP. Example: A backend pod talks to a database pod using the database service's ClusterIP.
@@ -255,7 +254,7 @@ NodePort ==> Outside cluster ==> Testing, small apps ==> Free
 LoadBalancer ==> Outside cluster ==> Production apps ==> Paid
  
 
-24. ConfigMap vs Secret:
+**24. ConfigMap vs Secret:**
  
 "Both ConfigMap and Secret are used to separate configuration from application code, but they serve different purposes.
 ConfigMap is used to store non-sensitive configuration data like app settings, environment names, port numbers, or config files. For example, storing the database host URL or the app environment like staging or production.
@@ -273,18 +272,18 @@ Encoding Plain text Base64 encoded
 Example App port, env name, config file Password, API key, JWT token
 Usage Env variable or mounted file Env variable or mounted file
 
-25. Taints and Tolerations
+**25. Taints and Tolerations**
 Taints and Tolerations are used to control which pods can be scheduled on which nodes.
 A Taint is applied on a node — it tells the scheduler to reject all pods that don't have a matching toleration. A Toleration is applied on a pod — it gives the pod permission to be scheduled on a tainted node.
 A real world example — if you have dedicated high memory nodes for databases, you taint those nodes so that only database pods with matching tolerations can run there. Regular application pods cannot use those nodes. This helps in resource management and workload isolation.
 
 
-26 Liveness vs Readiness Probe
+**26 Liveness vs Readiness Probe**
 Liveness probe checks if app is alive. If it fails, Kubernetes restarts the container. Use case — app is stuck in deadlock.
 Readiness probe checks if app is ready for traffic. If it fails, Kubernetes removes pod from endpoints but does not restart it. Use case — app is still loading data on startup.
 
 
-27. What is Kubernetes and how does it work?
+**27. What is Kubernetes and how does it work?**
 
 Senior answer:
 
@@ -312,7 +311,7 @@ When I deploy YAML, request goes to API server → stored in etcd → scheduler 
 In production on EKS, I manage deployments through Helm and CI/CD pipelines where Kubernetes automatically handles rolling updates and self-healing.
 
 
-28. What are Pods?
+**28. What are Pods?**
 
 Pods are the smallest deployable unit in Kubernetes.
 
@@ -333,7 +332,7 @@ Pods are ephemeral, so we should never store critical data inside pods
 
 
 
-29)Difference between Deployment and StatefulSet
+**29)Difference between Deployment and StatefulSet**
 
 Deployment is for stateless applications.
 
@@ -362,7 +361,7 @@ For APIs I use Deployment because pods can be replaced anytime.
 For databases I use StatefulSet because pod identity and storage persistence are important.
 
 
-30)What are ReplicaSets?
+**30)What are ReplicaSets?**
 
 ReplicaSet ensures the desired number of pod replicas are always running.
 
@@ -375,7 +374,7 @@ Deployment internally manages ReplicaSets.
 Normally I don’t create ReplicaSets directly; Deployment handles them.
 
 
-31) Kubernetes Services and types
+**31) Kubernetes Services and types**
 
 Service provides stable networking for pods.
 
@@ -404,7 +403,7 @@ In EKS we expose applications using:
 LoadBalancer + Ingress controller.
 
 
-32)ConfigMap vs Secret
+**32)ConfigMap vs Secret**
 
 ConfigMap:
 
