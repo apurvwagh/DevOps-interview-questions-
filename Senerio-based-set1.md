@@ -83,16 +83,27 @@ Once Kubernetes networking is validated, I’d investigate the application itsel
 After identifying the root cause, I’d restore service, verify application functionality through health checks and user validation, continue monitoring for stability, document the RCA, and implement preventive improvements such as deployment validation, better monitoring, and automated rollback strategies.”
 
 **kubectl get pods -o wide
+
 kubectl describe pod
+
 kubectl logs
+
 kubectl get svc
+
 kubectl get endpoints
+
 kubectl describe ingress
+
 kubectl get ingress
+
 kubectl describe service
+
 kubectl get events --sort-by=.metadata.creationTimestamp
+
 kubectl exec -it -- sh
+
 curl http://service-name
+
 nslookup service-name**
 
 Common Follow-up Questions
