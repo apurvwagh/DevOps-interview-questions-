@@ -1,6 +1,6 @@
 K8 interview Q
 
-1. Explain Kubernetes architecture.
+**1. Explain Kubernetes architecture.**
 Kubernetes architecture is basically divided into two main parts: Control Plane and Worker Nodes.
 The control plane is the brain of Kubernetes.
 It makes decisions like where to run containers, when to restart them, and how to maintain the desired state of the cluster.
@@ -22,7 +22,7 @@ So in short:
 👉 Control plane manages and decides
 👉 Worker nodes run the applications
 
-2) What happens if a container crashes?
+**2) What happens if a container crashes?**
 In Kubernetes, the kubelet detects that the container stopped and restarts it based on the pod’s restart policy. If the container keeps failing, Kubernetes marks it as CrashLoopBackOff and keeps retrying with delays while exposing logs so we can debug the issue.
 Step-by-step debugging:
 If a container crashes, first I check the pod status using kubectl get pods to confirm the failure and see if it’s restarting repeatedly.
@@ -39,7 +39,7 @@ kubectl get nodes
 kubectl describe node <node-name>
 
 
-3) What happens when you run kubectl apply?
+**3) What happens when you run kubectl apply?**
 When we run kubectl apply, Kubernetes basically reads the YAML file and tries to make the cluster match that configuration.
 First, kubectl sends the request to the API Server.
 The API server is the entry point for all Kubernetes operations.
@@ -59,7 +59,7 @@ Kubelet creates the pod on worker node
 
 When we run kubectl apply, the YAML configuration is sent to the API server. The API server validates it and stores the desired state in etcd. Then the scheduler selects a worker node, and the kubelet on that node creates the pod and starts the containers. Since kubectl apply is declarative, it only updates what has changed instead of recreating everything.
 
-4) How does scheduler decide node placement?
+**4) How does scheduler decide node placement?**
 The Kubernetes scheduler decides node placement in two main steps:
 First, it filters nodes to find which ones are eligible.
 It checks things like available CPU and memory, node selectors, taints and tolerations, and whether the node can actually run that pod.
@@ -67,7 +67,7 @@ Then, from the remaining nodes, it scores them to pick the best one.
 It prefers nodes with balanced resource usage, better locality, or ones that match affinity rules.
 So in simple terms, it first finds nodes that can run the pod, and then chooses the one that’s best for it.
 
-5) What happens if a node dies?
+**5) What happens if a node dies?**
 If a node dies, Kubernetes detects it through the node heartbeat mechanism. When the control plane stops receiving updates from that node, it marks the node as NotReady.
 After a short timeout, Kubernetes assumes the pods on that node are lost and reschedules new copies of those pods onto healthy nodes, as long as they’re managed by a controller like a Deployment or ReplicaSet.
 So from the user’s perspective, workloads recover automatically, although there may be a short downtime until new pods start running on other nodes.
