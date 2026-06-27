@@ -1,4 +1,4 @@
-1: Your EC2 has a public IP and the port is open in the security group, but it's unreachable. Why?
+**1: Your EC2 has a public IP and the port is open in the security group, but it's unreachable. Why?**
 
 Ans: Check the subnet’s NACL. If inbound or outbound rules are blocking traffic, the security group won’t help. NACLs silently drop traffic with no message.
 
@@ -95,7 +95,7 @@ I would verify:
 
   =====================
 
-2) You shared an AMI with another AWS account, but they still can’t launch an instance from it. What’s usually missed?
+**2) You shared an AMI with another AWS account, but they still can’t launch an instance from it. What’s usually missed?**
 
 Ans: Sharing the AMI isn’t enough. You also need to share the associated EBS snapshot. Without that, the AMI looks valid but fails at launch.
 
@@ -190,7 +190,7 @@ Reasons:
 
 =============================
 
-3: You restored an RDS snapshot for staging, but some queries behave differently than production. 
+3: **You restored an RDS snapshot for staging, but some queries behave differently than production. **
 
 Ans: When you restore from a snapshot, RDS assigns the default parameter group by default. Custom parameter groups from production are not restored automatically. 
 If not manually reassigned, staging may run with different settings, leading to changes in query behavior or performance.
@@ -264,7 +264,7 @@ After attaching the correct parameter group and rebooting the instance, query pe
 
 ==================
 
-4) You enabled IAM roles for service accounts in EKS, but your pod can’t access S3. The role looks fine. What’s the catch?
+4) **You enabled IAM roles for service accounts in EKS, but your pod can’t access S3. The role looks fine. What’s the catch?**
 
 Ans: The pod must be using a service account with the right annotation linking to the IAM role. If the pod defaults to the default service account or the annotation is missing, the role doesn’t apply.
 
