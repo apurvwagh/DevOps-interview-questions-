@@ -57,16 +57,21 @@ Identify the failing layer, restore service, validate application health, and mo
 
 ⸻
 
-**Prevention
-**
-1)Proper Readiness and Liveness probes
-2)Deployment smoke tests
-3) Canary or Blue-Green deployments
-4) Continuous endpoint monitoring
-5) Prometheus & Grafana alerts
-6) Synthetic monitoring
-
-Rollback automation
+Pod Starts
+      ↓
+Container Running
+      ↓
+Readiness Probe Fails
+      ↓
+Pod = Running but Not Ready
+      ↓
+Removed from Service Endpoints
+      ↓
+No traffic reaches this pod
+      ↓
+Probe succeeds later
+      ↓
+Added back to Service Endpoints
 
 ⸻
 
