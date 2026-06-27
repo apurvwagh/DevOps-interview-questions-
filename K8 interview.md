@@ -30,12 +30,19 @@ Then I check logs using kubectl logs to understand the application error. If log
 If needed, I check resource usage to see if the container is hitting memory or CPU limits. I also verify environment variables, secrets, and configuration changes that may have caused the crash.
 Once the root cause is clear, I fix the issue, redeploy, and monitor the pod to ensure it stabilizes.
 kubectl get pods -n <namespace>
+
 kubectl logs <pod-name> -n <namespace>
+
 kubectl logs <pod-name> -c <container-name> -n <namespace>
+
 kubectl logs <pod-name> --previous -n <namespace>
+
 kubectl describe pod <pod-name> -n <namespace>
+
 kubectl top pod <pod-name> -n <namespace>
+
 kubectl get nodes
+
 kubectl describe node <node-name>
 
 
