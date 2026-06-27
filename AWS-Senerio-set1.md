@@ -298,7 +298,7 @@ The IAM role may be correct, but with IRSA the pod must use a Service Account th
 
 ============================
 
-5) ALB is marking your targets as unhealthy, but hitting the app directly works fine.
+5) **ALB is marking your targets as unhealthy, but hitting the app directly works fine.**
 
 Ans: ALB health checks are strict. If your app returns a 301 or a login page without a clean 200 OK, it’ll fail the check even if the app seems fine in the browser.
 
@@ -322,7 +322,7 @@ I would verify:
 
 ==========================
 
-6: You pushed a new image to ECR and updated your ECS task definition, but it still runs the old version.
+6: **You pushed a new image to ECR and updated your ECS task definition, but it still runs the old version.**
 
 Ans: If you're using mutable tags like latest, ECS often pulls from cache. Unless you force a new digest or use a unique tag per version, you’ll keep running stale containers.
 Interviewer:
@@ -357,7 +357,7 @@ Answer:
 
 ==============================
 
-7: In EKS, your stateful pod using an EBS volume is stuck in Pending. Why doesn't it reschedule?
+7) **In EKS, your stateful pod using an EBS volume is stuck in Pending. Why doesn't it reschedule?**
 
 Ans: EBS volumes are limited to a single Availability Zone. If EKS places the pod on a node in a different AZ, the volume cannot attach. Make sure your node group includes nodes in the same AZ as the volume.
 The most common reason is an Availability Zone mismatch.
