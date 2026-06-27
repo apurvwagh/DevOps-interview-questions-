@@ -29,6 +29,7 @@ If a container crashes, first I check the pod status using kubectl get pods to c
 Then I check logs using kubectl logs to understand the application error. If logs aren’t enough, I describe the pod with kubectl describe pod to check events like image pull errors, resource limits, or probe failures.
 If needed, I check resource usage to see if the container is hitting memory or CPU limits. I also verify environment variables, secrets, and configuration changes that may have caused the crash.
 Once the root cause is clear, I fix the issue, redeploy, and monitor the pod to ensure it stabilizes.
+
 kubectl get pods -n <namespace>
 
 kubectl logs <pod-name> -n <namespace>
