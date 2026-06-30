@@ -188,7 +188,14 @@ The variables.tf file is where you say what your variables are called and what k
 
 56. What is terraform taint?
 
-Terraform taint lets you mark a resource so that it will be deleted and then recreated every time you apply your configuration. This is helpful when a resource isn't working properly. Terraform doesn't know about it. But this feature isn't needed anymore in Terraform versions because you can use a replace flag instead.
+Terraform taint is used to mark a resource as tainted, which tells Terraform that the resource should be destroyed and recreated during the next terraform apply, even if no configuration changes are detected.
+It is useful when a resource becomes unhealthy or is manually modified outside Terraform, and you want Terraform to rebuild it.
+ cross Q
+ What is the difference between taint and destroy?
+Answer:
+
+terraform taint / -replace → Recreates only the specified resource.
+terraform destroy → Deletes all resources managed by the Terraform configuration (unless specifically
 
 57. How do you manage remote states?
 
