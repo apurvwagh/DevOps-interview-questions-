@@ -1008,7 +1008,7 @@ As a result:
 “I would use VPC Endpoints to access AWS services privately from within the VPC. For S3 and DynamoDB, I would create Gateway Endpoints, and for services like Secrets Manager, ECR, CloudWatch, and Systems Manager, I would use Interface Endpoints (PrivateLink). This keeps traffic on the AWS network, improves security, reduces NAT Gateway dependency, and lowers costs.”
 
 
-11) 9: What is the difference between NACL and Security groups ? Explain with a use case ?
+11) What is the difference between NACL and Security groups ? Explain with a use case ?
 
 Ans: For example, I want to design a security architecture, I would use a combination of NACLs and security groups. 
   NACL: At the subnet level, I would configure NACLs to enforce inbound and outbound traffic restrictions based on source and destination IP addresses, ports, and protocols. 
@@ -1191,7 +1191,7 @@ Answer:
 “Many legacy environments were built before Session Manager became widely adopted. Some organizations also have tooling or compliance processes built around SSH. However, for new environments, Session Manager is usually the more secure and operationally efficient choice.”
 
 
-12. If you are unable to connect to an EC2 instance from your local machine, 
+14) If you are unable to connect to an EC2 instance from your local machine, 
 there could be several possible reasons:
 
 Ans :1. Security group rules
@@ -1285,7 +1285,7 @@ No SSH port required.
 
 Interviewer:
 
-How would you troubleshoot if this happens in production at 2 AM?
+15) How would you troubleshoot if this happens in production at 2 AM?
 
 Answer:
 
