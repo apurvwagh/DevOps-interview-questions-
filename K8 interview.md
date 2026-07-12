@@ -100,7 +100,8 @@ Security groups, route tables, and NACLs still control traffic, so networking in
 
 
 **8 ) Explain deployment vs statefulset vs daemonset.**
- 
+
+ 
 Deployment is used for stateless applications where every pod is identical and interchangeable — like a frontend or backend service. If a pod dies, a new one comes up and works the same way.
 StatefulSet is used for stateful applications like databases, where each pod has its own identity, its own storage, and order matters. For example, in a MySQL cluster, the master and replicas need fixed addresses to communicate with each other. StatefulSet gives each pod a stable name like mysql-0, mysql-1 and that name stays the same even after a restart
 DaemonSet is used when we want one pod to run on every node, like for monitoring agents, log collectors, or security tools.
