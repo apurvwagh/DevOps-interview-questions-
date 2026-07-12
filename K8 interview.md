@@ -1,6 +1,7 @@
 K8 interview Q
 
 **1. Explain Kubernetes architecture.**
+
 Kubernetes architecture is basically divided into two main parts: Control Plane and Worker Nodes.
 The control plane is the brain of Kubernetes.
 It makes decisions like where to run containers, when to restart them, and how to maintain the desired state of the cluster.
