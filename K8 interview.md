@@ -136,7 +136,8 @@ NodePort is rarely used in production directly, but it can be useful for testing
 ExternalName is used when a service inside Kubernetes needs to access something outside the cluster, like a managed database or third-party API, using a consistent service name.
 
 **11. What happens when traffic hits a service?**
- 
+
+ 
 When traffic hits a Kubernetes Service, it first reaches the service’s virtual IP. Kubernetes then forwards that request to one of the pods behind the service.
 This routing is handled by kube-proxy, which uses iptables or IPVS rules on each node to load-balance traffic across the available pods. The service keeps track of healthy pod endpoints, so traffic only goes to running pods.
 So from the client’s perspective, they talk to one stable service IP, and Kubernetes automatically distributes the requests to the correct pods in the background.
