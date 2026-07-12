@@ -164,6 +164,7 @@ So the full flow is: User → DNS → LoadBalancer → Ingress Controller → Se
 
 
 **13 ) what is HPA in Kubernetes:**
+
  
 HPA stands for Horizontal Pod Autoscaler. It automatically scales the number of pod replicas up or down based on real time metrics like CPU and memory usage.
 Here is how it works:
@@ -184,6 +185,7 @@ When traffic increased, pod CPU usage crossed the threshold, so HPA automaticall
 This helped us handle traffic spikes without manual intervention and kept the application responsive while optimizing infrastructure usage.
 
 **14. Diffrence B/w Application load balancer(ALB) and Network Load Balancer(NLB)**
+
  
 “ALB works at Layer 7 and is used for HTTP/HTTPS traffic. It supports intelligent routing like path-based and host-based routing, which is ideal for microservices architectures.
 NLB works at Layer 4 and handles TCP/UDP traffic with very high performance and low latency, but it cannot inspect HTTP requests.”
