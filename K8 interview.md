@@ -249,6 +249,7 @@ Kubernetes is a container orchestration tool. Docker alone is fine for running c
  
 **21) How does auto-healing work in Kubernetes?**
 
+
 Each node has a component called kubelet. It constantly monitors the containers running on that node and reports their status to the API server. If a container or pod goes down, the controller manager detects that the actual state doesn't match the desired state. It then creates a new pod, and the scheduler decides which node to place it on. That's how Kubernetes automatically heals itself."
 Key thing to remember:
 kubelet ==> Health monitoring on each node
@@ -258,7 +259,8 @@ Scheduler ==> Decides which node gets the new podkube-proxyHandles network rules
  
 
 **22. A pod is in Pending state and it has been like that for 10 minutes. How would you troubleshoot it? What are the possible reasons?**
- 
+
+ 
 "A Pending pod means the scheduler cannot find a suitable node to place it. Here is how I troubleshoot:
 Step 1 — I run kubectl describe pod -n and look at the events section. It usually tells me the exact reason — either insufficient resources, node selector mismatch, or waiting for PVC.
 Step 2 — I check node resources using kubectl top nodes to see if any node has available CPU and memory.
@@ -275,7 +277,8 @@ Step 4 — Once I fix the issue, the scheduler automatically places the pod."
  
 
 **23. ClusterIP vs NodePort vs LoadBalancer**
- 
+
+ 
 There are three main service types:
 ClusterIP — This is the default service type. It gives the service an internal IP address that only works inside the cluster. Pods communicate with each other using this IP. Example: A backend pod talks to a database pod using the database service's ClusterIP.
 NodePort — This exposes the service on a port on every node in the cluster. You can access it from outside the cluster using any node's IP and a port between 30000 and 32767. Example: If you want to access a web app from your laptop without a load balancer, you use NodePort.
@@ -289,7 +292,8 @@ LoadBalancer ==> Outside cluster ==> Production apps ==> Paid
  
 
 **24. ConfigMap vs Secret:**
- 
+
+ 
 "Both ConfigMap and Secret are used to separate configuration from application code, but they serve different purposes.
 ConfigMap is used to store non-sensitive configuration data like app settings, environment names, port numbers, or config files. For example, storing the database host URL or the app environment like staging or production.
 Secret is used to store sensitive data like passwords, API keys, JWT tokens, and database credentials. Secrets are base64 encoded so they are not stored in plain text.
@@ -307,6 +311,7 @@ Example App port, env name, config file Password, API key, JWT token
 Usage Env variable or mounted file Env variable or mounted file
 
 **25. Taints and Tolerations**
+
 
 Taints and Tolerations are used to control which pods can be scheduled on which nodes.
 A Taint is applied on a node — it tells the scheduler to reject all pods that don't have a matching toleration. A Toleration is applied on a pod — it gives the pod permission to be scheduled on a tainted node.
