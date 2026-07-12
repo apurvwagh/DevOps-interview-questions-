@@ -142,7 +142,8 @@ When traffic hits a Kubernetes Service, it first reaches the service’s virtual
 This routing is handled by kube-proxy, which uses iptables or IPVS rules on each node to load-balance traffic across the available pods. The service keeps track of healthy pod endpoints, so traffic only goes to running pods.
 So from the client’s perspective, they talk to one stable service IP, and Kubernetes automatically distributes the requests to the correct pods in the background.
 a step-by-step flow including Ingress and LoadBalancer
- 
+
+ 
    When a user sends a request from the internet, it first reaches the cloud LoadBalancer created by Kubernetes.
  The LoadBalancer forwards the traffic to the Ingress controller running inside the cluster.
  The Ingress then checks its routing rules, like domain name or path, and decides which service should handle the request.
