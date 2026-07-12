@@ -119,12 +119,17 @@ Because each pod gets a stable DNS name tied to that fixed name. So other servic
 **10 ) Explain service types.**
 
 Kubernetes has mainly four service types.
- 
+
+ 
 ClusterIP is the default and exposes the service only inside the cluster. It’s used when services need to talk to each other internally.
+
 NodePort exposes the service on a port of every node’s IP, so it can be accessed from outside using the node’s IP and port.
+
 LoadBalancer creates an external load balancer from the cloud provider and exposes the service publicly. This is commonly used in production for external traffic.
+
 ExternalName is used to map a Kubernetes service to an external DNS name, so the cluster can access outside services using a Kubernetes-style name.
 a real production usage explanation
+
 In production, we usually use ClusterIP for internal communication between microservices, like when a backend service talks to a database or another API.
 For public access, we typically use LoadBalancer because it integrates with the cloud provider and gives us a proper external endpoint for users.
 NodePort is rarely used in production directly, but it can be useful for testing or when setting up an external load balancer manually.
