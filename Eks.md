@@ -123,7 +123,8 @@ Interview Answer
                   │
      ┌────────────┴────────────┐
      
-     ▼                         ▼
+     ▼                        ▼
+
  Availability Zone A     Availability Zone B
  
  ┌─────────────────┐     ┌─────────────────┐
@@ -138,6 +139,7 @@ Interview Answer
  │ App EC2 / EKS   │     │ App EC2 / EKS   │
  │ Auto Scaling    │     │ Auto Scaling    │
  └─────────────────┘     └─────────────────┘
+
  
            │                       │
            └───────────┬───────────┘
@@ -147,6 +149,7 @@ Interview Answer
            │   RDS Multi-AZ        │
            │  Private Subnets      │
            └──────────────────────┘
+
 
  Common Cross Questions
 
