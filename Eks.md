@@ -10,9 +10,9 @@ The Kubernetes Scheduler then selects a suitable worker node based on CPU, memor
 
 The application is exposed internally using a Kubernetes Service, and externally through an Ingress resource. The AWS Load Balancer Controller automatically provisions an Application Load Balancer (ALB), configures listeners and target groups, and registers only healthy pods. Route 53 maps our application domain, such as app.company.com, to the ALB, so when users access the application, their requests flow through Route 53, then the ALB, then the Ingress, then the Kubernetes Service, and finally to one of the healthy application pods.
 
-During deployment, Kubernetes uses a Rolling Update strategy. It creates new pods first, waits until their Readiness probes pass, gradually shifts traffic to them, and only then terminates the old pods. This ensures zero downtime and a seamless user experience. If the deployment fails, Kubernetes or Argo CD can roll back to the previous stable version quickly.
-
 To handle traffic spikes, we use Horizontal Pod Autoscaler (HPA) to automatically scale pods based on CPU or custom metrics, and Karpenter or Cluster Autoscaler provisions additional EC2 worker nodes when required. Throughout the deployment, we monitor infrastructure and application health using CloudWatch, Prometheus, Grafana, and centralized logging tools. This entire process is fully automated, secure, highly available, and minimizes manual intervention while providing reliable and repeatable deployments.”
+
+During deployment, Kubernetes uses a Rolling Update strategy. It creates new pods first, waits until their Readiness probes pass, gradually shifts traffic to them, and only then terminates the old pods. This ensures zero downtime and a seamless user experience. If the deployment fails, Kubernetes or Argo CD can roll back to the previous stable version quickly.
 
 Interview Cross Question
 
