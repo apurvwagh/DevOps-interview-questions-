@@ -63,39 +63,50 @@ Jenkins / GitHub Actions
 Amazon ECR
      │
      ▼
+     
 Update Helm Chart / Kubernetes Manifest
      │
      ▼
+     
 Argo CD (GitOps)
      │
      ▼
+     
 Amazon EKS Cluster
      │
      ▼
+     
 Kubernetes Scheduler
      │
      ▼
+     
 EC2 Worker Nodes (Private Subnets)
      │
      ▼
 Application Pods
      │
      ▼
+     
 Kubernetes Service
      │
      ▼
+     
 Ingress
      │
      ▼
+     
 AWS Load Balancer Controller
      │
      ▼
+     
 Application Load Balancer (Public Subnet)
      │
      ▼
+     
 Route 53
      │
      ▼
+     
 Users
 
 
