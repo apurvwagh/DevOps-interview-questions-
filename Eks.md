@@ -1,0 +1,15 @@
+How do you deploy an application on Kubernetes (EKS)? Explain the complete architecture.
+
+“In our production environment, the application is deployed on an Amazon EKS cluster running inside a highly available VPC spread across multiple Availability Zones. The VPC contains both public and private subnets. Public subnets host the Internet Gateway, NAT Gateway, and Application Load Balancer (ALB), while the EKS worker nodes and application pods run securely in private subnets so they are not directly exposed to the internet.
+
+When a developer commits code to GitHub, it automatically triggers our CI pipeline in Jenkins or GitHub Actions. The pipeline checks out the source code, builds the application, runs unit tests, performs code quality analysis with SonarQube, executes security scans using tools like Trivy or Snyk, builds a Docker image, and pushes the image to Amazon ECR.
+
+Once the image is available in ECR, the pipeline updates the Kubernetes manifest or Helm chart with the new image version in the Git repository. Since we follow GitOps, Argo CD continuously monitors the Git repository. It detects the updated manifest and synchronizes the desired state with the EKS cluster without anyone manually running kubectl commands.
+
+The Kubernetes Scheduler then selects a suitable worker node based on CPU, memory, node affinity, taints and tolerations, and resource availability. The worker node pulls the Docker image securely from Amazon ECR using its IAM role or IRSA permissions. Kubernetes creates the new pods and performs Startup, Readiness, and Liveness probes to ensure the application is healthy before sending user traffic.
+
+The application is exposed internally using a Kubernetes Service, and externally through an Ingress resource. The AWS Load Balancer Controller automatically provisions an Application Load Balancer (ALB), configures listeners and target groups, and registers only healthy pods. Route 53 maps our application domain, such as app.company.com, to the ALB, so when users access the application, their requests flow through Route 53, then the ALB, then the Ingress, then the Kubernetes Service, and finally to one of the healthy application pods.
+
+During deployment, Kubernetes uses a Rolling Update strategy. It creates new pods first, waits until their Readiness probes pass, gradually shifts traffic to them, and only then terminates the old pods. This ensures zero downtime and a seamless user experience. If the deployment fails, Kubernetes or Argo CD can roll back to the previous stable version quickly.
+
+To handle traffic spikes, we use Horizontal Pod Autoscaler (HPA) to automatically scale pods based on CPU or custom metrics, and Karpenter or Cluster Autoscaler provisions additional EC2 worker nodes when required. Throughout the deployment, we monitor infrastructure and application health using CloudWatch, Prometheus, Grafana, and centralized logging tools. This entire process is fully automated, secure, highly available, and minimizes manual intervention while providing reliable and repeatable deployments.”
