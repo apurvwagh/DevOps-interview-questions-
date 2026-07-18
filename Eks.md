@@ -430,7 +430,7 @@ Interview Answer
 
 “Jenkins first checks out the latest source code from GitHub and builds the application using Maven. It then executes unit tests and generates the application artifact (JAR). Next, SonarQube performs static code analysis to detect bugs,duplicated code, and security vulnerabilities. 
 
-“After the quality checks, Jenkins builds a Docker image using the application’s Dockerfile. The image is then scanned using Trivy to identify any critical operating system or vulnerabilities. If critical vulnerabilities are detected, the build is failed and the image is not pushed further.”
+“After the quality checks, Jenkins builds a Docker image using the application’s Dockerfile. The image is then scanned using Trivy to identify any critical vulnerabilities. If critical vulnerabilities are detected, the build is failed and the image is not pushed further.”
 
 “Once the image passes all security checks, Jenkins authenticates with Amazon ECR using an IAM role and pushes the versioned Docker image to the ECR repository. The pipeline then updates the Helm chart or Kubernetes deployment manifest with the new image tag and commits that change to our GitOps repository.”
 
