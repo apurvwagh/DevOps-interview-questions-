@@ -122,22 +122,27 @@ Interview Answer
           Application Load Balancer
                   │
      ┌────────────┴────────────┐
+     
      ▼                         ▼
  Availability Zone A     Availability Zone B
+ 
  ┌─────────────────┐     ┌─────────────────┐
  │  Public Subnet  │     │  Public Subnet  │
  │  ALB + NAT GW   │     │  ALB + NAT GW   │
  └─────────────────┘     └─────────────────┘
            │                       │
            ▼                       ▼
+           
  ┌─────────────────┐     ┌─────────────────┐
  │ Private Subnet  │     │ Private Subnet  │
  │ App EC2 / EKS   │     │ App EC2 / EKS   │
  │ Auto Scaling    │     │ Auto Scaling    │
  └─────────────────┘     └─────────────────┘
+ 
            │                       │
            └───────────┬───────────┘
                        ▼
+                       
            ┌──────────────────────┐
            │   RDS Multi-AZ        │
            │  Private Subnets      │
