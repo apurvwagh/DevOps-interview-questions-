@@ -1317,10 +1317,354 @@ Answer:
 
 “I would immediately check the subnet’s NACL and route table. Security Groups are stateful, but NACLs are stateless and can silently drop traffic even when Security Groups are configured correctly.”
 
+====================================
+
+AWS Networking & RDS - Senior DevOps Interview Questions
+
+Q1. What is AWS Direct Connect? When would you use it?
+
+Interview Answer
+
+AWS Direct Connect is a dedicated private network connection between an organization’s on-premises data center and AWS. Unlike a VPN, traffic does not traverse the public internet, providing lower latency, consistent bandwidth, improved security, and predictable network performance. It is commonly used in hybrid cloud environments where critical applications require reliable connectivity to AWS.
+
+Real-Time Scenario
+
+Suppose a bank has:
+
+* Core Banking Application running on-premises
+* New APIs deployed on Amazon EKS
+
+Every transaction must reach AWS with minimal latency.
+
+Instead of sending traffic over the Internet, the bank uses AWS Direct Connect.
+
+Benefits:
+
+* Lower latency
+* Stable bandwidth
+* Secure private connectivity
+* Better performance
+
+⸻
+
+Interview Cross Question
+
+Q: Why not VPN?
+
+Answer:
+
+VPN uses the public internet, so latency and bandwidth fluctuate. Direct Connect provides a dedicated private connection suitable for production workloads.
+
+⸻
+
+Q2. What is VPC Peering?
+
+Interview Answer
+
+VPC Peering allows two VPCs to communicate privately using AWS’s internal network without traversing the public internet. It is commonly used when applications deployed in separate VPCs need secure communication.
+
+Scenario
+
+Application VPC
+
+↓
+
+Database VPC
+
+The application accesses the database using VPC Peering.
+
+⸻
+
+Limitation
+
+VPC Peering is not transitive.
+
+VPC A ←→ VPC B ←→ VPC C
+
+A cannot communicate with C through B.
+
+⸻
+
+Interview Cross Question
+
+When would you avoid VPC Peering?
+
+When you have many VPCs because managing multiple peering connections becomes complex.
+
+⸻
+
+Q3. What is Transit Gateway?
+
+Interview Answer
+
+AWS Transit Gateway is a centralized networking hub that connects multiple VPCs, VPNs, and Direct Connect links. Instead of creating numerous VPC peering connections, each VPC connects to the Transit Gateway, simplifying routing and management.
+
+Real-Time Scenario
+
+Company has:
+
+* Production VPC
+* Development VPC
+* Testing VPC
+* Security VPC
+* Shared Services VPC
+
+Instead of creating many VPC peerings, all VPCs connect to a single Transit Gateway.
+
+Benefits:
+
+* Simplified routing
+* Centralized management
+* Easier scalability
+
+⸻
+
+Interview Cross Question
+
+Why use Transit Gateway instead of Peering?
+
+Because Transit Gateway scales better for enterprise environments with many VPCs.
+
+⸻
+
+Q4. What is a VPC Endpoint?
+
+Interview Answer
+
+A VPC Endpoint allows resources inside a private VPC to access AWS services privately without traversing the internet or requiring a NAT Gateway. This improves security and can reduce NAT Gateway costs.
+
+Real-Time Scenario
+
+Private EKS worker nodes need to:
+
+* Pull Docker images from ECR
+* Read secrets from Secrets Manager
+* Upload logs to S3
+  
+Private EC2
+
+↓
+
+NAT Gateway
+
+↓
+
+Internet
+
+↓
+
+AWS Service
+
+Private EC2
+
+↓
+
+NAT Gateway
+
+↓
+
+Internet
+
+↓
+
+AWS Service
 
 
+Q5. What is HikariCP?
 
+Interview Answer
 
+HikariCP is a high-performance JDBC connection pool used by Java applications to efficiently manage database connections. Instead of creating a new database connection for every request, it maintains a pool of reusable connections, significantly improving application performance and reducing connection overhead.
+
+⸻
+
+Why do we need HikariCP?
+
+Without HikariCP
+
+Every request
+
+↓
+
+Create DB Connection
+
+↓
+
+Execute Query
+
+↓
+
+Close Connection
+
+Very expensive.
+
+With HikariCP
+
+Application
+
+↓
+
+Borrow Existing Connection
+
+↓
+
+Execute Query
+
+↓
+
+Return Connection
+
+Much faster.
+
+⸻
+
+Real-Time Scenario
+
+Production:
+
+10 Pods
+
+Each pod
+
+Pool Size = 20
+
+Maximum Database Connections
+
+10 × 20
+
+=
+
+200 Connections
+
+Reason:
+
+All database connections are already in use.
+
+⸻
+
+Interview Cross Question
+
+Can we increase the pool size indefinitely?
+
+No.
+
+Always verify:
+
+* Database CPU
+* Memory
+* Maximum connections
+* Query performance
+
+before increasing the pool size.
+
+⸻
+
+Q6. What is an RDS Read Replica?
+
+Interview Answer
+
+An RDS Read Replica is a read-only copy of the primary database that receives data through asynchronous replication. It is used to offload read traffic from the primary database, improving performance and scalability for read-heavy applications.
+
+⸻
+
+Real-Time Scenario
+
+E-Commerce
+
+Users
+
+* Browse Products
+* Search Products
+* View Orders
+
+Mostly SELECT queries.
+
+Instead of sending all traffic to the primary database,
+
+Application
+
+↓
+
+Primary Database
+
+↓
+
+Read Replica
+
+↓
+
+Read Replica
+
+Reads go to replicas.
+
+Writes continue to the primary.
+
+⸻
+
+Benefits
+
+* Improves read performance
+* Reduces CPU utilization
+* Supports reporting workloads
+* Better application response time
+
+⸻
+
+Interview Cross Question
+
+Can we write into Read Replica?
+
+No.
+
+Only the primary accepts writes.
+
+⸻
+
+Q7. What is Multi-AZ in RDS?
+
+Interview Answer
+
+Multi-AZ is a high-availability feature in Amazon RDS where AWS maintains a synchronous standby database in another Availability Zone. If the primary instance fails, AWS automatically promotes the standby to become the new primary, minimizing downtime.
+
+⸻
+
+Difference
+
+Read Replica
+
+Purpose
+
+Performance
+
+Multi-AZ
+
+Purpose
+
+High Availability
+
+⸻
+
+Interview Cross Question
+
+Can applications read from the Multi-AZ standby?
+
+No.
+
+Standby is reserved for failover only.
+
+8) Your EKS application is very slow.
+
+Pods are healthy.
+
+CPU is normal.
+
+Memory is normal.
+
+Where will you investigate?
+
+Answer
+
+“I would first investigate the database because healthy Kubernetes pods do not guarantee healthy database performance. I would review CloudWatch metrics for RDS, check active connections, CPU utilization, ReadIOPS, WriteIOPS, replication lag (if Read Replicas exist), and slow query logs. I would also verify whether the HikariCP connection pool is exhausted. If the issue is caused by heavy read traffic, I would consider adding or scaling Read Replicas. If the bottleneck is connection management, I would review HikariCP settings or introduce RDS Proxy if appropriate.”
 
 
 
