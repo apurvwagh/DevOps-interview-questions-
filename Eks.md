@@ -45,10 +45,13 @@ Answer:
 Developer
      │
      ▼
+     
  GitHub Repository
      │
      ▼
+     
 Jenkins / GitHub Actions
+
      │
      ├── Build Application
      ├── Run Unit Tests
@@ -56,6 +59,7 @@ Jenkins / GitHub Actions
      ├── Trivy Security Scan
      ├── Build Docker Image
      ▼
+     
 Amazon ECR
      │
      ▼
