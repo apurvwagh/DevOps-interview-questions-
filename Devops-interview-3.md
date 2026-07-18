@@ -34,25 +34,37 @@ One of the most challenging production incidents I handled involved intermittent
 7)Explain any kubernetes troubleshooting scenarios
 
 Scenario 1: Pods Running but Users Getting 503 Errors
+
 Interview Answer
+
 “One production issue we faced was that users were receiving intermittent HTTP 503 errors even though all Kubernetes nodes were healthy and the pods were in the Running state. I started troubleshooting from the user request path by checking the ALB, Ingress, Service, Endpoints, and Pods. I found that the pods were Running but not Ready because the readiness probe was failing. Since Kubernetes removes unready pods from the Service endpoints, the ALB had no healthy backend to route traffic. We corrected the readiness probe configuration, restarted the deployment, and verified that the endpoints were healthy. To prevent recurrence, we improved health checks and configured startup probes for slow-starting applications.”
+
  ⸻ 
+ 
 Scenario 2: Pods Stuck in Pending 
 Interview Answer
 “In another incident, newly created pods remained in the Pending state after deployment. I checked the pod events using kubectl describe pod and found an ‘Insufficient CPU’ scheduling error. The cluster had reached its resource capacity. Since we were using Karpenter, I verified its logs and found that it couldn’t provision new nodes due to an IAM permission issue. After correcting the IAM permissions, Karpenter launched new worker nodes, and Kubernetes scheduled the pending pods successfully. We later configured alerts for pending pods and node provisioning failures.”
+
  ⸻
+ 
  Scenario 3: CrashLoopBackOff
 Interview Answer
 “We also encountered an application repeatedly entering the CrashLoopBackOff state. I reviewed the pod logs and events and discovered that the application was failing during startup because it couldn’t connect to the database. The database credentials stored in a Kubernetes Secret had been updated, but the application deployment hadn’t been restarted. After updating the Secret and performing a rolling restart of the deployment, the application started successfully. To avoid similar incidents, we integrated secret rotation with our deployment pipeline and improved startup validation.”
+
  ⸻ 
+ 
 Scenario 4: ImagePullBackOff
 Interview Answer
 “A deployment failed because the pods were in the ImagePullBackOff state. I checked the pod events and found an authentication error while pulling the image from Amazon ECR. The node IAM role lacked the required ECR permissions after a recent policy change. After restoring the correct IAM permissions, the nodes were able to pull the image successfully, and the deployment completed.”
+
  ⸻
+ 
  Scenario 5: High CPU Usage
 Interview Answer
 “During peak business hours, application latency increased significantly. Prometheus showed CPU utilization above 90% across the pods. The Horizontal Pod Autoscaler was configured to scale only after CPU exceeded 90%, causing delayed scaling. We lowered the HPA threshold to 70%, increased the replica count, and optimized a CPU-intensive API. This improved response times and allowed the application to scale proactively.”
+
  ⸻ 
+ 
 Scenario 6: Node NotReady
 Interview Answer
 “One worker node entered the NotReady state due to a kubelet failure. Kubernetes automatically stopped scheduling new pods on that node and rescheduled the affected workloads onto healthy nodes. We investigated the kubelet logs, restored the node, and Auto Scaling replaced the unhealthy EC2 instance. Because the application had multiple replicas across Availability Zones, users did not experience downtime.”
