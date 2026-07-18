@@ -35,8 +35,6 @@ One of the most challenging production incidents I handled involved intermittent
 
 Scenario 1: Pods Running but Users Getting 503 Errors
 
-Interview Answer
-
 “One production issue we faced was that users were receiving intermittent HTTP 503 errors even though all Kubernetes nodes were healthy and the pods were in the Running state. I started troubleshooting from the user request path by checking the ALB, Ingress, Service, Endpoints, and Pods. I found that the pods were Running but not Ready because the readiness probe was failing. Since Kubernetes removes unready pods from the Service endpoints, the ALB had no healthy backend to route traffic. We corrected the readiness probe configuration, restarted the deployment, and verified that the endpoints were healthy. To prevent recurrence, we improved health checks and configured startup probes for slow-starting applications.”
 
  ⸻ 
