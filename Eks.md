@@ -43,14 +43,16 @@ Answer:
 “Jenkins is responsible for Continuous Integration—building, testing, scanning, and publishing the image. Argo CD handles Continuous Deployment using GitOps. It continuously compares the cluster state with Git and automatically synchronizes changes, making deployments declarative, auditable, and easy to roll back.”
 
 Developer
+
      │
      ▼
      
  GitHub Repository
+ 
      │
      ▼
      
-Jenkins / GitHub Actions
+Jenkins 
 
      │
      ├── Build Application
