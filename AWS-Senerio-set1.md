@@ -1667,8 +1667,29 @@ Answer
 “I would first investigate the database because healthy Kubernetes pods do not guarantee healthy database performance. I would review CloudWatch metrics for RDS, check active connections, CPU utilization, ReadIOPS, WriteIOPS, replication lag (if Read Replicas exist), and slow query logs. I would also verify whether the HikariCP connection pool is exhausted. If the issue is caused by heavy read traffic, I would consider adding or scaling Read Replicas. If the bottleneck is connection management, I would review HikariCP settings or introduce RDS Proxy if appropriate.”
 
 
+9) What is the difference between Amazon EKS and Amazon ECS? When would you use each?
+
+Interview Answer
+
+“Amazon EKS and Amazon ECS are both container orchestration services provided by AWS, but they target different use cases. Amazon EKS is a managed Kubernetes service that uses standard Kubernetes APIs, making it ideal for organizations that require Kubernetes features, portability, and multi-cloud support. Amazon ECS is AWS’s native container orchestration service, which is simpler to manage, tightly integrated with AWS services, and suitable for teams that only deploy applications on AWS without requiring Kubernetes.”
 
 
+10) Which one would you recommend?
+
+A strong senior answer is:
+
+“If the organization is AWS-only, has relatively simple container workloads, and wants minimal operational complexity, I would recommend ECS. If the organization requires Kubernetes features, GitOps, multi-cloud portability, service mesh, advanced networking, or has an existing Kubernetes ecosystem, I would recommend EKS.”
+
+11) One-Line Interview Trick
+
+* Choose ECS → Simple AWS-native container platform with lower operational overhead.
+* Choose EKS → Enterprise-grade Kubernetes platform for portability, advanced orchestration, and large-scale microservices.
+
+For your interviews
+
+“Why EKS over ECS in your current project?”, a strong answer is:
+
+“Our application consists of multiple microservices deployed using Kubernetes. We use Helm for packaging, Argo CD for GitOps deployments, HPA and Karpenter for autoscaling, and Kubernetes RBAC and Network Policies for security. These Kubernetes-native capabilities are the primary reasons we chose EKS over ECS.”
 
 
 
