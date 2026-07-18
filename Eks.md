@@ -1,6 +1,6 @@
 1)How do you deploy an application on Kubernetes (EKS)? Explain the complete architecture.
 
-“In our production environment, the application is deployed on an Amazon EKS cluster running inside a highly available VPC spread across multiple Availability Zones. The VPC contains both public and private subnets. Public subnets host the Internet Gateway, NAT Gateway, and Application Load Balancer (ALB), while the EKS worker nodes and application pods run securely in private subnets so they are not directly exposed to the internet.
+“In our production environment, the application is deployed on an Amazon EKS cluster running inside a highly available VPC across multiple Availability Zones. The VPC contains both public and private subnets. Public subnets host the Internet Gateway, NAT Gateway, and Application Load Balancer (ALB), while the EKS worker nodes and application pods run securely in private subnets so they are not directly exposed to the internet.
 
 When a developer commits code to GitHub, it automatically triggers our CI pipeline in Jenkins or GitHub Actions. The pipeline checks out the source code, builds the application, runs unit tests, performs code quality analysis with SonarQube, executes security scans using tools like Trivy or Snyk, builds a Docker image, and pushes the image to Amazon ECR.
 
