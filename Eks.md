@@ -389,9 +389,9 @@ Interview Closing Answer (2 minutes)
 
 ===========================================================
 
-4) From Domain to Deployment: End-to-End Request Flow in Amazon EKS
+5) From Domain to Deployment: End-to-End Request Flow in Amazon EKS
 
-“In our production environment, the application is hosted on Amazon EKS inside a highly available VPC spanning multiple Availability Zones. Users access the application using a domain name such as www.company.com. When a user enters this URL in the browser, the DNS request first reaches Amazon Route 53. Route 53 resolves the domain name and returns the DNS name of the Application Load Balancer (ALB).”
+“In our production environment, the application is hosted on Amazon EKS inside a highly available VPC  multiple Availability Zones. Users access the application using a domain name such as www.company.com. When a user enters this URL in the browser, the DNS request first reaches Amazon Route 53. Route 53 resolves the domain name and returns the DNS name of the Application Load Balancer (ALB).”
 
 “The request is then sent to the internet through the Internet Gateway and reaches the ALB, which is deployed in the public subnets. The ALB terminates the SSL/TLS connection using certificates managed by AWS Certificate Manager (ACM) and performs health checks on backend targets. Based on the listener rules or path-based routing, the ALB forwards the request to the Kubernetes Ingress resource managed by the AWS Load Balancer Controller.”
 
@@ -403,6 +403,23 @@ Interview Closing Answer (2 minutes)
 
 “On the deployment side, developers commit code to GitHub, which triggers a CI pipeline in Jenkins or GitHub Actions. The pipeline builds the application, runs automated tests, performs security scans, creates a Docker image, and pushes it to Amazon ECR. The updated Kubernetes manifests or Helm charts are committed to Git, where Argo CD detects the changes and synchronizes them with the EKS cluster. Kubernetes performs a rolling update by creating new pods, validating them through health probes, gradually shifting traffic, and removing the old pods only after the new version is confirmed healthy. If traffic increases, the Horizontal Pod Autoscaler scales the number of pods, while Karpenter or Cluster Autoscaler provisions additional EC2 worker nodes. This complete architecture provides automation, high availability, scalability, security, and zero-downtime deployments.”
 
+
+6) Explain your CI/CD pipeline in your current project.
+
+Interview Answer
+
+“In my current project, we follow a GitOps-based CI/CD pipeline using GitHub, Jenkins, Docker, Amazon ECR, Argo CD, and Amazon EKS. 
+“The process starts when a developer creates a feature branch, implements the code changes, and raises a Pull Request. Before the PR is merged, mandatory code reviews are performed and automated checks such as unit tests and SonarQube quality gates are executed. Once the PR is approved and merged into the main branch, GitHub triggers a Jenkins pipeline using webhooks.”
+
+“Jenkins first checks out the latest source code from GitHub and builds the application using Maven. It then executes unit tests and generates the application artifact (JAR). Next, SonarQube performs static code analysis to detect bugs,duplicated code, and security vulnerabilities. 
+
+“After the quality checks, Jenkins builds a Docker image using the application’s Dockerfile. The image is then scanned using Trivy to identify any critical operating system or vulnerabilities. If critical vulnerabilities are detected, the build is failed and the image is not pushed further.”
+
+“Once the image passes all security checks, Jenkins authenticates with Amazon ECR using an IAM role and pushes the versioned Docker image to the ECR repository. The pipeline then updates the Helm chart or Kubernetes deployment manifest with the new image tag and commits that change to our GitOps repository.”
+
+“Argo CD continuously monitors the GitOps repository. As soon as it detects the updated image tag, it compares the desired state stored in Git with the actual state of the EKS cluster and automatically synchronizes the changes. Kubernetes then performs a rolling update by creating new pods, waiting for their startup and readiness probes to succeed, gradually routing traffic to the new version, and finally terminating the old pods. This ensures zero downtime during deployment.”
+
+“After deployment, we validate the rollout by checking pod status, rollout history, application logs, ALB target health, and Grafana dashboards. If any issue is detected, Argo CD or Kubernetes allows us to quickly roll back to the previous stable version. Throughout the pipeline, notifications about build status, deployment success, or failures are sent to Microsoft Teams or Slack, ensuring the team is informed in real time.”
 
 
 
