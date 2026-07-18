@@ -2,7 +2,7 @@
 
 “In our production environment, the application is deployed on an Amazon EKS cluster running inside a highly available VPC across multiple Availability Zones. The VPC contains both public and private subnets. Public subnets host the Internet Gateway, NAT Gateway, and Application Load Balancer (ALB), while the EKS worker nodes and application pods run securely in private subnets so they are not directly exposed to the internet.
 
-When a developer commits code to GitHub, it automatically triggers our CI pipeline in Jenkins or GitHub Actions. The pipeline checks out the source code, builds the application, runs unit tests, performs code quality analysis with SonarQube, executes security scans using tools like Trivy or Snyk, builds a Docker image, and pushes the image to Amazon ECR.
+When a developer commits code to GitHub, it automatically triggers our CI pipeline in Jenkins  The pipeline checks out the source code, builds the application, runs unit tests, performs code quality analysis with SonarQube, executes security scans using tools like Trivy or Snyk, builds a Docker image, and pushes the image to Amazon ECR.
 
 Once the image is available in ECR, the pipeline updates the Kubernetes manifest or Helm chart with the new image version in the Git repository. Since we follow GitOps, Argo CD continuously monitors the Git repository. It detects the updated manifest and synchronizes the desired state with the EKS cluster without anyone manually running kubectl commands.
 
