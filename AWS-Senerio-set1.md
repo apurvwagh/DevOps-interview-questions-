@@ -1318,6 +1318,16 @@ Answer:
 
 “I would immediately check the subnet’s NACL and route table. Security Groups are stateful, but NACLs are stateless and can silently drop traffic even when Security Groups are configured correctly.”
 
+another way of answer
+
+If a production issue occurs at 2 AM, my first priority is to restore service as quickly as possible while minimizing customer impact. I follow a structured incident response process instead of making assumptions. I first assess the impact using CloudWatch, Prometheus, Grafana, and Alertmanager to understand what has failed and how many users are affected.”
+
+“Next, I check whether there was any recent deployment, infrastructure change, or configuration update. If the issue started immediately after a deployment, I immediately roll back using Argo CD or Kubernetes rollout undo to restore service.”
+
+“If there was no recent deployment, I troubleshoot layer by layer. I first verify the infrastructure, such as Route 53, ALB, EC2 instances, and EKS cluster health. Then I check Kubernetes components like nodes, pods, services, ingress, events, and application logs. If Kubernetes is healthy, I investigate backend services such as RDS, Redis, Kafka, or external APIs, while correlating logs and metrics to identify the bottleneck.”
+
+“Once the issue is resolved, I validate the application using smoke tests and monitoring dashboards. Finally, I perform a blameless RCA, document the timeline, identify the root cause, implement preventive measures, and update monitoring or automation to reduce the chance of recurrence.”
+
 ====================================
 
 AWS Networking & RDS - Senior DevOps Interview Questions
