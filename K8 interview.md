@@ -17,6 +17,7 @@ Then we have the worker nodes, where our actual applications run.
 Each worker node has:
 
 Kubelet – agent that talks to the control plane and ensures containers are running properly.
+on each node we need to install kubectl
 
 Pods – it is the smallest unit in the Kubernetes, which runs the containers.
 
