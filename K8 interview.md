@@ -16,7 +16,9 @@ Then we have the worker nodes, where our actual applications run.
 Each worker node has:
 
 Kubelet – agent that talks to the control plane and ensures containers are running properly.
+
 Pods – it is the smallest unit in the Kubernetes, which runs the containers.
+
 Kube-proxy – handles networking and routing traffic to the right pods.
 
 So in short:
