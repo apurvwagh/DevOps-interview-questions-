@@ -100,13 +100,19 @@ Monitoring	Budgets, Cost Explorer, Cost Anomaly Detection
 “When a production deployment fails, I follow a structured troubleshooting process. I first determine whether the issue occurred during CI or CD by reviewing Jenkins pipeline logs and Argo CD synchronization status. If the deployment reached Kubernetes, I check the rollout status, pod health, events, logs, readiness probes, services, ingress, and ALB target health. If Kubernetes is healthy, I investigate application logs and backend dependencies such as RDS, Redis, or Kafka. Throughout the process, I use CloudWatch, Prometheus, and Grafana to correlate infrastructure and application metrics. If the deployment is impacting users and cannot be resolved quickly, I immediately roll back to the previous stable version using Argo CD or Kubernetes rollout history. Once the service is restored, I perform an RCA and implement preventive improvements to avoid recurrence.”
 
 Cross Questions
+
 Q1. What if the deployment is stuck?
 Answer:
 “I would check kubectl rollout status, pod events, and describe the deployment to determine whether the rollout is blocked by readiness probe failures, insufficient resources, image pull errors, or scheduling issues.”
-⸻ Q2. What if the new pods are running but users still cannot access the application?
+
+⸻
+
+Q2. What if the new pods are running but users still cannot access the application?
 Answer:
 “I would verify Service endpoints, Ingress configuration, ALB target group health, and application logs. Running does not necessarily mean the pods are Ready to receive traffic.”
+
 ⸻
+
 Q3. When would you perform a rollback?
 Answer:
 “If the deployment is causing customer impact and the issue cannot be resolved quickly, I would roll back immediately to restore service. After stabilization, I would investigate the failed release in detail.
