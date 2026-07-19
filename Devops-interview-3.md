@@ -121,13 +121,11 @@ Q1. Can a Pod remain Pending even if nodes are healthy?
 Answer:
 “Yes. Healthy nodes alone don’t guarantee scheduling. The Pod can still remain Pending due to node affinity, taints, PVC issues, namespace quotas, or insufficient allocatable resources.” 
 
-⸻ 
 Q2. What is the first command you run?
 
 Answer:
 ”kubectl describe pod <pod-name> because the Events section usually explains why the scheduler couldn’t place the Pod.”
 
-⸻
  Q3. What if there is enough CPU but the Pod is still Pending?
  
 Answer:
