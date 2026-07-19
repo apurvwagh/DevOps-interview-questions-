@@ -191,6 +191,7 @@ Reasons:
 =============================
 
 3)  **You restored an RDS snapshot for staging, but some queries behave differently than production.**
+   
 Ans: When you restore from a snapshot, RDS assigns the default parameter group by default. Custom parameter groups from production are not restored automatically. 
 If not manually reassigned, staging may run with different settings, leading to changes in query behavior or performance.
 
