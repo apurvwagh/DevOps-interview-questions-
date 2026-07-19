@@ -116,14 +116,20 @@ Answer:
 When a Pod is stuck in the Pending state, I first describe the Pod to review the scheduler events because they usually indicate the exact reason for the failure. Then I verify worker node health and available resources. If capacity is insufficient, I check whether Karpenter or Cluster Autoscaler is provisioning new nodes. If resources are available, I investigate node selectors, affinity rules, taints and tolerations, Persistent Volume Claims, and namespace resource quotas. In one production incident, Pods remained Pending because Karpenter couldn’t provision new nodes due to an IAM permission issue. After correcting the IAM configuration, new nodes were created automatically and the Pods transitioned to the Running state. My approach is always to identify the scheduler’s reason first and then resolve the underlying cause rather than making assumptions.”
 
 Cross Questions
+
 Q1. Can a Pod remain Pending even if nodes are healthy?
 Answer:
-“Yes. Healthy nodes alone don’t guarantee scheduling. The Pod can still remain Pending due to node affinity, taints, PVC issues, namespace quotas, or insufficient allocatable resources.” ⸻ 
+“Yes. Healthy nodes alone don’t guarantee scheduling. The Pod can still remain Pending due to node affinity, taints, PVC issues, namespace quotas, or insufficient allocatable resources.” 
+
+⸻ 
 Q2. What is the first command you run?
+
 Answer:
 ”kubectl describe pod <pod-name> because the Events section usually explains why the scheduler couldn’t place the Pod.”
+
 ⸻
  Q3. What if there is enough CPU but the Pod is still Pending?
+ 
 Answer:
 “I would investigate node affinity, taints and tolerations, Persistent Volume binding, resource quotas, and scheduler events.”
 
