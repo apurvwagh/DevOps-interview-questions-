@@ -12,7 +12,7 @@ Scheduler – it decides on which node a pod should run based on CPU, memory, an
 Controller Manager – it keeps checking if the cluster state matches what we want. For example, if a pod dies, it creates a new one.
 etcd – this is the database of Kubernetes. It stores the entire cluster configuration and state.
 
-Then we have the worker nodes, which are the machines where our actual applications run.
+Then we have the worker nodes, where our actual applications run.
 Each worker node has:
 
 Kubelet – agent that talks to the control plane and ensures containers are running properly.
