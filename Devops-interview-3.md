@@ -16,11 +16,17 @@ User → Route 53 → ALB → Ingress → Service → Endpoints → Pods → App
 
 4. How do you perform a zero-downtime Kubernetes cluster upgrade in production?
 
-In production, an EKS upgrade is a carefully planned activity to ensure zero downtime. First, I verify that the control plane, worker nodes, and kubectl are within the supported Kubernetes version skew, review the release notes, check for deprecated APIs, and validate compatibility of Helm charts, EKS add-ons, CSI drivers, AWS Load Balancer Controller, and Cluster Autoscaler or Karpenter. I always test the upgrade in a staging environment and take backups of Kubernetes manifests and critical databases before starting.
+In production, an EKS upgrade is a carefully planned activity to ensure zero downtime. 
+1) First, I verify that the control plane, worker nodes, and kubectl are within the supported Kubernetes version
+2)  review the release notes, check for deprecated APIs, and validate compatibility of Helm charts,
+3)  EKS add-ons, CSI drivers, AWS Load Balancer Controller, and Cluster Autoscaler or Karpenter.
+4)  I always test the upgrade in a staging environment and take backups of Kubernetes manifests and critical databases before starting.
+5)I then upgrade the EKS control plane, followed by managed add-ons like CoreDNS, kube-proxy, and the VPC CNI plugin.
+6) Next, I create a new managed node group with the target Kubernetes version and migrate workloads by cordoning and draining the old nodes one at a time.
+7) Pod Disruption Budgets, multiple replicas, and readiness probes ensure zero downtime during pod rescheduling.
  
-I then upgrade the EKS control plane, followed by managed add-ons like CoreDNS, kube-proxy, and the VPC CNI plugin. Next, I create a new managed node group with the target Kubernetes version and migrate workloads by cordoning and draining the old nodes one at a time. Pod Disruption Budgets, multiple replicas, and readiness probes ensure zero downtime during pod rescheduling.
- 
-Throughout the upgrade, I monitor pod health, application logs, ALB target health, CloudWatch, Prometheus, and Grafana. After validating the applications with smoke tests and business transactions, I decommission the old node group. If any issues occur, I follow the rollback plan by moving workloads back to the previous node group or restoring from backups.”
+8) Throughout the upgrade, I monitor pod health, application logs, ALB target health, CloudWatch, Prometheus, and Grafana.
+9) After validating the applications with smoke tests and business transactions, I decommission the old node group. If any issues occur, I follow the rollback plan by moving workloads back to the previous node group or restoring from backups.”
 
 
 5. Design a self-healing platform for critical production services.
