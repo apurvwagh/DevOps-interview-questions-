@@ -3,19 +3,24 @@ Devops mock interview Q
 1. Your CI/CD pipeline takes 30 minutes. How would you reduce it to under 5 minutes?
 
 1)“I wouldn’t immediately start optimizing the pipeline. My first step would be to analyze stage execution times to identify the bottleneck. Based on that, I would implement dependency caching for Maven or npm, enable Docker layer caching, parallelize independent stages such as unit tests, SonarQube, and Trivy scans, use shallow Git clones, optimize Docker images, and scale Jenkins agents to execute jobs concurrently. 
+
 2)I would also separate fast CI checks from longer-running integration or performance tests where appropriate. These optimizations typically reduce pipeline execution time significantly while maintaining code quality and security.”
 
 2. Your cloud bill suddenly increased by 40% overnight. How would you investigate it?
 
 1)My approach is to first identify which AWS service caused the increase using Cost Explorer. After identifying the service, I investigate the underlying usage metrics and recent infrastructure or application changes using CloudWatch, CloudTrail, deployment history, and service-specific dashboards.
+
 2)For example, if EC2 costs increased, I verify Auto Scaling, Karpenter, and EKS node activity. If NAT Gateway costs increased, I investigate outbound traffic and check whether VPC Endpoints could reduce those charges. If RDS costs increased, I review instance modifications, storage growth, and Read Replica usage. 
+
 3)Once the root cause is identified, I implement corrective actions such as rightsizing, improving autoscaling policies, using Spot Instances, enabling VPC Endpoints, cleaning up unused resources, and configuring AWS Budgets and Cost Anomaly Detection to prevent similar issues in the future.”
 
  3. Your Kubernetes cluster is healthy, but requests intermittently return 503. How would you troubleshoot it?
 
 1) When users receive intermittent 503 errors, I first determine whether the issue is at the load balancer, Kubernetes, or application layer.
+   
 2)I start by checking pod readiness because a pod can be Running but not Ready. Then I verify Service endpoints, label selectors, Ingress configuration, and ALB target health.
 3)If those are healthy, I review application logs, resource utilization, and dependency health such as RDS or Redis.
+
 4)In one production scenario, we found that the Readiness Probe was configured too aggressively for a Spring Boot application, causing healthy pods to be removed from the Service before startup completed. Adjusting the startup and readiness probe configuration resolved the issue. My approach is always to trace the request end-to-end—from the ALB to the application—to identify the exact point of failure.”
 
 User → Route 53 → ALB → Ingress → Service → Endpoints → Pods → Application → Database/Dependencies
@@ -23,7 +28,7 @@ User → Route 53 → ALB → Ingress → Service → Endpoints → Pods → App
 4. How do you perform a zero-downtime Kubernetes cluster upgrade in production?
 
 In production, an EKS upgrade is a carefully planned activity to ensure zero downtime. 
-1) First, I verify that the control plane, worker nodes, and kubectl are within the supported Kubernetes version
+1) First, I verify that the control plane, worker nodes, and kubectl are within the supported Kubernetes version.
 2)  review the release notes, check for deprecated APIs, and validate compatibility of Helm charts,
 3)  EKS add-ons, CSI drivers, AWS Load Balancer Controller, and Cluster Autoscaler or Karpenter.
 4)  I always test the upgrade in a staging environment and take backups of Kubernetes manifests and critical databases before starting.
