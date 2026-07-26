@@ -50,7 +50,9 @@ In production, an EKS upgrade is a carefully planned activity to ensure zero dow
 5. Design a self-healing platform for critical production services.
 
 1)A self-healing platform combines Kubernetes and AWS capabilities to automatically recover from failures. I would deploy workloads on Amazon EKS across multiple Availability Zones with managed node groups. 
+
 2)Kubernetes health probes, ReplicaSets, and Deployments automatically restart or replace unhealthy pods. HPA scales pods based on demand, while Karpenter or Cluster Autoscaler adds worker nodes when required. 
+
 3)An ALB routes traffic only to healthy pods, and Amazon RDS Multi-AZ provides automatic database failover. Prometheus, Grafana, CloudWatch, and Alertmanager provide monitoring and alerting, while Argo CD continuously reconciles the cluster with the desired state stored in Git. This architecture minimizes downtime, supports automatic recovery, and provides a resilient production platform.”
 
 ===========================================================
@@ -58,8 +60,11 @@ In production, an EKS upgrade is a carefully planned activity to ensure zero dow
 6. Explain the most challenging production incident you've handled and the architectural improvements you made afterward.
 
 1)One of the most challenging production incidents I handled intermittent 503 errors from an application running on Amazon EKS during peak traffic. 
+
 2)The Kubernetes cluster itself was healthy, so I investigated the application and database layers. Application logs showed HikariCP connection timeout errors, and RDS metrics confirmed that the connection pool was exhausted due to heavy traffic and slow database queries.
+
 3)We restored the service by tuning the HikariCP pool after validating database capacity and optimizing slow queries. 
+
 4)Following the incident, we implemented RDS Proxy for better connection management, introduced Read Replicas for read scalability, improved monitoring with Prometheus, Grafana, and CloudWatch, and tuned autoscaling policies. These architectural improvements reduced future incidents, improved application resilience, and significantly reduced our mean time to recovery.”
 
 =========================================================
