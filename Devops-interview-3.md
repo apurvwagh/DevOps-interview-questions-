@@ -151,10 +151,10 @@ Answer:
 
 11) A Kubernetes Pod is stuck in Pending state. What would you check?
 
-1) When a Pod is stuck in the Pending state, I first describe the Pod to review the scheduler events because they usually indicate the exact reason for the failure.
-2) Then I verify worker node health and available resources. If capacity is insufficient, I check whether Karpenter or Cluster Autoscaler is provisioning new nodes.
-3) If resources are available, I investigate node selectors, affinity rules, taints and tolerations, Persistent Volume Claims, and namespace resource quotas.
-4) In one production incident, Pods remained Pending because Karpenter couldn’t provision new nodes due to an IAM permission issue. After correcting the IAM configuration, new nodes were created automatically and the Pods transitioned to the Running state. 
+1)When a Pod is stuck in the Pending state, I first describe the Pod to review the scheduler events because they usually indicate the exact reason for the failure.
+2)Then I verify worker node health and available resources. If capacity is insufficient, I check whether Karpenter or Cluster Autoscaler is provisioning new nodes.
+3)If resources are available, I investigate node selectors, affinity rules, taints and tolerations, Persistent Volume Claims, and namespace resource quotas.
+4)In one production incident, Pods remained Pending because Karpenter couldn’t provision new nodes due to an IAM permission issue. After correcting the IAM configuration, new nodes were created automatically and the Pods transitioned to the Running state. 
 
 Cross Questions
 
@@ -223,11 +223,11 @@ Result:
 ==================================================================
 
 14) A recent deployment caused production issues. How would you perform a rollback?
- 1) If a recent deployment causes production issues, my first priority is to restore service as quickly as possible while minimizing customer impact. Before making any changes,   
- 2) If a recent deployment causes production issues, I first confirm that the deployment is the root cause by reviewing deployment history, logs, metrics, and user reports.   
+1)If a recent deployment causes production issues, my first priority is to restore service as quickly as possible while minimizing customer impact. Before making any changes,   
+ 2)If a recent deployment causes production issues, I first confirm that the deployment is the root cause by reviewing deployment history, logs, metrics, and user reports.   
  3)I immediately roll back to the previous stable version instead of troubleshooting in production. In our environment, we use Argo CD with GitOps   
- 4) so I revert to the previous version Kubernetes performs a rolling rollback, ensuring only healthy pods receive traffic through readiness probes and multiple replicas. After the rollback, I validate application health, ALB target status, business transactions, and monitoring dashboards.   
- 5)  Once production is stable, I perform an RCA, fix the issue in a lower environment, and redeploy only after proper validation. This approach minimizes downtime while ensuring a safe and reliable recovery.”
+4)so I revert to the previous version Kubernetes performs a rolling rollback, ensuring only healthy pods receive traffic through readiness probes and multiple replicas. After the rollback, I validate application health, ALB target status, business transactions, and monitoring dashboards.   
+ 5)Once production is stable, I perform an RCA, fix the issue in a lower environment, and redeploy only after proper validation. This approach minimizes downtime while ensuring a safe and reliable recovery.”
 
 A new release was deployed.
 
