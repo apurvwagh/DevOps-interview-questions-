@@ -6,6 +6,8 @@ Devops mock interview Q
 
 2)I would also separate fast CI checks from longer-running integration or performance tests where appropriate. These optimizations typically reduce pipeline execution time significantly while maintaining code quality and security.”
 
+===============================================
+
 2. Your cloud bill suddenly increased by 40% overnight. How would you investigate it?
 
 1)My approach is to first identify which AWS service caused the increase using Cost Explorer. After identifying the service, I investigate the underlying usage metrics and recent infrastructure or application changes using CloudWatch, CloudTrail, deployment history, and service-specific dashboards.
@@ -13,6 +15,8 @@ Devops mock interview Q
 2)For example, if EC2 costs increased, I verify Auto Scaling, Karpenter, and EKS node activity. If NAT Gateway costs increased, I investigate outbound traffic and check whether VPC Endpoints could reduce those charges. If RDS costs increased, I review instance modifications, storage growth, and Read Replica usage. 
 
 3)Once the root cause is identified, I implement corrective actions such as rightsizing, improving autoscaling policies, using Spot Instances, enabling VPC Endpoints, cleaning up unused resources, and configuring AWS Budgets and Cost Anomaly Detection to prevent similar issues in the future.”
+
+====================================================
 
  3. Your Kubernetes cluster is healthy, but requests intermittently return 503. How would you troubleshoot it?
 
@@ -24,6 +28,8 @@ Devops mock interview Q
 4)In one production scenario, we found that the Readiness Probe was configured too aggressively for a Spring Boot application, causing healthy pods to be removed from the Service before startup completed. Adjusting the startup and readiness probe configuration resolved the issue. My approach is always to trace the request end-to-end—from the ALB to the application—to identify the exact point of failure.”
 
 User → Route 53 → ALB → Ingress → Service → Endpoints → Pods → Application → Database/Dependencies
+
+=======================================================
 
 4. How do you perform a zero-downtime Kubernetes cluster upgrade in production?
 
@@ -39,11 +45,15 @@ In production, an EKS upgrade is a carefully planned activity to ensure zero dow
 8) Throughout the upgrade, I monitor pod health, application logs, ALB target health, CloudWatch, Prometheus, and Grafana.
 9) After validating the applications with smoke tests and business transactions, I decommission the old node group. If any issues occur, I follow the rollback plan by moving workloads back to the previous node group or restoring from backups.”
 
+========================================================
+
 5. Design a self-healing platform for critical production services.
 
 1)A self-healing platform combines Kubernetes and AWS capabilities to automatically recover from failures. I would deploy workloads on Amazon EKS across multiple Availability Zones with managed node groups. 
 2)Kubernetes health probes, ReplicaSets, and Deployments automatically restart or replace unhealthy pods. HPA scales pods based on demand, while Karpenter or Cluster Autoscaler adds worker nodes when required. 
 3)An ALB routes traffic only to healthy pods, and Amazon RDS Multi-AZ provides automatic database failover. Prometheus, Grafana, CloudWatch, and Alertmanager provide monitoring and alerting, while Argo CD continuously reconciles the cluster with the desired state stored in Git. This architecture minimizes downtime, supports automatic recovery, and provides a resilient production platform.”
+
+===========================================================
 
 6. Explain the most challenging production incident you've handled and the architectural improvements you made afterward.
 
