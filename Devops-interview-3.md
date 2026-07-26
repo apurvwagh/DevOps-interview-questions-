@@ -223,15 +223,10 @@ Result:
 ==================================================================
 
 14) A recent deployment caused production issues. How would you perform a rollback?
-
- 1) If a recent deployment causes production issues, my first priority is to restore service as quickly as possible while minimizing customer impact. Before making any changes,
-   
- 2) If a recent deployment causes production issues, I first confirm that the deployment is the root cause by reviewing deployment history, logs, metrics, and user reports.
-   
- 3)I immediately roll back to the previous stable version instead of troubleshooting in production. In our environment, we use Argo CD with GitOps
-   
- 4) so I revert to the previous version Kubernetes performs a rolling rollback, ensuring only healthy pods receive traffic through readiness probes and multiple replicas. After the rollback, I validate application health, ALB target status, business transactions, and monitoring dashboards.
-   
+ 1) If a recent deployment causes production issues, my first priority is to restore service as quickly as possible while minimizing customer impact. Before making any changes,   
+ 2) If a recent deployment causes production issues, I first confirm that the deployment is the root cause by reviewing deployment history, logs, metrics, and user reports.   
+ 3)I immediately roll back to the previous stable version instead of troubleshooting in production. In our environment, we use Argo CD with GitOps   
+ 4) so I revert to the previous version Kubernetes performs a rolling rollback, ensuring only healthy pods receive traffic through readiness probes and multiple replicas. After the rollback, I validate application health, ALB target status, business transactions, and monitoring dashboards.   
  5)  Once production is stable, I perform an RCA, fix the issue in a lower environment, and redeploy only after proper validation. This approach minimizes downtime while ensuring a safe and reliable recovery.”
 
 A new release was deployed.
