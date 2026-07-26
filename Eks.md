@@ -20,6 +20,7 @@
 During deployment, Kubernetes uses a Rolling Update strategy. It creates new pods first, waits until their Readiness probes pass, gradually shifts traffic to them, and only then terminates the old pods. This ensures zero downtime and a seamless user experience. If the deployment fails, Kubernetes or Argo CD can roll back to the previous stable version quickly.
 
 =====================================
+
 Interview Cross Question
 
 Interviewer: Why do we need Route 53?
@@ -124,17 +125,19 @@ Users
 
 Interview Answer
 
-“I would design the application using a highly available and secure architecture across at least two Availability Zones within a VPC. The VPC would contain public and private subnets to separate internet-facing components from backend services. The presentation tier (Web), application tier, and database tier would each be isolated for security and scalability.”
+1)“I would design the application using a highly available and secure architecture across at least two Availability Zones within a VPC. The VPC would contain public and private subnets to separate internet-facing components from backend services. The presentation tier (Web), application tier, and database tier would each be isolated for security and scalability.”
 
-“In the public subnets, I would deploy an Internet Gateway, NAT Gateways, and an Application Load Balancer (ALB). Route 53 would provide DNS resolution and route user traffic to the ALB. If HTTPS is required, I would use AWS Certificate Manager (ACM) to manage SSL/TLS certificates.”
+2)“In the public subnets, I would deploy an Internet Gateway, NAT Gateways, and an Application Load Balancer (ALB). Route 53 would provide DNS resolution and route user traffic to the ALB. If HTTPS is required, I would use AWS Certificate Manager (ACM) to manage SSL/TLS certificates.”
 
-“The web and application layers would run on Amazon EC2 instances in Auto Scaling Groups or on Amazon EKS if the application is containerized. These instances would be deployed in private subnets across multiple Availability Zones. The ALB distributes incoming traffic to healthy application instances using health checks, ensuring high availability and fault tolerance.”
+3)“The web and application layers would run on Amazon EC2 instances in Auto Scaling Groups or on Amazon EKS if the application is containerized. These instances would be deployed in private subnets across multiple Availability Zones. The ALB distributes incoming traffic to healthy application instances using health checks, ensuring high availability and fault tolerance.”
 
-“For the database tier, I would use Amazon RDS Multi-AZ deployed in private subnets. The database would not be publicly accessible and would only accept connections from the application tier through tightly controlled Security Groups. For better performance, I could add RDS Read Replicas for read-heavy workloads.”
+4)“For the database tier, I would use Amazon RDS Multi-AZ deployed in private subnets. The database would not be publicly accessible and would only accept connections from the application tier through tightly controlled Security Groups. For better performance, I could add RDS Read Replicas for read-heavy workloads.”
 
-“Private instances requiring internet access for updates or pulling container images would use a NAT Gateway rather than public IP addresses. Security Groups would restrict communication between tiers—for example, the ALB can communicate with the application tier, and only the application tier can communicate with the database. Network ACLs provide an additional layer of subnet-level security.”
+“5)Private instances requiring internet access for updates or pulling container images would use a NAT Gateway rather than public IP addresses. Security Groups would restrict communication between tiers—for example, the ALB can communicate with the application tier, and only the application tier can communicate with the database. Network ACLs provide an additional layer of subnet-level security.”
 
-“For storage, I would use Amazon S3 for static content and backups, Amazon ECR for container images, and IAM roles to provide secure access to AWS services without storing credentials. Secrets such as database passwords would be stored in AWS Secrets Manager. Monitoring would be implemented using CloudWatch, Prometheus, and Grafana, with logs centralized in CloudWatch Logs or OpenSearch. This architecture provides high availability, scalability, security, fault tolerance, and supports zero-downtime deployments.”
+6)“For storage, I would use Amazon S3 for static content and backups, Amazon ECR for container images, and IAM roles to provide secure access to AWS services without storing credentials. Secrets such as database passwords would be stored in AWS Secrets Manager. 
+
+7)Monitoring would be implemented using CloudWatch, Prometheus, and Grafana, with logs centralized in CloudWatch Logs or OpenSearch. This architecture provides high availability, scalability, security, fault tolerance, and supports zero-downtime deployments.”
 
                 Users
                   │
