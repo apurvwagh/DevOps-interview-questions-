@@ -37,29 +37,39 @@ A self-healing platform combines Kubernetes and AWS capabilities to automaticall
 
 One of the most challenging production incidents I handled involved intermittent 503 errors from an application running on Amazon EKS during peak traffic. The Kubernetes cluster itself was healthy, so I investigated the application and database layers. Application logs showed HikariCP connection timeout errors, and RDS metrics confirmed that the connection pool was exhausted due to heavy traffic and slow database queries. We restored the service by tuning the HikariCP pool after validating database capacity and optimizing slow queries. Following the incident, we implemented RDS Proxy for better connection management, introduced Read Replicas for read scalability, improved monitoring with Prometheus, Grafana, and CloudWatch, and tuned autoscaling policies. These architectural improvements reduced future incidents, improved application resilience, and significantly reduced our mean time to recovery.”
 
+=========================================================
+
 7)Explain any kubernetes troubleshooting scenarios
 
 Scenario 1: Pods Running but Users Getting 503 Errors
 
-“One production issue we faced was that users were receiving intermittent HTTP 503 errors even though all Kubernetes nodes were healthy and the pods were in the Running state. I started troubleshooting from the user request path by checking the ALB, Ingress, Service, Endpoints, and Pods. I found that the pods were Running but not Ready because the readiness probe was failing. Since Kubernetes removes unready pods from the Service endpoints, the ALB had no healthy backend to route traffic. We corrected the readiness probe configuration, restarted the deployment, and verified that the endpoints were healthy. To prevent recurrence, we improved health checks and configured startup probes for slow-starting applications.”
+1) “One production issue we faced was that users were receiving intermittent HTTP 503 errors even though all Kubernetes nodes were healthy and the pods were in the Running state.
+2)  I started troubleshooting from the user request path by checking the ALB, Ingress, Service, Endpoints, and Pods.
+3)  I found that the pods were Running but not Ready because the readiness probe was failing. Since Kubernetes removes unready pods from the Service endpoints, the ALB had no healthy backend to route traffic.
+4)  We corrected the readiness probe configuration, restarted the deployment, and verified that the endpoints were healthy. To prevent recurrence, we improved health checks and configured startup probes for slow-starting applications.”
 
  ⸻ 
  
 Scenario 2: Pods Stuck in Pending 
 Interview Answer
-“In another incident, newly created pods remained in the Pending state after deployment. I checked the pod events using kubectl describe pod and found an ‘Insufficient CPU’ scheduling error. The cluster had reached its resource capacity. Since we were using Karpenter, I verified its logs and found that it couldn’t provision new nodes due to an IAM permission issue. After correcting the IAM permissions, Karpenter launched new worker nodes, and Kubernetes scheduled the pending pods successfully. We later configured alerts for pending pods and node provisioning failures.”
+“1) In another incident, newly created pods remained in the Pending state after deployment. I checked the pod events using kubectl describe pod and found an ‘Insufficient CPU’ scheduling error. 
+2) The cluster had reached its resource capacity. Since we were using Karpenter, I verified its logs and found that it couldn’t provision new nodes due to an IAM permission issue.
+3) After correcting the IAM permissions, Karpenter launched new worker nodes, and Kubernetes scheduled the pending pods successfully. We later configured alerts for pending pods and node provisioning failures.”
 
  ⸻
  
  Scenario 3: CrashLoopBackOff
 Interview Answer
-“We also encountered an application repeatedly entering the CrashLoopBackOff state. I reviewed the pod logs and events and discovered that the application was failing during startup because it couldn’t connect to the database. The database credentials stored in a Kubernetes Secret had been updated, but the application deployment hadn’t been restarted. After updating the Secret and performing a rolling restart of the deployment, the application started successfully. To avoid similar incidents, we integrated secret rotation with our deployment pipeline and improved startup validation.”
+“1) We also encountered an application repeatedly entering the CrashLoopBackOff state. I reviewed the pod logs and events and discovered that the application was failing during startup because it couldn’t connect to the database. 
+2) The database credentials stored in a Kubernetes Secret had been updated, but the application deployment hadn’t been restarted. 
+3) After updating the Secret and performing a rolling restart of the deployment, the application started successfully. To avoid similar incidents, we integrated secret rotation with our deployment pipeline and improved startup validation.”
 
  ⸻ 
  
 Scenario 4: ImagePullBackOff
 Interview Answer
-“A deployment failed because the pods were in the ImagePullBackOff state. I checked the pod events and found an authentication error while pulling the image from Amazon ECR. The node IAM role lacked the required ECR permissions after a recent policy change. After restoring the correct IAM permissions, the nodes were able to pull the image successfully, and the deployment completed.”
+1) “A deployment failed because the pods were in the ImagePullBackOff state. I checked the pod events and found an authentication error while pulling the image from Amazon ECR.
+2) The node IAM role lacked the required ECR permissions after a recent policy change. After restoring the correct IAM permissions, the nodes were able to pull the image successfully, and the deployment completed.”
 
  ⸻
  
@@ -75,18 +85,28 @@ Interview Answer
 
 Overall answers 
 
-Whenever I troubleshoot Kubernetes issues, I follow a structured approach instead of making assumptions. I first identify whether the problem is related to the infrastructure, Kubernetes platform, or the application. I check the node health, pod status, events, logs, services, endpoints, ingress configuration, and resource utilization. In one production incident, users were receiving intermittent 503 errors even though the pods were Running. I found that the readiness probe was failing, so Kubernetes removed the pods from the Service endpoints. After correcting the readiness probe configuration and validating the application, the issue was resolved. In another incident, pods were stuck in Pending because the cluster lacked resources and Karpenter couldn’t provision new nodes due to an IAM permission issue. After fixing the permissions, new nodes were created automatically and the pods were scheduled successfully. My troubleshooting approach is always systematic, using Kubernetes events, logs, metrics, and application dependencies to identify the root cause before implementing a fix.”
+1)Whenever I troubleshoot Kubernetes issues, I first identify whether the problem is related to the infrastructure, Kubernetes platform, or the application.
+2) I check the node health, pod status, events, logs, services, endpoints, ingress configuration, and resource utilization. 
+3) In one production incident, users were receiving intermittent 503 errors even though the pods were Running. I found that the readiness probe was failing, so Kubernetes removed the pods from the Service endpoints. After correcting the readiness probe configuration and validating the application, the issue was resolved. 
+4)In another incident, pods were stuck in Pending because the cluster lacked resources and Karpenter couldn’t provision new nodes due to an IAM permission issue. After fixing the permissions, new nodes were created automatically and the pods were scheduled successfully. using Kubernetes events, logs, metrics, and application dependencies to identify the root cause before implementing a fix.”
 
 User Report → ALB → Ingress → Service → Endpoints → Pods → Container Logs → Node → Application → Database/External Dependencies → Metrics → Root Cause → Resolution → RCA & Preventive Actions
 
+=================================================================
+
 8. What is your deployment strategy
 
-In my current project, we primarily use the Rolling Update deployment strategy for application deployments. Once the CI pipeline builds and pushes the Docker image to Amazon ECR, Argo CD synchronizes the updated manifests with the EKS cluster. Kubernetes then gradually replaces the old pods with new ones using Rolling Update. Readiness probes ensure that only healthy pods receive traffic, while multiple replicas and Pod Disruption Budgets ensure zero downtime. For high-risk production releases that require fast rollback, we would consider Blue-Green or Canary deployments, but our day-to-day application deployments use Rolling Updates.”
+1) In my current project, we primarily use the Rolling Update deployment strategy for application deployments. Once the CI pipeline builds and pushes the Docker image to Amazon ECR, Argo CD synchronizes the updated manifests with the EKS cluster.
+2)  Kubernetes then gradually replaces the old pods with new ones using Rolling Update. Readiness probes ensure that only healthy pods receive traffic, while multiple replicas and Pod Disruption Budgets ensure zero downtime.
+3) For high-risk production releases that require fast rollback, we would consider Blue-Green or Canary deployments, but our day-to-day application deployments use Rolling Updates.”
 
+============================================================
 
 9. How do you manage infrastructure cost optimization without impacting performance?
 
-My approach to infrastructure cost optimization is based on monitoring and data rather than assumptions. I first analyze resource utilization using CloudWatch, Prometheus, Grafana, and AWS Cost Explorer. Then I optimize EC2 and Kubernetes resources through right-sizing, HPA, and Karpenter.I optimize databases with query tuning and Read Replicas, reduce networking costs using VPC Endpoints, and manage storage with lifecycle policies and cleanup of unused resources. Finally, I use AWS Budgets, Cost Anomaly Detection, and resource tagging to continuously monitor spending. Every optimization is validated against application performance metrics to ensure we reduce costs without impacting user experience or system reliability.”
+1) My approach to infrastructure cost optimization is based on monitoring and data rather than assumptions. I first analyze resource utilization using CloudWatch, Prometheus, Grafana, and AWS Cost Explorer.
+2) Then I optimize EC2 and Kubernetes resources through right-sizing, HPA, and Karpenter.I optimize databases with query tuning and Read Replicas, reduce networking costs using VPC Endpoints, and manage storage with lifecycle policies and cleanup of unused resources.
+3) Finally, I use AWS Budgets, Cost Anomaly Detection, and resource tagging to continuously monitor spending. Every optimization is validated against application performance metrics to ensure we reduce costs without impacting user experience or system reliability.”
 
 Cost Optimization Areas
 
@@ -100,10 +120,14 @@ NAT Gateway	Use VPC Endpoints for ECR and S3
 Load Balancer	Remove unused ALBs/NLBs
 Monitoring	Budgets, Cost Explorer, Cost Anomaly Detection
 
+========================================================
 
 10. A production deployment failed. What would be your first troubleshooting steps?
 
-“When a production deployment fails, I follow a structured troubleshooting process. I first determine whether the issue occurred during CI or CD by reviewing Jenkins pipeline logs and Argo CD synchronization status. If the deployment reached Kubernetes, I check the rollout status, pod health, events, logs, readiness probes, services, ingress, and ALB target health. If Kubernetes is healthy, I investigate application logs and backend dependencies such as RDS, Redis, or Kafka. Throughout the process, I use CloudWatch, Prometheus, and Grafana to correlate infrastructure and application metrics. If the deployment is impacting users and cannot be resolved quickly, I immediately roll back to the previous stable version using Argo CD or Kubernetes rollout history. Once the service is restored, I perform an RCA and implement preventive improvements to avoid recurrence.”
+1) “When a production deployment fails, I first determine whether the issue occurred during CI or CD by reviewing Jenkins pipeline logs and Argo CD synchronization status.
+2) If the deployment reached Kubernetes, I check the rollout status, pod health, events, logs, readiness probes, services, ingress, and ALB target health. If Kubernetes is healthy, I investigate application logs and backend dependencies such as RDS, Redis, or Kafka.
+3) Throughout the process, I use CloudWatch, Prometheus, and Grafana to correlate infrastructure and application metrics.
+4) If the deployment is impacting users and cannot be resolved quickly, I immediately roll back to the previous stable version using Argo CD or Kubernetes rollout history. Once the service is restored, I perform an RCA and implement preventive improvements to avoid recurrence.”
 
 Cross Questions
 
@@ -123,9 +147,14 @@ Q3. When would you perform a rollback?
 Answer:
 “If the deployment is causing customer impact and the issue cannot be resolved quickly, I would roll back immediately to restore service. After stabilization, I would investigate the failed release in detail.
 
+=============================================================
+
  11) A Kubernetes Pod is stuck in Pending state. What would you check?
 
-When a Pod is stuck in the Pending state, I first describe the Pod to review the scheduler events because they usually indicate the exact reason for the failure. Then I verify worker node health and available resources. If capacity is insufficient, I check whether Karpenter or Cluster Autoscaler is provisioning new nodes. If resources are available, I investigate node selectors, affinity rules, taints and tolerations, Persistent Volume Claims, and namespace resource quotas. In one production incident, Pods remained Pending because Karpenter couldn’t provision new nodes due to an IAM permission issue. After correcting the IAM configuration, new nodes were created automatically and the Pods transitioned to the Running state. My approach is always to identify the scheduler’s reason first and then resolve the underlying cause rather than making assumptions.”
+1) When a Pod is stuck in the Pending state, I first describe the Pod to review the scheduler events because they usually indicate the exact reason for the failure.
+2)  Then I verify worker node health and available resources. If capacity is insufficient, I check whether Karpenter or Cluster Autoscaler is provisioning new nodes.
+3) If resources are available, I investigate node selectors, affinity rules, taints and tolerations, Persistent Volume Claims, and namespace resource quotas.
+4) In one production incident, Pods remained Pending because Karpenter couldn’t provision new nodes due to an IAM permission issue. After correcting the IAM configuration, new nodes were created automatically and the Pods transitioned to the Running state. 
 
 Cross Questions
 
@@ -143,9 +172,14 @@ Answer:
 Answer:
 “I would investigate node affinity, taints and tolerations, Persistent Volume binding, resource quotas, and scheduler events.”
 
-    12. Users report the application is slow. How would you identify the bottleneck?
+============================================================
 
-When users report that an application is slow, I don’t assume the problem is Kubernetes. I follow an end-to-end approach by checking the ALB metrics, Kubernetes pod health, CPU, memory, and HPA status, followed by application logs and dependency health. If Kubernetes is healthy, I investigate the application, HikariCP connection pool, and Amazon RDS performance using CloudWatch and Performance Insights. In one production incident, we identified that the application slowdown was caused by an exhausted HikariCP connection pool due to slow SQL queries. We resolved the issue by increasing the connection pool after validating database capacity, optimizing SQL queries, and improving monitoring with Grafana and CloudWatch. My focus is always to identify the actual bottleneck before implementing any fix.”
+12. Users report the application is slow. How would you identify the bottleneck?
+
+1) When users report that an application is slow, I don’t assume the problem is Kubernetes. I follow an end-to-end approach by checking the ALB metrics, Kubernetes pod health, CPU, memory, and HPA status, followed by application logs and dependency health.
+2) If Kubernetes is healthy, I investigate the application, HikariCP connection pool, and Amazon RDS performance using CloudWatch and Performance Insights.
+3) In one production incident, we identified that the application slowdown was caused by an exhausted HikariCP connection pool due to slow SQL queries.
+4) We resolved the issue by increasing the connection pool after validating database capacity, optimizing SQL queries, and improving monitoring with Grafana and CloudWatch. 
 
 Application is very slow during peak hours.”
 
@@ -175,15 +209,26 @@ Result:
 * API latency reduced significantly.
 * No further timeouts during peak traffic.
 
+  ======================================================
+
 13. An application cannot connect to the database. What would you check first?
 
-When an application cannot connect to the database, I first review the application logs to understand the exact error. Then I verify the database configuration stored in Kubernetes Secrets or ConfigMaps, including the endpoint, port, username, and password. If the configuration is correct, I check DNS resolution and network connectivity, including Security Groups, NACLs, VPC routing, and Kubernetes Network Policies. If the network is healthy, I investigate the database by reviewing its availability, CloudWatch metrics, active connections, CPU, and slow queries. In one production incident, we found that the application couldn’t obtain database connections because the HikariCP connection pool was exhausted during peak traffic. We increased the pool size after confirming database capacity, optimized slow queries, and improved monitoring to prevent the issue from recurring. My troubleshooting approach is always systematic, moving from the application layer to the infrastructure until the root cause is identified.”
+1) When an application cannot connect to the database, I first review the application logs to understand the exact error.
+2)  Then I verify the database configuration stored in Kubernetes Secrets or ConfigMaps, including the endpoint, port, username, and password.
+3)  If the configuration is correct, I check DNS resolution and network connectivity, including Security Groups, NACLs, VPC routing, and Kubernetes Network Policies.
+4)   If the network is healthy, I investigate the database by reviewing its availability, CloudWatch metrics, active connections, CPU, and slow queries.
+5)   In one production incident, we found that the application couldn’t obtain database connections because the HikariCP connection pool was exhausted during peak traffic.
+6)    We increased the pool size after confirming database capacity, optimized slow queries, and improved monitoring to prevent the issue from recurring. My troubleshooting approach is always systematic, moving from the application layer to the infrastructure until the root cause is identified.”
+
+==================================================================
 
 14) A recent deployment caused production issues. How would you perform a rollback?
 
-If a recent deployment causes production issues, my first priority is to restore service as quickly as possible while minimizing customer impact. Before making any changes,
-
-If a recent deployment causes production issues, I first confirm that the deployment is the root cause by reviewing deployment history, logs, metrics, and user reports. I immediately roll back to the previous stable version instead of troubleshooting in production. In our environment, we use Argo CD with GitOps, so I revert to the previous version Kubernetes performs a rolling rollback, ensuring only healthy pods receive traffic through readiness probes and multiple replicas. After the rollback, I validate application health, ALB target status, business transactions, and monitoring dashboards. Once production is stable, I perform an RCA, fix the issue in a lower environment, and redeploy only after proper validation. This approach minimizes downtime while ensuring a safe and reliable recovery.”
+1) If a recent deployment causes production issues, my first priority is to restore service as quickly as possible while minimizing customer impact. Before making any changes,
+2) If a recent deployment causes production issues, I first confirm that the deployment is the root cause by reviewing deployment history, logs, metrics, and user reports.
+3) I immediately roll back to the previous stable version instead of troubleshooting in production. In our environment, we use Argo CD with GitOps
+4) so I revert to the previous version Kubernetes performs a rolling rollback, ensuring only healthy pods receive traffic through readiness probes and multiple replicas. After the rollback, I validate application health, ALB target status, business transactions, and monitoring dashboards.
+5) Once production is stable, I perform an RCA, fix the issue in a lower environment, and redeploy only after proper validation. This approach minimizes downtime while ensuring a safe and reliable recovery.”
 
 A new release was deployed.
 
@@ -227,10 +272,14 @@ Answer:
 
 “I would verify the previous version, investigate dependency changes such as database schema or configuration updates, and if necessary use the disaster recovery plan or restore from backups. Database migrations should always be backward compatible to support safe rollbacks.”
 
+==============================================================
 
 15. Kubernetes Pods keep restarting. What could be the possible reasons?
 
-“When Pods keep restarting, I first check the restart count, pod events, and previous container logs to identify the reason. Common causes include application crashes, failed liveness or startup probes, OOMKilled events due to insufficient memory, configuration issues, database connectivity problems, or failures in external dependencies. I also verify whether the issue started after a recent deployment. In one production incident, the application kept restarting because it couldn’t obtain database connections due to an exhausted HikariCP connection pool. After validating RDS capacity, we increased the pool size, optimized slow queries, and the application stabilized. My approach is to use logs, events, and metrics to identify the root cause before making any changes.”
+1) “When Pods keep restarting, I first check the restart count, pod events, and previous container logs to identify the reason.
+2)  Common causes include application crashes, failed liveness or startup probes, OOMKilled events due to insufficient memory, configuration issues, database connectivity problems, or failures in external dependencies.
+3)  I also verify whether the issue started after a recent deployment. In one production incident, the application kept restarting because it couldn’t obtain database connections due to an exhausted HikariCP connection pool.
+4)  After validating RDS capacity, we increased the pool size, optimized slow queries, and the application stabilized. My approach is to use logs, events, and metrics to identify the root cause before making any changes.”
 
 Common reason 
 Cause	What to Check
@@ -245,9 +294,15 @@ External API failure	Application logs
 Node issues	kubectl describe node
 Bad deployment	Roll back to previous version
 
+=========================================================
+
 16. An EC2 instance is running but SSH access is failing. What would you check?
 
-When an EC2 instance is running but SSH access fails, I follow a structured troubleshooting approach. I first verify the instance state, IP address, and whether it is in a public or private subnet. Then I check the Security Group, Network ACLs, and route tables to ensure SSH traffic is allowed. After that, I confirm I’m using the correct key pair and username. If the AWS networking is correct, I investigate the operating system by checking the SSH service, disk space, firewall rules, and system logs using Session Manager or the EC2 serial console if necessary. In one production incident, SSH failed because the Network ACL blocked the return traffic on ephemeral ports. After correcting the NACL rules, SSH connectivity was restored. My approach is always to troubleshoot layer by layer until the root cause is identified.”
+When an EC2 instance is running but SSH access fails, 
+1) I first verify the instance state, IP address, and whether it is in a public or private subnet.
+2)  Then I check the Security Group, Network ACLs, and route tables to ensure SSH traffic is allowed.
+3)   After that,If the AWS networking is correct, I investigate the operating system by checking the SSH service, disk space, firewall rules, and system logs using Session Manager or the EC2 serial console if necessary.
+4)   In one production incident, SSH failed because the Network ACL blocked the return traffic on ephemeral ports. After correcting the NACL rules, SSH connectivity was restored. My approach is always to troubleshoot layer by layer until the root cause is identified.”
 
 Problem	Check
 Wrong Security Group	Port 22 inbound
