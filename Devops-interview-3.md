@@ -182,8 +182,11 @@ Answer:
 11) A Kubernetes Pod is stuck in Pending state. What would you check?
 
 1)When a Pod is stuck in the Pending state, I first describe the Pod to review the scheduler events because they usually indicate the exact reason for the failure.
+
 2)Then I verify worker node health and available resources. If capacity is insufficient, I check whether Karpenter or Cluster Autoscaler is provisioning new nodes.
+
 3)If resources are available, I investigate node selectors, affinity rules, taints and tolerations, Persistent Volume Claims, and namespace resource quotas.
+
 4)In one production incident, Pods remained Pending because Karpenter couldn’t provision new nodes due to an IAM permission issue. After correcting the IAM configuration, new nodes were created automatically and the Pods transitioned to the Running state. 
 
 Cross Questions
