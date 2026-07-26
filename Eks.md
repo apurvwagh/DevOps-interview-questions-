@@ -4,7 +4,7 @@
 
 2)The VPC contains both public and private subnets. Public subnets host the Internet Gateway, NAT Gateway, and Application Load Balancer (ALB), while the EKS worker nodes and application pods run securely in private subnets so they are not directly exposed to the internet.
 
-3) When a developer commits code to GitHub, it automatically triggers our CI pipeline in Jenkins  The pipeline checks out the source code, builds the application, runs unit tests, performs code quality analysis with SonarQube, executes security scans using tools like Trivy builds a Docker image, and pushes the image to Amazon ECR.
+3)When a developer commits code to GitHub, it automatically triggers our CI pipeline in Jenkins  The pipeline checks out the source code, builds the application, runs unit tests, performs code quality analysis with SonarQube, executes security scans using tools like Trivy builds a Docker image, and pushes the image to Amazon ECR.
 
 4)Once the image is available in ECR, the pipeline updates the Kubernetes manifest or Helm chart with the new image version in the Git repository. Since we follow GitOps, Argo CD continuously monitors the Git repository. It detects the updated manifest and synchronizes the desired state with the EKS cluster without anyone manually running kubectl commands.
 
@@ -19,6 +19,7 @@
 
 During deployment, Kubernetes uses a Rolling Update strategy. It creates new pods first, waits until their Readiness probes pass, gradually shifts traffic to them, and only then terminates the old pods. This ensures zero downtime and a seamless user experience. If the deployment fails, Kubernetes or Argo CD can roll back to the previous stable version quickly.
 
+=====================================
 Interview Cross Question
 
 Interviewer: Why do we need Route 53?
