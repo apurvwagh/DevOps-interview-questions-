@@ -120,8 +120,11 @@ Interview Answer
 Overall answers 
 
 1)Whenever I troubleshoot Kubernetes issues, I first identify whether the problem is related to the infrastructure, Kubernetes platform, or the application.
-2) I check the node health, pod status, events, logs, services, endpoints, ingress configuration, and resource utilization. 
-3) In one production incident, users were receiving intermittent 503 errors even though the pods were Running. I found that the readiness probe was failing, so Kubernetes removed the pods from the Service endpoints. After correcting the readiness probe configuration and validating the application, the issue was resolved. 
+
+2) I check the node health, pod status, events, logs, services, endpoints, ingress configuration, and resource utilization.
+    
+3) In one production incident, users were receiving intermittent 503 errors even though the pods were Running. I found that the readiness probe was failing, so Kubernetes removed the pods from the Service endpoints. After correcting the readiness probe configuration and validating the application, the issue was resolved.
+   
 4)In another incident, pods were stuck in Pending because the cluster lacked resources and Karpenter couldn’t provision new nodes due to an IAM permission issue. After fixing the permissions, new nodes were created automatically and the pods were scheduled successfully. using Kubernetes events, logs, metrics, and application dependencies to identify the root cause before implementing a fix.”
 
 User Report → ALB → Ingress → Service → Endpoints → Pods → Container Logs → Node → Application → Database/External Dependencies → Metrics → Root Cause → Resolution → RCA & Preventive Actions
@@ -131,7 +134,9 @@ User Report → ALB → Ingress → Service → Endpoints → Pods → Container
 8. What is your deployment strategy
 
 1) In my current project, we primarily use the Rolling Update deployment strategy for application deployments. Once the CI pipeline builds and pushes the Docker image to Amazon ECR, Argo CD synchronizes the updated manifests with the EKS cluster.
-2)  Kubernetes then gradually replaces the old pods with new ones using Rolling Update. Readiness probes ensure that only healthy pods receive traffic, while multiple replicas and Pod Disruption Budgets ensure zero downtime.
+   
+2) Kubernetes then gradually replaces the old pods with new ones using Rolling Update. Readiness probes ensure that only healthy pods receive traffic, while multiple replicas and Pod Disruption Budgets ensure zero downtime.
+   
 3) For high-risk production releases that require fast rollback, we would consider Blue-Green or Canary deployments, but our day-to-day application deployments use Rolling Updates.”
 
 ============================================================
@@ -139,8 +144,10 @@ User Report → ALB → Ingress → Service → Endpoints → Pods → Container
 9. How do you manage infrastructure cost optimization without impacting performance?
 
 1) My approach to infrastructure cost optimization is based on monitoring and data rather than assumptions. I first analyze resource utilization using CloudWatch, Prometheus, Grafana, and AWS Cost Explorer.
+   
 2) Then I optimize EC2 and Kubernetes resources through right-sizing, HPA, and Karpenter.I optimize databases with query tuning and Read Replicas, reduce networking costs using VPC Endpoints, and manage storage with lifecycle policies and cleanup of unused resources.
-3) Finally, I use AWS Budgets, Cost Anomaly Detection, and resource tagging to continuously monitor spending. Every optimization is validated against application performance metrics to ensure we reduce costs without impacting user experience or system reliability.”
+   
+3)  Finally, I use AWS Budgets, Cost Anomaly Detection, and resource tagging to continuously monitor spending. Every optimization is validated against application performance metrics to ensure we reduce costs without impacting user experience or system reliability.”
 
 Cost Optimization Areas
 
