@@ -20,7 +20,7 @@ Devops mock interview Q
 
  3. Your Kubernetes cluster is healthy, but requests intermittently return 503. How would you troubleshoot it?
 
-1) When users receive intermittent 503 errors, I first determine whether the issue is at the load balancer, Kubernetes, or application layer.
+1)When users receive intermittent 503 errors, I first determine whether the issue is at the load balancer, Kubernetes, or application layer.
    
 2)I start by checking pod readiness because a pod can be Running but not Ready. Then I verify Service endpoints, label selectors, Ingress configuration, and ALB target health.
 
