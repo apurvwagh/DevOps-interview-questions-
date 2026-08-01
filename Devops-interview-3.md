@@ -23,6 +23,7 @@ Devops mock interview Q
 1) When users receive intermittent 503 errors, I first determine whether the issue is at the load balancer, Kubernetes, or application layer.
    
 2)I start by checking pod readiness because a pod can be Running but not Ready. Then I verify Service endpoints, label selectors, Ingress configuration, and ALB target health.
+
 3)If those are healthy, I review application logs, resource utilization, and dependency health such as RDS or Redis.
 
 4)In one production scenario, we found that the Readiness Probe was configured too aggressively for a Spring Boot application, causing healthy pods to be removed from the Service before startup completed. Adjusting the startup and readiness probe configuration resolved the issue. My approach is always to trace the request end-to-end—from the ALB to the application—to identify the exact point of failure.”
