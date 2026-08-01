@@ -83,8 +83,10 @@ Scenario 1: Pods Running but Users Getting 503 Errors
  
 Scenario 2: Pods Stuck in Pending 
 Interview Answer
-“1) In another incident, newly created pods remained in the Pending state after deployment. I checked the pod events using kubectl describe pod and found an ‘Insufficient CPU’ scheduling error. 
+“1) In another incident, newly created pods remained in the Pending state after deployment. I checked the pod events using kubectl describe pod and found an ‘Insufficient CPU’ scheduling error.
+
 2) The cluster had reached its resource capacity. Since we were using Karpenter, I verified its logs and found that it couldn’t provision new nodes due to an IAM permission issue.
+   
 3) After correcting the IAM permissions, Karpenter launched new worker nodes, and Kubernetes scheduled the pending pods successfully. We later configured alerts for pending pods and node provisioning failures.”
 
  ⸻
