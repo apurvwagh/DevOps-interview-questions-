@@ -104,6 +104,7 @@ Scheduler selects the node; kubelet is responsible for running the Pod on that n
 This is particularly important for troubleshooting control-plane components because if the API server is down, the kubelet can still manage those static Pods locally.”
 
 /etc/kubernetes/manifests/
+
         │
         ├── kube-apiserver.yaml
         
