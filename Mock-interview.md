@@ -24,7 +24,7 @@ So overall, my flow is: Developer → Git → CI pipeline → Build/Test/Securit
 
 For observability, we use Prometheus and Grafana for metrics, CloudWatch for AWS infrastructure monitoring, and centralized logging for application troubleshooting.”
 
-============================================================================
+==========================================================================
 
 3. When you create a Pod, how does the request flow in your Kubernetes cluster?
 
@@ -39,7 +39,7 @@ For observability, we use Prometheus and Grafana for metrics, CloudWatch for AWS
    kubectl → API Server → etcd → Scheduler → kubelet → containerd
    Client → Load Balancer → Service → Pod
 
-=============================================================================
+========================================================================
 
 4. How are High Availability (HA) and scaling managed in your project?
 
@@ -55,7 +55,7 @@ For observability, we use Prometheus and Grafana for metrics, CloudWatch for AWS
 
 So our HA strategy is multi-AZ infrastructure + multiple replicas + traffic distribution + health checks + PDB + autoscaling + database HA and monitoring.”
 
-=============================================================================
+=======================================================================
 
 5. What is an Admission Controller in Kubernetes?
 
