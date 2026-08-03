@@ -10,6 +10,8 @@
 
 So overall, my flow is: Developer → Git → CI pipeline → Build/Test/Security Scan → Docker Image → ECR → GitOps Repository → Argo CD → EKS → Monitoring and Alerting.”
 
+========================================================================
+
 2. Explain your current project architecture and application traffic flow.
 
 1) Our application follows a highly available, containerized microservices architecture running on AWS. We use a multi-AZ VPC with public and private subnets. The EKS worker nodes run in private subnets, while internet-facing components such as the Application Load Balancer are deployed in public subnets.
