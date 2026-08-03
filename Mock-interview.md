@@ -106,8 +106,11 @@ This is particularly important for troubleshooting control-plane components beca
 /etc/kubernetes/manifests/
         │
         ├── kube-apiserver.yaml
+        
         ├── kube-controller-manager.yaml
+        
         ├── kube-scheduler.yaml
+        
         └── etcd.yaml
         
 ======================================================================
@@ -138,7 +141,7 @@ In production, I make sure the probes test meaningful health conditions and don�
 
 In production, I avoid giving users cluster-admin unless absolutely necessary because it provides extremely broad permissions.”
 
-=============================================================================
+======================================================================
 
 10. How would you upgrade an Amazon EKS/Kubernetes cluster?
 
@@ -152,7 +155,7 @@ In production, I avoid giving users cluster-admin unless absolutely necessary be
 
 5) During the upgrade I monitor Pod health, node health, application metrics, ALB target health, error rates, latency, and logs. After the upgrade, I perform smoke tests and verify that all workloads are healthy. If there is an application-level issue, I stop the rollout and use the appropriate rollback or remediation procedure.”
 
-=============================================================================
+===================================================================
 
 
 
