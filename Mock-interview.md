@@ -126,6 +126,37 @@ In production, I make sure the probes test meaningful health conditions and don�
         
 ======================================================================
 
+9. What is RBAC (Role-Based Access Control) in Kubernetes?
+
+1) RBAC in Kubernetes controls who can perform which actions on which Kubernetes resources. It follows the principle of least privilege.
+
+2) The main RBAC objects are Role, ClusterRole, RoleBinding, and ClusterRoleBinding. A Role defines permissions within a specific namespace. A ClusterRole can define permissions at the cluster level or be reused across namespaces. RoleBinding connects a user, group, or ServiceAccount to a Role, while ClusterRoleBinding grants a ClusterRole at the cluster level.
+
+3) Permissions are defined using verbs such as get, list, watch, create, update, patch, and delete against resources such as Pods, Deployments, or Secrets.
+
+4) For example, if I want a developer to view Pods in the dev namespace but not delete them, I create a Role with get, list, and watch permissions and bind it to the developer’s identity.
+
+In production, I avoid giving users cluster-admin unless absolutely necessary because it provides extremely broad permissions.”
+
+=============================================================================
+
+10. How would you upgrade an Amazon EKS/Kubernetes cluster?
+
+1) For an EKS upgrade, I follow a controlled and phased approach because the goal is to upgrade the control plane and worker nodes without causing application downtime.
+
+2) First, I review the EKS version support matrix and Kubernetes release notes, identify deprecated APIs, and check application and add-on compatibility. I also test the upgrade in a non-production environment first.
+
+3) Before production, I take backups of important Kubernetes resources and verify that critical workloads have multiple replicas, appropriate readiness probes, and PodDisruptionBudgets. I also verify the compatibility of CoreDNS, kube-proxy, VPC CNI, EBS CSI driver, ingress controller, and other critical add-ons.
+
+4) Then I upgrade the EKS control plane. After that, I upgrade the managed add-ons and create or upgrade the worker node groups. For a safer production upgrade, I prefer a new node group with the new Kubernetes version, gradually move workloads to it using cordon and drain, and then remove the old node group.
+
+5) During the upgrade I monitor Pod health, node health, application metrics, ALB target health, error rates, latency, and logs. After the upgrade, I perform smoke tests and verify that all workloads are healthy. If there is an application-level issue, I stop the rollout and use the appropriate rollback or remediation procedure.”
+
+=============================================================================
+
+
+
+
 
 
 
