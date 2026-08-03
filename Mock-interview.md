@@ -49,9 +49,9 @@ For observability, we use Prometheus and Grafana for metrics, CloudWatch for AWS
 
 3) For scaling, we use Horizontal Pod Autoscaler to increase or decrease Pod replicas based on metrics such as CPU, memory, or application-specific metrics. When the cluster doesn’t have enough capacity to schedule new Pods, Karpenter or Cluster Autoscaler provisions additional nodes.
 
-4)For the application entry point, we use an AWS Application Load Balancer to distribute traffic across healthy targets. Readiness probes prevent traffic from being sent to unhealthy Pods, while liveness probes allow Kubernetes to restart containers that are stuck.
+4) For the application entry point, we use an AWS Application Load Balancer to distribute traffic across healthy targets. Readiness probes prevent traffic from being sent to unhealthy Pods, while liveness probes allow Kubernetes to restart containers that are stuck.
 
-5)For the database layer, we use AWS-managed services such as RDS with Multi-AZ for high availability, and appropriate backup and disaster-recovery mechanisms.
+5) For the database layer, we use AWS-managed services such as RDS with Multi-AZ for high availability, and appropriate backup and disaster-recovery mechanisms.
 
 So our HA strategy is multi-AZ infrastructure + multiple replicas + traffic distribution + health checks + PDB + autoscaling + database HA and monitoring.”
 
@@ -97,7 +97,7 @@ Scheduler selects the node; kubelet is responsible for running the Pod on that n
 
 2) For example, in a kubeadm cluster, control-plane components such as the API server, scheduler, controller manager, and etcd are commonly deployed as static Pods. Their manifests are typically located under /etc/kubernetes/manifests/.
 
-3)Yes, we can create a Pod without the kube-apiserver by placing a valid Pod manifest in the kubelet’s configured static Pod directory. The kubelet reads the manifest and starts the Pod directly.
+3) Yes, we can create a Pod without the kube-apiserver by placing a valid Pod manifest in the kubelet’s configured static Pod directory. The kubelet reads the manifest and starts the Pod directly.
 
 4) However, the Pod can still appear in the API server when the API server is available. Kubernetes creates a mirror Pod object for visibility, but the kubelet remains responsible for the actual Pod lifecycle.
 
