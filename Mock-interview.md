@@ -1,6 +1,6 @@
 1. Explain your CI/CD flow in your current project.
 
-1)“In my current project, we follow a Git-based CI/CD and GitOps approach. Developers push code to Git, which triggers the CI pipeline. The pipeline performs code quality checks, security scanning, unit tests, builds the application, creates a Docker image, and pushes it to Amazon ECR.
+1) In my current project, we follow a Git-based CI/CD and GitOps approach. Developers push code to Git, which triggers the CI pipeline. The pipeline performs code quality checks, security scanning, unit tests, builds the application, creates a Docker image, and pushes it to Amazon ECR.
 
 2) For deployment, we use Kubernetes on Amazon EKS. After the image is available in ECR, the deployment configuration is updated through our GitOps repository. Argo CD detects the change and synchronizes the desired state with the EKS cluster.
 
