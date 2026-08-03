@@ -65,9 +65,9 @@ So our HA strategy is multi-AZ infrastructure + multiple replicas + traffic dist
 
 3) For example, when I deploy a Pod, a mutating admission controller could automatically inject a sidecar container or add required labels. A validating admission controller could reject the Pod if it violates security policies, such as running a privileged container or using an unapproved image registry.
 
-4)In production environments, admission controllers are very useful for enforcing security and governance policies consistently across the cluster. Tools such as Kyverno or OPA Gatekeeper can be used to implement custom policies.
+4) In production environments, admission controllers are very useful for enforcing security and governance policies consistently across the cluster. Tools such as Kyverno or OPA Gatekeeper can be used to implement custom policies.
 
-5)The important request flow is: the client sends the request to the API server, authentication and authorization happen, admission controllers validate or mutate the request, and only then is the accepted object persisted in etcd.”
+5) The important request flow is: the client sends the request to the API server, authentication and authorization happen, admission controllers validate or mutate the request, and only then is the accepted object persisted in etcd.”
 
 One-line distinction to remember
 
@@ -99,7 +99,7 @@ Scheduler selects the node; kubelet is responsible for running the Pod on that n
 
 3)Yes, we can create a Pod without the kube-apiserver by placing a valid Pod manifest in the kubelet’s configured static Pod directory. The kubelet reads the manifest and starts the Pod directly.
 
-4)However, the Pod can still appear in the API server when the API server is available. Kubernetes creates a mirror Pod object for visibility, but the kubelet remains responsible for the actual Pod lifecycle.
+4) However, the Pod can still appear in the API server when the API server is available. Kubernetes creates a mirror Pod object for visibility, but the kubelet remains responsible for the actual Pod lifecycle.
 
 This is particularly important for troubleshooting control-plane components because if the API server is down, the kubelet can still manage those static Pods locally.”
 
