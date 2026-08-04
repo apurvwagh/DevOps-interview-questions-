@@ -243,3 +243,26 @@ If the node is under severe memory pressure → the kubelet may evict Pods based
 
 ==================================================================
 
+16. One node was drained without a PodDisruptionBudget (PDB), causing downtime. How would you recover and prevent this?
+
+1) First, I would restore application availability by checking which Pods were evicted during the drain and whether the workload has enough replicas running on other nodes. I would check the node and affected Pods, then verify Deployment and Service health.
+
+2) If the application has insufficient replicas, I would scale the Deployment if required and make sure replacement Pods are scheduled on healthy nodes. If the cluster doesn’t have enough capacity, I would add nodes or allow Karpenter/Cluster Autoscaler to provision capacity.
+
+3) For prevention, I would define a PodDisruptionBudget for critical applications. A PDB specifies how many Pods must remain available during voluntary disruptions such as node drain, node maintenance, or cluster upgrades.
+
+4) I would also run multiple replicas and distribute them across nodes and Availability Zones using topology spread constraints or pod anti-affinity. During maintenance, I would use kubectl drain carefully and verify PDB behavior before proceeding.
+
+5) One important point is that a PDB protects against voluntary disruptions; it doesn’t protect against every failure, such as a sudden node crash. That’s why PDB must be combined with replicas and multi-AZ distribution.”
+
+==================================================================
+
+
+
+
+
+
+
+
+
+
