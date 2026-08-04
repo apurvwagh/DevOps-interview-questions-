@@ -283,6 +283,67 @@ Labels and affinity control where the application can run; taints and toleration
 
 =================================================================
 
+19. An application running inside a Kubernetes Pod is returning HTTP 401/403 errors. How would you troubleshoot it?
+
+1) First, I distinguish between 401 and 403. A 401 generally means the request is unauthenticated or the credentials/token are missing or invalid. A 403 generally means the identity is known but doesn’t have permission to access the requested resource.
+
+2) I first reproduce the issue from inside the Pod using curl and compare the response with a successful request. Then I check the application logs and authentication configuration. I verify environment variables, mounted Secrets, service-account configuration, JWT tokens, token expiration, issuer, audience, and required scopes or roles.
+
+3) If the application is calling another AWS service, I check the Pod’s IAM permissions, especially if we’re using EKS Pod Identity or IAM Roles for Service Accounts. I verify the associated IAM role and its policy.
+
+4) If the request passes through an Ingress, ALB, API Gateway, or service mesh, I also check whether authentication or authorization is being enforced at that layer.
+
+Finally, I compare a working request with the failing request and identify exactly where the authorization decision is being made.”
+
+================================================================
+
+20. You have deployed an application on Amazon EKS and want to expose it to the internet. What setup and components would you use?
+
+1) For a production EKS application that needs to be internet-facing, I would normally use an AWS Application Load Balancer through the AWS Load Balancer Controller and expose the application using a Kubernetes Ingress.
+
+2) The EKS cluster would run in a VPC spanning multiple Availability Zones. Worker nodes would typically be in private subnets, while the internet-facing ALB would be placed in public subnets. Route 53 would provide the application DNS name and point it to the ALB.
+
+3) The traffic flow would be: user → Route 53 → ALB → Kubernetes Service → application Pods. I would configure HTTPS using an ACM certificate and use ALB listener rules for routing.
+
+4) I would also configure Security Groups so that the ALB accepts traffic from the internet on 443 and the worker-node or Pod security layer accepts application traffic only from the ALB. I would use health checks and readiness probes to ensure traffic goes only to healthy workloads.
+
+5)For production HA, I would run multiple application replicas across Availability Zones, use PodDisruptionBudgets and topology spread constraints, and configure HPA plus Karpenter or Cluster Autoscaler for scaling.”
+
+================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
