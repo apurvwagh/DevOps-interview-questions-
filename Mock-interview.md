@@ -257,8 +257,31 @@ If the node is under severe memory pressure → the kubelet may evict Pods based
 
 ==================================================================
 
+17. How would you prevent a frontend Pod from directly accessing a database Pod while allowing only the backend Pod to communicate?
 
+1) I would implement Kubernetes NetworkPolicies using a default-deny approach. First, I would deny all ingress traffic to the database Pods. Then I would create an explicit NetworkPolicy allowing database traffic only from Pods belonging to the backend application.
 
+2) For example, if the database listens on port 5432, I would allow ingress on TCP 5432 only from Pods with the backend label. The frontend Pods would not have that label, so their traffic would be denied.
+
+3) I would also consider controlling egress from the frontend so that it can communicate only with the required backend Service. This creates defense in depth rather than relying only on the database ingress rule.
+
+4)I would validate the policy by testing frontend-to-database connectivity and backend-to-database connectivity. The frontend connection should fail while the backend connection should succeed.”
+
+=================================================================
+
+18. Application 1 should run only on Nodes 1–4, and Application 2 should run only on Node 5. How would you achieve this?
+
+1) I would use node labels combined with node affinity or nodeSelector. I would label Nodes 1–4 with one label and Node 5 with another label, then configure the respective workloads to require those labels.
+
+2) For Application 1, I would label Nodes 1–4 as something like app-tier=app1. For Application 2, I would label Node 5 as app-tier=app2. Then I would use required node affinity so the scheduler can place each application only on its designated nodes.
+
+3) For a strict requirement, I prefer required node affinity rather than a preferred rule, because preferredDuringSchedulingIgnoredDuringExecution is only a preference and doesn’t guarantee placement.
+
+4) If Node 5 is dedicated exclusively to Application 2, I would additionally taint Node 5 and give Application 2 the corresponding toleration. This prevents other workloads from being scheduled there.”
+
+Labels and affinity control where the application can run; taints and tolerations can additionally control which workloads are allowed onto a dedicated node.”
+
+=================================================================
 
 
 
