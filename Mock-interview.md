@@ -158,10 +158,88 @@ In production, I avoid giving users cluster-admin unless absolutely necessary be
 
 ===================================================================
 
+11. How would you distribute 10 Pods evenly across 10 Kubernetes nodes?
 
+1) If I have 10 Pods and 10 nodes and my requirement is to distribute one Pod per node as evenly as possible, I would use Kubernetes topology spread constraints. This is preferable to manually assigning Pods to individual nodes because Kubernetes can maintain the distribution automatically as Pods and nodes change.
 
+2) I would use topologySpreadConstraints with topologyKey: kubernetes.io/hostname and configure maxSkew: 1. I would also use whenUnsatisfiable: DoNotSchedule if it is a strict requirement that Pods must not be placed together on the same node.
 
+3) Another option is Pod anti-affinity, using requiredDuringSchedulingIgnoredDuringExecution, but topology spread constraints are generally better when the requirement is specifically to distribute workloads evenly.
 
+4) In production, I would also consider distributing Pods across Availability Zones using the zone topology label, because spreading across nodes alone doesn’t necessarily provide AZ-level high availability.”
 
+===================================================================
 
+12. My Kubernetes Pod is stuck in the Pending state. How would you troubleshoot it?
+
+1) If a Pod is stuck in Pending, my first assumption is that the scheduler couldn’t find a suitable node, although Pending can also occur while waiting for resources such as a PVC. I first run kubectl describe pod and check the Events section because Kubernetes usually tells me why scheduling failed.
+
+2) I check for insufficient CPU or memory, nodeSelector or node affinity rules, taints and tolerations, topology constraints, and whether the required nodes are Ready. I also check whether a PersistentVolumeClaim is still Pending.
+
+3) Then I verify the cluster capacity using kubectl get nodes and kubectl describe nodes, and check resource requests and limits. If the Pod cannot be scheduled because the cluster has insufficient capacity, I determine whether Cluster Autoscaler or Karpenter can provision additional nodes.
+
+4) If autoscaling doesn’t happen, I check whether the Pod’s scheduling requirements can actually be satisfied by the node group’s labels, instance types, taints, capacity limits, or cloud provider quotas.
+
+I don’t immediately delete the Pod because the scheduler is already trying to schedule it. I first identify the scheduling constraint causing the Pending state.”
+
+Cause
+
+Example
+
+Insufficient CPU
+Insufficient memory
+Taint - Pod lacks toleration
+Affinity - No matching node
+NodeSelector -Label doesn’t exist
+PVC -Volume cannot be provisioned
+Topology - AZ/node constraint impossible
+Autoscaler -Cannot provision matching node
+
+===================================================================
+
+13. A Pod is running, but the application is not working. How would you troubleshoot it?
+
+1) A Pod being in Running state only tells me that the container process has started; it doesn’t mean the application is healthy or receiving traffic. I troubleshoot from the application layer toward the networking layer.
+
+2) First, I check Pod status, readiness and liveness probe results, and Pod events using kubectl describe pod. Then I check application logs using kubectl logs and, if necessary, kubectl logs --previous to identify crashes or dependency failures.
+
+3) Next, I verify that the application is actually listening on the expected port inside the container and test it locally using curl. I check the Kubernetes Service and its endpoints to ensure the Service is selecting the correct Pods.
+
+4) If the Service has no endpoints, I verify the Service selector against the Pod labels and check readiness status. If endpoints exist but traffic still fails, I investigate NetworkPolicies, kube-proxy/CNI networking, Ingress or Load Balancer configuration, and security controls.
+
+Finally, I check downstream dependencies such as databases, APIs, and external services because the Pod may be healthy from Kubernetes’ perspective while the application is unable to serve requests because a dependency is unavailable.”
+
+===================================================================
+
+14. A production Pod was OOMKilled at 2 AM. How would you investigate and resolve the issue?
+
+1) If a production Pod is OOMKilled, I first confirm whether the container exceeded its Kubernetes memory limit or whether the node itself experienced memory pressure. I check the Pod status and previous container termination details using kubectl describe pod and kubectl get pod.
+
+2) Then I review the application’s memory usage before the incident. I check metrics from Prometheus, Grafana, or CloudWatch to determine whether memory gradually increased, suddenly spiked, or increased because of traffic.
+
+3) I also check the configured requests and limits. If the application consistently needs more memory than the configured limit, the limit may simply be too low. However, blindly increasing the limit isn’t always the correct solution because the application could have a memory leak.
+
+4) I review application logs, heap usage, garbage collection metrics, request volume, and recent deployments. If the memory usage continuously increases over time, I investigate a possible memory leak. If the spike correlates with traffic, I evaluate HPA configuration and whether scaling should happen earlier.
+
+5) For immediate recovery, I may increase the memory limit if justified and scale replicas if traffic is high. For permanent resolution, I fix the application memory issue, tune resource requests and limits, configure appropriate autoscaling, and add memory-based alerts.”
+
+ Container OOM vs Node OOM
+
+If the container exceeds its configured memory limit → Kubernetes/container runtime can terminate it.
+
+If the node is under severe memory pressure → the kubelet may evict Pods based on eviction behavior and QoS.
+
+===================================================================
+
+15. A wrong Liveness/Readiness Probe configuration caused production downtime. How would you fix and prevent this?
+
+1) First, I would stabilize production by correcting the probe configuration and ensuring healthy Pods are available. I would determine whether the issue was caused by an overly aggressive liveness probe, an incorrect readiness endpoint, wrong port, insufficient startup time, or an inappropriate timeout.
+
+2) If the liveness probe is failing while the application is actually healthy, Kubernetes may continuously restart containers and create a restart loop. If the readiness probe is incorrect, healthy Pods may be removed from Service endpoints and users can receive 503 errors.
+
+3) For applications with slow startup, I would use a startup probe so Kubernetes gives the application enough time to initialize before liveness checking begins. I would also make the readiness endpoint represent whether the application can actually serve traffic, while liveness should indicate whether the application is fundamentally stuck and needs a restart.
+
+4) For prevention, I would test probes in staging under realistic startup and load conditions, use sensible initialDelaySeconds, timeoutSeconds, periodSeconds, and failure thresholds, and include probe validation in CI/CD. I would also monitor restart counts, readiness failures, and application error rates during deployments.”
+
+==================================================================
 
