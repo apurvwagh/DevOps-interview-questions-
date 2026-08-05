@@ -111,3 +111,48 @@ Another option is direct cross-account S3 access using an S3 bucket policy, wher
 4) For production HA, I typically deploy NAT Gateways per Availability Zone and route each private subnet to the NAT Gateway in the same AZ, avoiding a single-AZ dependency.”
 
 ====================================================================
+
+8. How can an EC2 instance access an S3 bucket without using an Internet Gateway or NAT Gateway?
+
+1) I would use an S3 VPC Endpoint. For S3, the most common option is an S3 Gateway Endpoint. It allows resources in a VPC, including private EC2 instances, to access S3 without traversing an Internet Gateway or NAT Gateway.
+
+2) I create the VPC endpoint and associate it with the route tables used by the private subnets. AWS then adds the appropriate S3 prefix-list route to those route tables. Traffic destined for S3 is routed through the endpoint instead of going to the NAT Gateway.
+
+3) I would also use an IAM role on the EC2 instance with least-privilege S3 permissions and optionally restrict the S3 bucket policy to requests coming through the specific VPC endpoint.
+
+4) This architecture improves security and can reduce NAT Gateway costs, especially when applications transfer significant amounts of data to and from S3.”
+
+Private EC2
+    │
+    ▼
+Private Route Table
+    │
+    ▼
+S3 Gateway VPC Endpoint
+    │
+    ▼
+Amazon S3
+
+====================================================================
+
+9. Your application on EC2 experiences traffic spikes only during business hours. How would you optimize cost and performance?
+
+1) I would first analyze the traffic pattern using CloudWatch metrics such as CPU utilization, request count, latency, and network utilization. Since the traffic spike is predictable during business hours, I would combine scheduled scaling with dynamic Auto Scaling.
+
+2) I would run an Auto Scaling Group behind an Application Load Balancer and configure minimum, desired, and maximum capacity. For predictable business-hour traffic, I can use scheduled scaling to increase the desired capacity shortly before peak hours and scale down after business hours.
+
+3) I would also configure a target-tracking policy, such as maintaining average CPU utilization around a defined target, so the ASG can respond if traffic is higher or lower than expected.
+
+4)For cost optimization, I would avoid keeping peak capacity running 24/7. For workloads that tolerate interruption, I could also use a mix of On-Demand and Spot Instances. I would right-size the EC2 instance types based on actual CPU and memory utilization.
+
+5) I would monitor application latency and error rates while scaling because the goal isn’t just reducing cost; it is maintaining the required performance and availability.”
+
+====================================================================
+
+
+
+
+
+
+
+
