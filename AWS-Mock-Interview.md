@@ -8,4 +8,17 @@
 
 4) One important limitation is that VPC Peering is non-transitive. If VPC-A is peered with VPC-B and VPC-B is peered with VPC-C, VPC-A cannot automatically communicate with VPC-C through VPC-B. For many-to-many connectivity, I would consider AWS Transit Gateway.”
 
+VPC-A                         VPC-B
+10.1.0.0/16                  10.2.0.0/16
+   │                              │
+EC2-A                          EC2-B
+   │                              │
+   └──── VPC Peering ─────────────┘
+
+VPC-A Route Table:
+10.2.0.0/16 → pcx-xxxx
+
+VPC-B Route Table:
+10.1.0.0/16 → pcx-xxxx
+
 ==================================================================
