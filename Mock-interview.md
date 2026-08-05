@@ -311,7 +311,17 @@ Finally, I compare a working request with the failing request and identify exact
 
 ================================================================
 
+21. Why are there two containers inside a Pod?
 
+1) Kubernetes allows multiple containers inside the same Pod when those containers need to work closely together and share the same lifecycle, network, and storage. The containers in a Pod share the same network namespace, so they can communicate using localhost, and they can also share volumes.
+
+2) A common use case is the sidecar pattern. For example, the main application container runs the business application, while a second container handles a supporting function such as log collection, proxying, monitoring, security, or configuration synchronization.
+
+3) For example, we might have an application container listening on port 8080 and an Envoy sidecar acting as a proxy. Both containers are inside the same Pod and can communicate through localhost.
+
+4) Another example is a logging sidecar that reads application log files from a shared volume and forwards them to a centralized logging system.
+
+However, I don’t put containers in the same Pod just because they belong to the same application. If they need independent scaling, independent deployment, or independent lifecycle management, I would normally use separate Pods and communicate through a Kubernetes Service.”
 
 
 
