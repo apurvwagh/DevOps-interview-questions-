@@ -73,14 +73,23 @@ Strong interview line:
 Dockerfile
    │
    ├── Minimal base image
+   
    ├── Multi-stage build
+   
    ├── .dockerignore
+   
    ├── Layer caching
+   
    ├── Non-root user
+   
    ├── No secrets
+   
    ├── Pin versions
+   
    ├── Vulnerability scanning
+   
    ├── Exec-form ENTRYPOINT
+   
    └── Small runtime image
 
    My goal is to make the image small, reproducible, secure, and optimized for Docker layer caching.”
