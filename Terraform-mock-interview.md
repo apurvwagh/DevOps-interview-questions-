@@ -70,10 +70,80 @@ terraform plan
     ↓
 terraform apply
 
+====================================================================
+
+3. What is Terraform Drift? How do you fix and prevent it?
+
+1) Terraform drift occurs when the real infrastructure differs from what Terraform expects based on its configuration and state. A common example is when someone manually changes an AWS Security Group, EC2 instance configuration, or other Terraform-managed resource through the AWS console or CLI.
+
+2) I detect drift by running terraform plan. Terraform refreshes the resource information and compares the actual infrastructure with the desired configuration.
+
+3) If the manual change is not intended, I usually run terraform apply to bring the infrastructure back to the configuration defined in code. If the manual change is intentional, I update the Terraform code to reflect the desired configuration and then apply it.
+
+4) To prevent drift, I follow Infrastructure-as-Code practices, restrict manual changes using IAM/RBAC, use CI/CD for Terraform changes, enable code reviews, and regularly run Terraform plans.
+
+5) I also make sure engineers understand that the Terraform state is not the source of desired configuration—the Terraform code is. State is Terraform’s record of the resources it manages.”
+
+Prevent drift
+
+* Restrict console changes
+* Use IAM least privilege
+* Terraform through CI/CD
+* Pull requests/code reviews
+* Scheduled terraform plan
+* Centralized state management
+* Clear ownership of infrastructure
+
+====================================================================
+
+4. How does your team use Terraform in large environments?
+
+1) In a large environment, I don’t allow every engineer to modify one huge Terraform configuration or state file. We structure Terraform into reusable modules and separate environments and state according to ownership and blast radius.
+
+2) For example, we might have reusable modules for VPC, EKS, IAM, RDS, and ALB. Environment-specific configurations such as development, staging, and production consume those modules with different variables.
+
+3) We use remote state, typically an S3 backend with state locking, and restrict access using IAM. Different teams or environments can have separate state files so that a change to one application doesn’t affect unrelated infrastructure.
+
+4) Terraform changes go through Git-based pull requests. CI runs formatting, validation, security scanning, and terraform plan. After approval, the pipeline performs terraform apply, particularly for production.
+
+5) We also use versioned modules, provider version constraints, tagging standards, naming conventions, and least-privilege IAM. The goal is repeatability, isolation, auditability, and minimizing the blast radius of changes.”
+
+Terraform Repository
+│
+├── modules/
+
+│   ├── vpc/
+
+│   ├── eks/
+
+│   ├── rds/
+
+│   ├── iam/
+
+│   └── alb/
+│
+└── environments/
+
+    ├── dev/
+    
+    ├── staging/
+    
+    └── prod/
 
 
+====================================================================
 
+5. What is a Terraform Data Source (data block)?
 
+1) A Terraform data source allows Terraform to read information about an existing resource without creating or managing that resource.
+
+2) For example, if a VPC already exists, instead of creating another VPC, I can use a data source to retrieve its ID, CIDR, or other attributes and use those values in resources managed by Terraform.
+
+3) Data sources are especially useful when infrastructure is shared between teams or managed by another Terraform stack. For example, a networking team may manage the VPC while the application team uses a data source to retrieve the VPC and subnet IDs.
+
+The key difference is that a resource block manages infrastructure, while a data block reads existing information.”
+
+====================================================================
 
 
 
