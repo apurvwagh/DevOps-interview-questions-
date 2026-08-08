@@ -149,6 +149,70 @@ Amazon S3
 
 ====================================================================
 
+10. Your EC2 instance crashed unexpectedly. How would you identify the issue and restore service?
+
+1) If an EC2 instance crashes unexpectedly, my first priority is to determine whether the failure is at the AWS infrastructure level, operating-system level, or application level, while restoring service as quickly as possible.
+
+2) First, I check the EC2 console and CloudWatch for instance status, system status checks, CPU, memory if available through the CloudWatch agent, disk, network metrics, and recent alarms. I check whether it was a system status check failure or an instance status check failure.
+
+3) If the instance is still reachable, I connect through SSH or SSM and check system logs, kernel messages, disk space, memory, and running services. I use commands such as journalctl, dmesg, df -h, free -m, and systemctl status.
+
+4) If I cannot connect, I check security groups, networking, SSM availability, and boot/system logs. If the instance has an underlying host or system problem, I may stop and start the instance, depending on the instance type and recovery procedure.
+
+5) For production, I don’t want the application dependent on a single EC2 instance. If it’s behind an Auto Scaling Group and the instance is unhealthy, the ASG should terminate and replace it automatically. I then perform RCA using CloudWatch logs, application logs, OS logs, and AWS events.”
+
+====================================================================
+
+11. An EC2 application cannot access the internet to download files/images. How would you troubleshoot it?
+
+1) I would troubleshoot this from the EC2 instance outward, starting with DNS and routing, then checking NAT or Internet Gateway connectivity, Security Groups, NACLs, and finally the external destination.
+
+2) First, I check whether the instance can resolve DNS using nslookup or dig. If DNS fails, I check the VPC DNS settings and /etc/resolv.conf.
+
+3) Next, I determine whether the instance is in a public or private subnet. For a private instance, I verify that the route table has 0.0.0.0/0 pointing to a NAT Gateway. For a public instance, I verify the route to the Internet Gateway and that the instance has a public IPv4 address or appropriate public connectivity.
+
+4)Then I check Security Groups and NACLs. The instance needs outbound access, and NACLs must allow the return traffic through ephemeral ports. I also verify that the NAT Gateway is available and located in a public subnet with a route to the Internet Gateway.
+
+Finally, I test connectivity step by step using curl, ping where appropriate, traceroute, and DNS tools. I also check whether the destination itself is blocking the request.”
+
+===================================================================
+
+12. How do you connect an on-premises data center to AWS?
+
+1) There are two primary options for connecting an on-premises data center to AWS: Site-to-Site VPN and AWS Direct Connect. The choice depends on requirements around bandwidth, latency, reliability, and cost.
+
+2) For a quick and cost-effective connection, I can establish an IPsec Site-to-Site VPN between the on-premises firewall/router and an AWS Virtual Private Gateway or Transit Gateway. Traffic is encrypted over the internet.
+
+3) For predictable network performance, higher bandwidth, and more consistent latency, I would use AWS Direct Connect. Direct Connect provides a dedicated network connection between the data center and AWS. For production, I would normally design redundant connections, potentially across different locations.
+
+4)For larger environments with multiple VPCs, I would typically terminate connectivity into a Transit Gateway and use routing to connect the on-premises network to the required VPCs. I would also configure appropriate route tables, security groups, NACLs, and DNS resolution between environments.
+
+For critical workloads, I can use Direct Connect as the primary path and VPN as a backup path.”
+
+===================================================================
+
+13. Two EC2 instances in different VPCs cannot communicate. How would you fix it?
+
+1) I would troubleshoot this layer by layer. First, I verify that the two VPC CIDR ranges do not overlap. Then I establish whether the VPCs are actually connected using VPC Peering, Transit Gateway, or another supported connectivity mechanism.
+
+2) If VPC Peering is used, I verify that the peering connection is active and that both VPC route tables contain routes to the remote VPC CIDR through the peering connection. If Transit Gateway is used, I verify attachment state, Transit Gateway route tables, and propagation or static routes.
+
+3)Next, I check Security Groups on both EC2 instances. The destination instance must allow the required inbound port from the source VPC CIDR or, where supported, the appropriate security-group reference. I also verify NACLs and ensure return traffic is allowed.
+
+4) Finally, I check the EC2 operating-system firewall and application listener. I test connectivity using the private IP and the actual application port rather than just ping, because ICMP may be blocked even when TCP connectivity works.”
+
+===================================================================
+
+
+
+
+
+
+
+
+
+
+
 
 
 
