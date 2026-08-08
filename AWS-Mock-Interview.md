@@ -203,6 +203,87 @@ For critical workloads, I can use Direct Connect as the primary path and VPN as 
 
 ===================================================================
 
+14. What are the different Auto Scaling Group (ASG) scaling policies?
+
+1) AWS Auto Scaling Groups support several scaling approaches. The main ones I use are target tracking, step scaling, simple scaling, scheduled scaling, and predictive scaling.
+
+2) Target tracking is usually my first choice for common applications. I define a target metric, such as average CPU utilization of 60%, and the ASG automatically adjusts capacity to maintain that target.
+
+3) Step scaling allows me to define different scaling actions based on how far a CloudWatch alarm is above or below a threshold. For example, if CPU is slightly high, add one instance; if CPU is extremely high, add three.
+
+4) Simple scaling also reacts to a CloudWatch alarm but uses a single scaling adjustment and historically relies on a cooldown period before another scaling action.
+
+5) Scheduled scaling is useful when demand is predictable, such as business-hour traffic. Predictive scaling uses historical patterns to forecast demand and scale ahead of expected traffic.
+
+In production, I often combine scheduled scaling for predictable demand with target tracking for unexpected traffic spikes.”
+
+===================================================================
+
+15. What are Amazon CloudWatch Alarms and CloudWatch Events (EventBridge)?
+
+1) CloudWatch Alarms monitor metrics and take actions when a metric crosses a configured threshold for a specified evaluation period. For example, I can create an alarm when EC2 CPU utilization stays above 80% for five minutes. The alarm can trigger actions such as Auto Scaling, an SNS notification, or other automated responses.
+
+2) CloudWatch Events is the older name for Amazon EventBridge. EventBridge is an event-driven service that can receive events from AWS services, applications, and SaaS systems and route those events to targets such as Lambda, SQS, SNS, Step Functions, or other services.
+
+3) The key difference is that CloudWatch Alarms primarily evaluate metrics and determine whether a threshold or condition has been breached, while EventBridge reacts to events.
+
+4) For example, I could use a CloudWatch Alarm to detect high EC2 CPU and trigger an SNS notification, while EventBridge could detect an EC2 instance state change and trigger a Lambda function or send an event to another system.”
+
+===================================================================
+
+16. What is an Elastic Network Interface (ENI)?
+
+1) An Elastic Network Interface, or ENI, is a virtual network interface in AWS that provides network connectivity to resources such as EC2 instances. An ENI can have a private IP address, one or more secondary private IP addresses, a MAC address, security groups, and optionally a public or Elastic IP association.
+
+2) Every EC2 instance has a primary network interface, commonly called the primary ENI. I can also attach additional ENIs to an instance, subject to the instance type’s limits.
+
+3) ENIs are useful when I need to separate network interfaces or security groups, assign additional private IPs, or move an interface between instances in certain scenarios.
+
+4) ENIs are also important in EKS because the AWS VPC CNI assigns VPC networking to Pods using ENIs and secondary IP addresses. This is one reason an EKS cluster can run into IP address or ENI capacity limitations.”
+
+===================================================================
+
+17. How do you determine whether an EC2 instance is in a public or private subnet?
+
+1) I don’t determine this simply by checking whether the EC2 instance has a public IP. The primary factor is the subnet’s route table.
+
+2) A subnet is considered public when its route table has a route such as 0.0.0.0/0 pointing to an Internet Gateway. A private subnet typically doesn’t have a direct route to the Internet Gateway. If it needs outbound internet access, its default route usually points to a NAT Gateway located in a public subnet.
+
+3) For the EC2 instance itself, I also check whether it has a public IPv4 address or Elastic IP. But having a public IP alone isn’t enough; the subnet must have a valid route to the Internet Gateway and the Security Group/NACL must allow the traffic.
+
+4) So my troubleshooting approach is: identify the subnet, check its associated route table, verify the default route, then check the instance’s public IP and security controls.”
+
+===================================================================
+
+18. You accidentally deleted data from an S3 bucket. How would you recover it?
+
+1) My recovery approach depends on whether S3 Versioning was enabled before the deletion. First, I would immediately stop further changes to the affected objects and identify exactly what was deleted and when.
+
+2) If Versioning is enabled, deleting an object normally creates a delete marker instead of permanently removing the previous version. I can list the object versions, identify the previous valid version, and restore it by removing the delete marker or copying the required version back as the current object.
+
+3) If Versioning was not enabled, I would check whether the data exists in another backup or replication location, such as S3 replication, AWS Backup where applicable, or an application-level backup. If no backup or recovery mechanism exists, recovery may not be possible after permanent deletion.
+
+4) For prevention, I enable S3 Versioning for important buckets, configure appropriate lifecycle rules, consider Object Lock for compliance-sensitive data, enable CloudTrail data-event logging where required, and restrict delete permissions using IAM and bucket policies.”
+
+===================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
