@@ -48,20 +48,28 @@ output
 6) For production, I would also check state locking and make sure another engineer isn’t modifying the same state before rerunning the operation.”
 
 Apply failed
+
     ↓
 Read error
+
     ↓
 Identify failed resource
+
     ↓
 Check AWS/API logs
+
     ↓
 Check Terraform state
+
     ↓
 Fix root cause
+
     ↓
 terraform plan
+
     ↓
 terraform apply
+
 
 
 
