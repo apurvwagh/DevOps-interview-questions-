@@ -219,55 +219,55 @@ Q15. A developer says, “The pipeline is failing only in production. Dev and QA
 
 Q16. Deployment is successful, all Pods are Running, but users still can’t access the application. Where will you start debugging?
 
-“I would not assume that Running Pods mean the application is accessible. I would trace the request path from the user to the Pod and identify the first layer where traffic is failing.
+1) I would not assume that Running Pods mean the application is accessible. I would trace the request path from the user to the Pod and identify the first layer where traffic is failing.
 
-First, I would check whether the Pods are Ready and whether the application is actually listening on the expected port. Then I would verify the Kubernetes Service and its EndpointSlices.
+2) First, I would check whether the Pods are Ready and whether the application is actually listening on the expected port. Then I would verify the Kubernetes Service and its EndpointSlices.
 
-After that, I would check the Ingress and AWS ALB—listener rules, target groups, target health, security groups and health checks. I would also verify DNS and, if CloudFront is involved, caching and origin configuration.
+3) After that, I would check the Ingress and AWS ALB—listener rules, target groups, target health, security groups and health checks. I would also verify DNS and, if CloudFront is involved, caching and origin configuration.
 
-I would test the application from inside the cluster as well as externally. This helps me determine whether the issue is inside Kubernetes or somewhere in the external traffic path.”
+4) I would test the application from inside the cluster as well as externally. This helps me determine whether the issue is inside Kubernetes or somewhere in the external traffic path.”
 
 =============≠=======================================================
 
 Q17. Your EKS cluster needs internet access to pull Docker images, but worker nodes shouldn’t have Public IPs. How would you design it?
 
-“I would keep the EKS worker nodes in private subnets without public IPs. For pulling images from Amazon ECR, I would preferably use VPC endpoints for ECR and S3, because ECR image layers are stored in S3. This allows image pulls without traversing the public internet.
+1) I would keep the EKS worker nodes in private subnets without public IPs. For pulling images from Amazon ECR, I would preferably use VPC endpoints for ECR and S3, because ECR image layers are stored in S3. This allows image pulls without traversing the public internet.
 
-If the nodes need general outbound internet access—for example, to download packages or access external APIs—I would route their traffic through a NAT Gateway in a public subnet. The private subnet’s route table would point the default route to the NAT Gateway.
+2) If the nodes need general outbound internet access—for example, to download packages or access external APIs—I would route their traffic through a NAT Gateway in a public subnet. The private subnet’s route table would point the default route to the NAT Gateway.
 
-The NAT Gateway has a public IP and communicates through the Internet Gateway, while the worker nodes remain private.
+3) The NAT Gateway has a public IP and communicates through the Internet Gateway, while the worker nodes remain private.
 
-Private nodes don’t need public IPs. I use NAT Gateway for required general outbound internet access and VPC endpoints for AWS services such as ECR and S3. This gives private workers controlled outbound connectivity while keeping them unreachable directly from the internet.”
+4) Private nodes don’t need public IPs. I use NAT Gateway for required general outbound internet access and VPC endpoints for AWS services such as ECR and S3. This gives private workers controlled outbound connectivity while keeping them unreachable directly from the internet.”
 
 =============≠=======================================================
 
 Q18. Your Terraform deployment accidentally deleted an AWS resource. How would you prevent this in production?
 
-“First, I would prevent Terraform from being able to accidentally destroy critical resources by using lifecycle protection such as prevent_destroy = true where appropriate. I would also enforce a production workflow where engineers cannot directly run terraform apply; changes go through pull requests, Terraform plan review and an approval gate.
+1) First, I would prevent Terraform from being able to accidentally destroy critical resources by using lifecycle protection such as prevent_destroy = true where appropriate. I would also enforce a production workflow where engineers cannot directly run terraform apply; changes go through pull requests, Terraform plan review and an approval gate.
 
-I would carefully review any plan containing destroy or replace, especially for stateful resources such as RDS, S3 or production networking.
+2) I would carefully review any plan containing destroy or replace, especially for stateful resources such as RDS, S3 or production networking.
 
-I would also use remote state with locking, least-privilege IAM, separate production state, and CI/CD controls. Finally, I would maintain backups and recovery mechanisms because Terraform safeguards don’t replace data protection.”
+3) I would also use remote state with locking, least-privilege IAM, separate production state, and CI/CD controls. Finally, I would maintain backups and recovery mechanisms because Terraform safeguards don’t replace data protection.”
 
 =============≠=======================================================
 
 Q19. Production application suddenly fails with Too many open files. How will you troubleshoot it?
 
-”Too many open files normally indicates that the process has reached its file descriptor limit. I would first check the application’s current file descriptor usage and limits, then determine what is consuming the descriptors—files, sockets, connections or leaked resources.
+1) Too many open files normally indicates that the process has reached its file descriptor limit. I would first check the application’s current file descriptor usage and limits, then determine what is consuming the descriptors—files, sockets, connections or leaked resources.
 
-I would check ulimit, /proc/<pid>/fd, lsof, application metrics and logs. I would specifically investigate whether there is a file descriptor leak, too many concurrent network connections, improperly closed files, or an unexpectedly high traffic level.
+2) I would check ulimit, /proc/<pid>/fd, lsof, application metrics and logs. I would specifically investigate whether there is a file descriptor leak, too many concurrent network connections, improperly closed files, or an unexpectedly high traffic level.
 
-For immediate mitigation, I might restart or scale the affected application if appropriate, but I would not consider that the permanent fix. I would identify and fix the leak or tune the limits only after understanding the cause.”
+3)For immediate mitigation, I might restart or scale the affected application if appropriate, but I would not consider that the permanent fix. I would identify and fix the leak or tune the limits only after understanding the cause.”
 
 =============≠=======================================================
 
 Q20. Pipeline completed successfully, but one microservice wasn’t updated while all others were. How will you troubleshoot it?
 
-“I would first determine whether the problem is in the build, artifact, deployment or traffic layer. Since the other microservices updated successfully, I would compare the failing service’s pipeline stages and configuration with the successful services.
+1) I would first determine whether the problem is in the build, artifact, deployment or traffic layer. Since the other microservices updated successfully, I would compare the failing service’s pipeline stages and configuration with the successful services.
 
-I would verify that the service actually built a new image, that the expected image was pushed to ECR, and that the deployment manifest references the correct immutable image tag or digest. Then I would check the Kubernetes Deployment, ReplicaSet and Pods to verify which version is actually running.
+2) I would verify that the service actually built a new image, that the expected image was pushed to ECR, and that the deployment manifest references the correct immutable image tag or digest. Then I would check the Kubernetes Deployment, ReplicaSet and Pods to verify which version is actually running.
 
-If we’re using ArgoCD or another GitOps tool, I would check whether the manifest change was committed, detected and synchronized. Finally, I would verify that the Service/Ingress is sending traffic to the new Pods.
+3) If we’re using ArgoCD or another GitOps tool, I would check whether the manifest change was committed, detected and synchronized. Finally, I would verify that the Service/Ingress is sending traffic to the new Pods.
 
 I would also check whether the pipeline had a conditional step, incorrect service path, wrong namespace or deployment target that caused this particular microservice to be skipped.”
 
