@@ -275,41 +275,41 @@ I would also check whether the pipeline had a conditional step, incorrect servic
 
 Q21. Your application needs to run on only 2 specific worker nodes. How will you achieve this?
 
-“I would use Kubernetes node labels combined with node affinity or nodeSelector. I would label the two specific worker nodes with an application-specific label and configure the Deployment so that its Pods can schedule only on nodes with that label.
+1) I would use Kubernetes node labels combined with node affinity or nodeSelector. I would label the two specific worker nodes with an application-specific label and configure the Deployment so that its Pods can schedule only on nodes with that label.
 
-If I want to ensure other workloads don’t use those nodes, I would also apply a taint to the nodes and give only this application’s Pods the corresponding toleration.
+2) If I want to ensure other workloads don’t use those nodes, I would also apply a taint to the nodes and give only this application’s Pods the corresponding toleration.
 
-For production, I prefer node affinity because it provides more flexibility than nodeSelector. I would also consider whether restricting an application to only two nodes creates a single point of failure and would verify that those nodes are in different Availability Zones if high availability is required.”
+3) For production, I prefer node affinity because it provides more flexibility than nodeSelector. I would also consider whether restricting an application to only two nodes creates a single point of failure and would verify that those nodes are in different Availability Zones if high availability is required.”
 
 =============≠=======================================================
 
 Q22. Your company wants to connect 15 VPCs across different AWS Regions. Will you create VPC Peering between every VPC?
 
-“No. I would not normally create a full mesh of VPC Peering connections. With 15 VPCs, a full mesh can require up to 105 peering relationships, which becomes difficult to manage.
+1) No. I would not normally create a full mesh of VPC Peering connections. With 15 VPCs, a full mesh can require up to 105 peering relationships, which becomes difficult to manage.
 
-I would generally use AWS Transit Gateway in each Region and establish inter-Region Transit Gateway peering. Each VPC attaches to its regional Transit Gateway, and Transit Gateway route tables control which networks can communicate.
+2) I would generally use AWS Transit Gateway in each Region and establish inter-Region Transit Gateway peering. Each VPC attaches to its regional Transit Gateway, and Transit Gateway route tables control which networks can communicate.
 
-VPC Peering is still appropriate for a simple point-to-point requirement, but for many VPCs across multiple Regions and potentially multiple AWS accounts, Transit Gateway provides a much more scalable architecture.”
+3) VPC Peering is still appropriate for a simple point-to-point requirement, but for many VPCs across multiple Regions and potentially multiple AWS accounts, Transit Gateway provides a much more scalable architecture.”
 
 =============≠=======================================================
 
 Q23. Your company already has hundreds of AWS resources created manually. Now they want to manage everything using Terraform. Will you recreate all resources?
 
-“No. I would not recreate hundreds of production resources. I would use Terraform import to bring the existing AWS resources under Terraform management.
+1) No. I would not recreate hundreds of production resources. I would use Terraform import to bring the existing AWS resources under Terraform management.
 
-First, I would inventory and classify the existing resources. Then I would create Terraform configuration representing the current infrastructure and import the resources into Terraform state. After importing, I would run terraform plan and reconcile differences until there are no unexpected changes.
+2) First, I would inventory and classify the existing resources. Then I would create Terraform configuration representing the current infrastructure and import the resources into Terraform state. After importing, I would run terraform plan and reconcile differences until there are no unexpected changes.
 
-I would migrate incrementally, starting with low-risk resources and then production. For critical resources such as RDS, EKS, networking and S3, I would be especially careful if Terraform proposes replacement.”
+3) I would migrate incrementally, starting with low-risk resources and then production. For critical resources such as RDS, EKS, networking and S3, I would be especially careful if Terraform proposes replacement.”
 
 =============≠=======================================================
 
 Q24. Users report that the application is slow, but CPU and Memory usage look completely normal. How will you investigate?
 
-“Normal CPU and memory don’t necessarily mean the application is healthy. I would start with the user-facing symptoms and check latency, especially p95 and p99, request rate, error rate and saturation.
+1) Normal CPU and memory don’t necessarily mean the application is healthy. I would start with the user-facing symptoms and check latency, especially p95 and p99, request rate, error rate and saturation.
 
-Then I would trace the request end-to-end and investigate dependencies such as RDS, Redis, external APIs, DNS and network latency. I would specifically check database query latency, connection pools, locks and connection limits.
+2) Then I would trace the request end-to-end and investigate dependencies such as RDS, Redis, external APIs, DNS and network latency. I would specifically check database query latency, connection pools, locks and connection limits.
 
-For a microservices application, I would use distributed tracing with OpenTelemetry to identify which service or dependency is adding latency. I would also check ALB metrics, Kubernetes throttling, recent deployments and configuration changes.
+3) For a microservices application, I would use distributed tracing with OpenTelemetry to identify which service or dependency is adding latency. I would also check ALB metrics, Kubernetes throttling, recent deployments and configuration changes.
 
 Once I identify the bottleneck, I would mitigate the customer impact and then fix the root cause rather than simply increasing CPU or memory.”
 
@@ -317,13 +317,13 @@ Once I identify the bottleneck, I would mitigate the customer impact and then fi
 
 Q25. A developer accidentally pushed directly to the production branch. How would you prevent this from happening again?
 
-“I would protect the production branch using Git branch protection rules. Direct pushes would be disabled, and production changes would require a Pull Request with mandatory reviews and successful CI checks.
+1) I would protect the production branch using Git branch protection rules. Direct pushes would be disabled, and production changes would require a Pull Request with mandatory reviews and successful CI checks.
 
-I would also enforce CODEOWNERS or designated reviewers for production-sensitive changes and require the CI pipeline to run security scans, tests and Terraform plan checks before merging.
+2) I would also enforce CODEOWNERS or designated reviewers for production-sensitive changes and require the CI pipeline to run security scans, tests and Terraform plan checks before merging.
 
-For deployment, I would separate code merge from production deployment and require an approval gate before production deployment. I would also use least-privilege Git permissions so developers don’t have permission to bypass the branch controls.
+3) For deployment, I would separate code merge from production deployment and require an approval gate before production deployment. I would also use least-privilege Git permissions so developers don’t have permission to bypass the branch controls.
 
-Finally, I would audit repository events and periodically review permissions to ensure branch protection cannot be bypassed.”
+4) Finally, I would audit repository events and periodically review permissions to ensure branch protection cannot be bypassed.”
 
 
 
