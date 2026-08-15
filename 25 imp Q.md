@@ -167,53 +167,53 @@ Impact → Rollout → New Pods → Root Cause → Rollback/Fix → Verify → R
 
 Q11. Your application is running, but users are getting 502 Bad Gateway. How will you troubleshoot it?
 
-“I would first identify which layer is generating the 502—CloudFront, ALB, API Gateway, or the application. Then I would trace the request from the client to the backend.
+1) I would first identify which layer is generating the 502—CloudFront, ALB, API Gateway, or the application. Then I would trace the request from the client to the backend.
 
-For an AWS ALB in front of EKS, I would check ALB target health, listener rules, target groups, security groups and whether the Service is forwarding traffic to healthy Pods. On Kubernetes, I would verify the Service endpoints, Pod readiness and application listening port.
+2) For an AWS ALB in front of EKS, I would check ALB target health, listener rules, target groups, security groups and whether the Service is forwarding traffic to healthy Pods. On Kubernetes, I would verify the Service endpoints, Pod readiness and application listening port.
 
-I would also check application logs for connection resets, crashes or upstream failures and verify that the application is listening on the expected interface and port. Finally, I would check recent deployments or configuration changes.”
+3) I would also check application logs for connection resets, crashes or upstream failures and verify that the application is listening on the expected interface and port. Finally, I would check recent deployments or configuration changes.”
 
 =============≠=======================================================
 
 Q12. Your application should access S3 privately. You don’t want traffic going over the public internet. How would you design it?
 
-“For an application running on private EC2 instances or EKS Pods, I would use an Amazon S3 VPC Gateway Endpoint. This allows the workload to access S3 through the AWS private network without requiring an Internet Gateway or NAT Gateway.
+1) For an application running on private EC2 instances or EKS Pods, I would use an Amazon S3 VPC Gateway Endpoint. This allows the workload to access S3 through the AWS private network without requiring an Internet Gateway or NAT Gateway.
 
-I would associate the endpoint with the appropriate private route tables and restrict the S3 bucket using a bucket policy so that access is allowed only through the specific VPC endpoint where appropriate. I would also use IAM roles with least-privilege S3 permissions.”
+2) I would associate the endpoint with the appropriate private route tables and restrict the S3 bucket using a bucket policy so that access is allowed only through the specific VPC endpoint where appropriate. I would also use IAM roles with least-privilege S3 permissions.”
 
-For private S3 access from a VPC, I would prefer an S3 Gateway Endpoint rather than sending the traffic through NAT. It keeps the traffic on the AWS network and can also reduce NAT Gateway cost.”
+3) For private S3 access from a VPC, I would prefer an S3 Gateway Endpoint rather than sending the traffic through NAT. It keeps the traffic on the AWS network and can also reduce NAT Gateway cost.”
 
 =============≠=======================================================
 
 Q13. Someone manually changed an AWS resource from the AWS Console. How will Terraform detect it?
 
-“This is Terraform drift. Terraform detects it when I run terraform plan or terraform apply, because Terraform refreshes the state against the actual AWS infrastructure and compares the actual configuration with the desired configuration defined in code.
+1) This is Terraform drift. Terraform detects it when I run terraform plan or terraform apply, because Terraform refreshes the state against the actual AWS infrastructure and compares the actual configuration with the desired configuration defined in code.
 
-For example, if Terraform manages an EC2 instance and someone manually changes its instance type from t3.medium to t3.large, Terraform will detect the difference during planning and may propose changing it back to the value defined in Terraform.
+2) For example, if Terraform manages an EC2 instance and someone manually changes its instance type from t3.medium to t3.large, Terraform will detect the difference during planning and may propose changing it back to the value defined in Terraform.
 
-I would investigate the plan before applying it, because not every manual change should automatically be reverted. I would either update the Terraform code if the manual change was intentional or apply the Terraform configuration to bring the resource back to the desired state.”
+3) I would investigate the plan before applying it, because not every manual change should automatically be reverted. I would either update the Terraform code if the manual change was intentional or apply the Terraform configuration to bring the resource back to the desired state.”
 
 =============≠=======================================================
 
 Q14. Your production server suddenly runs out of disk space. What’s your debugging approach?
 
-“First I would confirm which filesystem is full and determine what is consuming the disk. I would use df -h to identify the full filesystem and du to find the largest directories and files. Then I would check logs, temporary files, application-generated files, deleted-but-open files and Docker/container logs.
+1) First I would confirm which filesystem is full and determine what is consuming the disk. I would use df -h to identify the full filesystem and du to find the largest directories and files. Then I would check logs, temporary files, application-generated files, deleted-but-open files and Docker/container logs.
 
-I would immediately mitigate the customer impact by safely removing or rotating unnecessary files or expanding the EBS volume if appropriate. I would not blindly delete files from production.
+2) I would immediately mitigate the customer impact by safely removing or rotating unnecessary files or expanding the EBS volume if appropriate. I would not blindly delete files from production.
 
-After recovery, I would identify the root cause—for example, uncontrolled application logs, a failed log rotation, temporary files, core dumps or container images—and implement log rotation, retention policies, monitoring and disk-space alerts.”
+3) After recovery, I would identify the root cause—for example, uncontrolled application logs, a failed log rotation, temporary files, core dumps or container images—and implement log rotation, retention policies, monitoring and disk-space alerts.”
 
 =============≠=======================================================
 
 Q15. A developer says, “The pipeline is failing only in production. Dev and QA work perfectly.” How will you troubleshoot it?
 
-“I would first compare the production pipeline and environment with Dev and QA rather than assuming the application code is the problem. I would identify the exact pipeline stage that fails and compare credentials, IAM permissions, secrets, environment variables, AWS account, region, network connectivity and deployment configuration.
+1) I would first compare the production pipeline and environment with Dev and QA rather than assuming the application code is the problem. I would identify the exact pipeline stage that fails and compare credentials, IAM permissions, secrets, environment variables, AWS account, region, network connectivity and deployment configuration.
 
-Because production usually has stricter permissions and controls, I would specifically investigate IAM authorization, security policies, private networking, approval gates, artifact access and production-only secrets.
+2) Because production usually has stricter permissions and controls, I would specifically investigate IAM authorization, security policies, private networking, approval gates, artifact access and production-only secrets.
 
-I would also verify that the same artifact/image is being promoted from QA to production rather than rebuilding different artifacts for each environment.
+3) I would also verify that the same artifact/image is being promoted from QA to production rather than rebuilding different artifacts for each environment.
 
-Once I identify the difference, I would fix the production-specific configuration or permission issue, rerun the pipeline safely, and then add automated validation so the same problem is detected before production.”
+4) Once I identify the difference, I would fix the production-specific configuration or permission issue, rerun the pipeline safely, and then add automated validation so the same problem is detected before production.”
 
 =============≠=======================================================
 
