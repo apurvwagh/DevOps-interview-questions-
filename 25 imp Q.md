@@ -73,28 +73,40 @@ Q6. Your Pod is in Pending state for the last 30 minutes. How will you troublesh
 4) After fixing the root cause, I would verify that the Pod gets scheduled and becomes Ready. I would also add appropriate monitoring and capacity planning to prevent recurrence.”
 
 Pod Pending
+
     ↓
 kubectl describe pod
+
     ↓
 Check Events
+
     ↓
 FailedScheduling?
+
     │
     ├── Insufficient CPU/Memory
+    
     │       ↓
     │   Check nodes / Autoscaler
+    
     │
     ├── Taint/Toleration
+    
     │       ↓
     │   Fix scheduling rules
+    
     │
     ├── NodeSelector/Affinity
+    
     │       ↓
     │   Check matching nodes
+    
     │
     ├── PVC Pending
+    
     │       ↓
     │   Check StorageClass/AZ
+    
     │
     └── Other constraints
 
