@@ -1,14 +1,12 @@
-Q1. You have 20 microservices running in an AKS cluster. Will you create one LoadBalancer Service for each application?
+Q1. You have 20 microservices running in an EKS cluster. Will you create one LoadBalancer Service for each application?
 
-“No, I would generally not create a separate Azure LoadBalancer Service for every microservice. That would create unnecessary load balancers, increase cost, and make traffic management harder to operate.
+“No, I would generally not create a separate AWS Load Balancer for every microservice. That would increase cost, create unnecessary infrastructure, and make traffic management more difficult.
 
-For 20 microservices, I would normally use an Ingress-based architecture. I would expose the application through a single entry point, such as an Azure Application Gateway or an NGINX Ingress Controller, and use host-based or path-based routing to send requests to the appropriate Kubernetes Services.
-
-Each microservice would typically have an internal Kubernetes Service, usually ClusterIP, and the Ingress would route external traffic to those Services.
+For 20 microservices on EKS, I would normally use an Ingress-based architecture with an AWS Application Load Balancer. Each microservice would have an internal Kubernetes Service, typically ClusterIP, and the ALB would use host-based or path-based routing to forward requests to the appropriate Service.
 
 For example, api.company.com/orders can route to the Orders Service, while api.company.com/payments routes to the Payments Service.
 
-I would use a LoadBalancer Service directly when a service genuinely needs its own external endpoint—for example, a public TCP service, a dedicated network endpoint, or a requirement that cannot be handled by the Ingress layer.”
+I would use a Kubernetes Service type: LoadBalancer when a service genuinely needs its own external endpoint, particularly for services that require direct L4 connectivity or when ALB/Ingress routing is not appropriate.”
 
 ==============≠=======================================================
 
