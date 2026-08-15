@@ -14,8 +14,6 @@ I would use a LoadBalancer Service directly when a service genuinely needs its o
 
 Q2. Your EKS cluster is private, but internet users should still be able to access your application. How would you design the traffic flow?
 
-🎯 2-Minute Interview Answer
-
 “I would keep the EKS worker nodes and Pods in private subnets, but expose the application through a public Application Load Balancer. I would use the AWS Load Balancer Controller with an Ingress to provision and manage the ALB.
 
 The internet user first resolves the application domain through Route 53. Route 53 points to the public ALB, which is deployed across multiple public subnets/AZs. The ALB then forwards traffic to the application Pods running in the private EKS subnets.
@@ -28,8 +26,6 @@ For outbound internet access from private Pods, I would use a NAT Gateway where 
 
 Q3. Two DevOps Engineers Accidentally Ran terraform apply at the Same Time. How Would You Prevent State Corruption?
 
-🎯 2-Minute Interview Answer
-
 “I would prevent this by using a remote Terraform backend with state locking. In AWS, I would typically store the Terraform state in an S3 backend and enable state locking using the supported locking mechanism.
 
 When Engineer A runs terraform apply, Terraform acquires the state lock. If Engineer B tries to run terraform apply against the same state at the same time, Terraform will detect that the state is locked and prevent the second operation from proceeding.
@@ -41,8 +37,6 @@ For team environments, I would separate state by environment and component—for
 =============≠=======================================================
 
 Q4. Production Server CPU Suddenly Becomes 100%. What’s Your First Approach?
-
-🎯 2-Minute Interview Answer
 
 “My first priority is to determine customer impact and identify what is consuming the CPU. I would not immediately restart the server because that could destroy useful evidence and may not fix the root cause.
 
@@ -58,8 +52,6 @@ After restoring service, I would perform RCA using logs and metrics and implemen
 
 Q5. Deployment Completed Successfully, but Production Still Shows the Old Version
 
-🎯 2-Minute Interview Answer
-
 “I would start by verifying whether the new version is actually running in production. A successful CI/CD deployment doesn’t necessarily mean users are receiving the new version.
 
 First, I would check the Kubernetes Deployment, ReplicaSets and running Pods and verify the actual image tag or, preferably, image digest/commit SHA. I would also confirm that the deployment went to the correct production cluster, namespace and environment.
@@ -73,8 +65,6 @@ Finally, I would check GitOps or CI/CD history to make sure another process didn
 =============≠=======================================================
 
 Q6. Your Pod is in Pending state for the last 30 minutes. How will you troubleshoot it?
-
-🎯 2-Minute Interview Answer
 
 “A Pending Pod means Kubernetes has not successfully scheduled it onto a node, or the Pod is waiting for some required condition before it can start. My first step is to check the Pod events because they usually tell me exactly why scheduling failed.
 
@@ -115,8 +105,6 @@ FailedScheduling?
 
 Q7. One of your applications suddenly starts showing CrashLoopBackOff. Where do you start debugging?
 
-🎯 2-Minute Interview Answer
-
 “CrashLoopBackOff means the container is repeatedly starting and then terminating, and Kubernetes is applying an increasing restart backoff. I first check the Pod status, container exit code and previous container logs because the current container may have already restarted.
 
 I would use kubectl logs --previous and kubectl describe pod to identify whether the application is crashing because of a configuration issue, missing Secret, bad environment variable, dependency failure, application bug, failed startup probe, or OOMKilled condition.
@@ -129,8 +117,6 @@ After recovery, I would identify the root cause and improve startup validation, 
 
 Q8. Your application cannot connect to the database after deployment. How will you troubleshoot it?
 
-🎯 2-Minute Interview Answer
-
 “Because the issue started after deployment, I would first compare the new version and configuration with the last known-good version. I would check the application logs to determine whether the failure is DNS, network timeout, authentication, TLS, or connection-limit related.
 
 Then I would verify the database hostname, port, database name and credentials being injected into the new Pods. I would test DNS resolution and TCP connectivity from inside the Pod.
@@ -142,8 +128,6 @@ If the deployment increased the number of Pods, I would specifically check datab
 =============≠=======================================================
 
 Q9. Your EKS cluster has both system and user node groups. Why not deploy everything on a single node group?
-
-🎯 2-Minute Interview Answer
 
 “I prefer separating system and application workloads because they have different responsibilities and operational requirements.
 
@@ -159,8 +143,6 @@ I would use taints and tolerations to keep normal application Pods away from sys
 
 Q10. A deployment failed in production halfway through. Some Pods are running the new version while others are still on the old version. What will you do?
 
-🎯 2-Minute Interview Answer
-
 “First, I would assess customer impact and check the rollout status rather than immediately making another deployment. I would check the Deployment, ReplicaSets and Pods to determine why the rollout stopped.
 
 I would verify whether the new Pods are healthy by checking readiness probes, application logs, events, image issues, resource constraints and scheduling problems.
@@ -175,8 +157,6 @@ Impact → Rollout → New Pods → Root Cause → Rollback/Fix → Verify → R
 
 Q11. Your application is running, but users are getting 502 Bad Gateway. How will you troubleshoot it?
 
-🎯 2-Minute Interview Answer
-
 “I would first identify which layer is generating the 502—CloudFront, ALB, API Gateway, or the application. Then I would trace the request from the client to the backend.
 
 For an AWS ALB in front of EKS, I would check ALB target health, listener rules, target groups, security groups and whether the Service is forwarding traffic to healthy Pods. On Kubernetes, I would verify the Service endpoints, Pod readiness and application listening port.
@@ -186,8 +166,6 @@ I would also check application logs for connection resets, crashes or upstream f
 =============≠=======================================================
 
 Q12. Your application should access S3 privately. You don’t want traffic going over the public internet. How would you design it?
-
-🎯 2-Minute Interview Answer
 
 “For an application running on private EC2 instances or EKS Pods, I would use an Amazon S3 VPC Gateway Endpoint. This allows the workload to access S3 through the AWS private network without requiring an Internet Gateway or NAT Gateway.
 
@@ -199,8 +177,6 @@ For private S3 access from a VPC, I would prefer an S3 Gateway Endpoint rather t
 
 Q13. Someone manually changed an AWS resource from the AWS Console. How will Terraform detect it?
 
-🎯 2-Minute Interview Answer
-
 “This is Terraform drift. Terraform detects it when I run terraform plan or terraform apply, because Terraform refreshes the state against the actual AWS infrastructure and compares the actual configuration with the desired configuration defined in code.
 
 For example, if Terraform manages an EC2 instance and someone manually changes its instance type from t3.medium to t3.large, Terraform will detect the difference during planning and may propose changing it back to the value defined in Terraform.
@@ -211,8 +187,6 @@ I would investigate the plan before applying it, because not every manual change
 
 Q14. Your production server suddenly runs out of disk space. What’s your debugging approach?
 
-🎯 2-Minute Interview Answer
-
 “First I would confirm which filesystem is full and determine what is consuming the disk. I would use df -h to identify the full filesystem and du to find the largest directories and files. Then I would check logs, temporary files, application-generated files, deleted-but-open files and Docker/container logs.
 
 I would immediately mitigate the customer impact by safely removing or rotating unnecessary files or expanding the EBS volume if appropriate. I would not blindly delete files from production.
@@ -222,8 +196,6 @@ After recovery, I would identify the root cause—for example, uncontrolled appl
 =============≠=======================================================
 
 Q15. A developer says, “The pipeline is failing only in production. Dev and QA work perfectly.” How will you troubleshoot it?
-
-🎯 2-Minute Interview Answer
 
 “I would first compare the production pipeline and environment with Dev and QA rather than assuming the application code is the problem. I would identify the exact pipeline stage that fails and compare credentials, IAM permissions, secrets, environment variables, AWS account, region, network connectivity and deployment configuration.
 
@@ -237,8 +209,6 @@ Once I identify the difference, I would fix the production-specific configuratio
 
 Q16. Deployment is successful, all Pods are Running, but users still can’t access the application. Where will you start debugging?
 
-🎯 2-Minute Interview Answer
-
 “I would not assume that Running Pods mean the application is accessible. I would trace the request path from the user to the Pod and identify the first layer where traffic is failing.
 
 First, I would check whether the Pods are Ready and whether the application is actually listening on the expected port. Then I would verify the Kubernetes Service and its EndpointSlices.
@@ -250,8 +220,6 @@ I would test the application from inside the cluster as well as externally. This
 =============≠=======================================================
 
 Q17. Your EKS cluster needs internet access to pull Docker images, but worker nodes shouldn’t have Public IPs. How would you design it?
-
-🎯 2-Minute Interview Answer
 
 “I would keep the EKS worker nodes in private subnets without public IPs. For pulling images from Amazon ECR, I would preferably use VPC endpoints for ECR and S3, because ECR image layers are stored in S3. This allows image pulls without traversing the public internet.
 
@@ -265,8 +233,6 @@ Private nodes don’t need public IPs. I use NAT Gateway for required general ou
 
 Q18. Your Terraform deployment accidentally deleted an AWS resource. How would you prevent this in production?
 
-🎯 2-Minute Interview Answer
-
 “First, I would prevent Terraform from being able to accidentally destroy critical resources by using lifecycle protection such as prevent_destroy = true where appropriate. I would also enforce a production workflow where engineers cannot directly run terraform apply; changes go through pull requests, Terraform plan review and an approval gate.
 
 I would carefully review any plan containing destroy or replace, especially for stateful resources such as RDS, S3 or production networking.
@@ -276,8 +242,6 @@ I would also use remote state with locking, least-privilege IAM, separate produc
 =============≠=======================================================
 
 Q19. Production application suddenly fails with Too many open files. How will you troubleshoot it?
-
-🎯 2-Minute Interview Answer
 
 ”Too many open files normally indicates that the process has reached its file descriptor limit. I would first check the application’s current file descriptor usage and limits, then determine what is consuming the descriptors—files, sockets, connections or leaked resources.
 
@@ -289,8 +253,6 @@ For immediate mitigation, I might restart or scale the affected application if a
 
 Q20. Pipeline completed successfully, but one microservice wasn’t updated while all others were. How will you troubleshoot it?
 
-🎯 2-Minute Interview Answer
-
 “I would first determine whether the problem is in the build, artifact, deployment or traffic layer. Since the other microservices updated successfully, I would compare the failing service’s pipeline stages and configuration with the successful services.
 
 I would verify that the service actually built a new image, that the expected image was pushed to ECR, and that the deployment manifest references the correct immutable image tag or digest. Then I would check the Kubernetes Deployment, ReplicaSet and Pods to verify which version is actually running.
@@ -301,8 +263,57 @@ I would also check whether the pipeline had a conditional step, incorrect servic
 
 =============≠=======================================================
 
+Q21. Your application needs to run on only 2 specific worker nodes. How will you achieve this?
 
+“I would use Kubernetes node labels combined with node affinity or nodeSelector. I would label the two specific worker nodes with an application-specific label and configure the Deployment so that its Pods can schedule only on nodes with that label.
 
+If I want to ensure other workloads don’t use those nodes, I would also apply a taint to the nodes and give only this application’s Pods the corresponding toleration.
+
+For production, I prefer node affinity because it provides more flexibility than nodeSelector. I would also consider whether restricting an application to only two nodes creates a single point of failure and would verify that those nodes are in different Availability Zones if high availability is required.”
+
+=============≠=======================================================
+
+Q22. Your company wants to connect 15 VPCs across different AWS Regions. Will you create VPC Peering between every VPC?
+
+“No. I would not normally create a full mesh of VPC Peering connections. With 15 VPCs, a full mesh can require up to 105 peering relationships, which becomes difficult to manage.
+
+I would generally use AWS Transit Gateway in each Region and establish inter-Region Transit Gateway peering. Each VPC attaches to its regional Transit Gateway, and Transit Gateway route tables control which networks can communicate.
+
+VPC Peering is still appropriate for a simple point-to-point requirement, but for many VPCs across multiple Regions and potentially multiple AWS accounts, Transit Gateway provides a much more scalable architecture.”
+
+=============≠=======================================================
+
+Q23. Your company already has hundreds of AWS resources created manually. Now they want to manage everything using Terraform. Will you recreate all resources?
+
+“No. I would not recreate hundreds of production resources. I would use Terraform import to bring the existing AWS resources under Terraform management.
+
+First, I would inventory and classify the existing resources. Then I would create Terraform configuration representing the current infrastructure and import the resources into Terraform state. After importing, I would run terraform plan and reconcile differences until there are no unexpected changes.
+
+I would migrate incrementally, starting with low-risk resources and then production. For critical resources such as RDS, EKS, networking and S3, I would be especially careful if Terraform proposes replacement.”
+
+=============≠=======================================================
+
+Q24. Users report that the application is slow, but CPU and Memory usage look completely normal. How will you investigate?
+
+“Normal CPU and memory don’t necessarily mean the application is healthy. I would start with the user-facing symptoms and check latency, especially p95 and p99, request rate, error rate and saturation.
+
+Then I would trace the request end-to-end and investigate dependencies such as RDS, Redis, external APIs, DNS and network latency. I would specifically check database query latency, connection pools, locks and connection limits.
+
+For a microservices application, I would use distributed tracing with OpenTelemetry to identify which service or dependency is adding latency. I would also check ALB metrics, Kubernetes throttling, recent deployments and configuration changes.
+
+Once I identify the bottleneck, I would mitigate the customer impact and then fix the root cause rather than simply increasing CPU or memory.”
+
+=============≠=======================================================
+
+Q25. A developer accidentally pushed directly to the production branch. How would you prevent this from happening again?
+
+“I would protect the production branch using Git branch protection rules. Direct pushes would be disabled, and production changes would require a Pull Request with mandatory reviews and successful CI checks.
+
+I would also enforce CODEOWNERS or designated reviewers for production-sensitive changes and require the CI pipeline to run security scans, tests and Terraform plan checks before merging.
+
+For deployment, I would separate code merge from production deployment and require an approval gate before production deployment. I would also use least-privilege Git permissions so developers don’t have permission to bypass the branch controls.
+
+Finally, I would audit repository events and periodically review permissions to ensure branch protection cannot be bypassed.”
 
 
 
