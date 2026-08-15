@@ -1,50 +1,50 @@
 Q1. You have 20 microservices running in an EKS cluster. Will you create one LoadBalancer Service for each application?
 
-“No, I would generally not create a separate AWS Load Balancer for every microservice. That would increase cost, create unnecessary infrastructure, and make traffic management more difficult.
+1) “No, I would generally not create a separate AWS Load Balancer for every microservice. That would increase cost, create unnecessary infrastructure, and make traffic management more difficult.
 
-For 20 microservices on EKS, I would normally use an Ingress-based architecture with an AWS Application Load Balancer. Each microservice would have an internal Kubernetes Service, typically ClusterIP, and the ALB would use host-based or path-based routing to forward requests to the appropriate Service.
+2) For 20 microservices on EKS, I would normally use an Ingress-based architecture with an AWS Application Load Balancer. Each microservice would have an internal Kubernetes Service, typically ClusterIP, and the ALB would use host-based or path-based routing to forward requests to the appropriate Service.
 
 For example, api.company.com/orders can route to the Orders Service, while api.company.com/payments routes to the Payments Service.
 
-I would use a Kubernetes Service type: LoadBalancer when a service genuinely needs its own external endpoint, particularly for services that require direct L4 connectivity or when ALB/Ingress routing is not appropriate.”
-
+3) I would use a Kubernetes Service type: LoadBalancer when a service genuinely needs its own external endpoint
+   
 ==============≠=======================================================
 
 Q2. Your EKS cluster is private, but internet users should still be able to access your application. How would you design the traffic flow?
 
-“I would keep the EKS worker nodes and Pods in private subnets, but expose the application through a public Application Load Balancer. I would use the AWS Load Balancer Controller with an Ingress to provision and manage the ALB.
+1) I would keep the EKS worker nodes and Pods in private subnets, but expose the application through a public Application Load Balancer. I would use the AWS Load Balancer Controller with an Ingress to provision and manage the ALB.
 
-The internet user first resolves the application domain through Route 53. Route 53 points to the public ALB, which is deployed across multiple public subnets/AZs. The ALB then forwards traffic to the application Pods running in the private EKS subnets.
+2) The internet user first resolves the application domain through Route 53. Route 53 points to the public ALB, which is deployed across multiple public subnets/AZs. The ALB then forwards traffic to the application Pods running in the private EKS subnets.
 
-I would configure security groups so that the ALB accepts internet traffic on HTTPS, while the application security group allows traffic only from the ALB security group. The Pods themselves would not have public IPs or direct internet exposure.
+3) I would configure security groups so that the ALB accepts internet traffic on HTTPS, while the application security group allows traffic only from the ALB security group. The Pods themselves would not have public IPs or direct internet exposure.
 
-For outbound internet access from private Pods, I would use a NAT Gateway where required. For AWS services such as S3 or ECR, I would use VPC endpoints where appropriate to reduce NAT dependency and keep traffic private.”
+4) For outbound internet access from private Pods, I would use a NAT Gateway where required. For AWS services such as S3 or ECR, I would use VPC endpoints where appropriate to reduce NAT dependency and keep traffic private.”
 
 ==============≠=======================================================
 
 Q3. Two DevOps Engineers Accidentally Ran terraform apply at the Same Time. How Would You Prevent State Corruption?
 
-“I would prevent this by using a remote Terraform backend with state locking. In AWS, I would typically store the Terraform state in an S3 backend and enable state locking using the supported locking mechanism.
+1) I would prevent this by using a remote Terraform backend with state locking. In AWS, I would typically store the Terraform state in an S3 backend and enable state locking using the supported locking mechanism.
 
-When Engineer A runs terraform apply, Terraform acquires the state lock. If Engineer B tries to run terraform apply against the same state at the same time, Terraform will detect that the state is locked and prevent the second operation from proceeding.
+2) When Engineer A runs terraform apply, Terraform acquires the state lock. If Engineer B tries to run terraform apply against the same state at the same time, Terraform will detect that the state is locked and prevent the second operation from proceeding.
 
-I would also enforce CI/CD-based Terraform execution rather than allowing engineers to run production applies directly from their laptops. The pipeline can provide approvals, concurrency control, and consistent credentials.
+3) I would also enforce CI/CD-based Terraform execution rather than allowing engineers to run production applies directly from their laptops. The pipeline can provide approvals, concurrency control, and consistent credentials.
 
-For team environments, I would separate state by environment and component—for example, dev, staging, and production—so unrelated changes don’t compete for the same state file.”
+4) For team environments, I would separate state by environment and component—for example, dev, staging, and production—so unrelated changes don’t compete for the same state file.”
 
 =============≠=======================================================
 
 Q4. Production Server CPU Suddenly Becomes 100%. What’s Your First Approach?
 
-“My first priority is to determine customer impact and identify what is consuming the CPU. I would not immediately restart the server because that could destroy useful evidence and may not fix the root cause.
+1) My first priority is to determine customer impact and identify what is consuming the CPU. I would not immediately restart the server because that could destroy useful evidence and may not fix the root cause.
 
-I would check monitoring dashboards for CPU, load average, traffic, latency, error rate and recent changes. Then I would log into the server and use tools such as top, htop, ps, and pidstat to identify the process or threads consuming CPU.
+2) I would check monitoring dashboards for CPU, load average, traffic, latency, error rate and recent changes. Then I would log into the server and use tools such as top, htop, ps, and pidstat to identify the process or threads consuming CPU.
 
-I would correlate the CPU spike with recent deployments, traffic increases, scheduled jobs, batch processes, or configuration changes.
+3) I would correlate the CPU spike with recent deployments, traffic increases, scheduled jobs, batch processes, or configuration changes.
 
-If the application is responsible and customers are impacted, I might scale out, remove the affected instance from the load balancer, or roll back a recent deployment. If a non-critical process such as a backup or scheduled job is consuming CPU, I would investigate and safely stop or reschedule it.
+4) If the application is responsible and customers are impacted, I might scale out, remove the affected instance from the load balancer, or roll back a recent deployment. If a non-critical process such as a backup or scheduled job is consuming CPU, I would investigate and safely stop or reschedule it.
 
-After restoring service, I would perform RCA using logs and metrics and implement preventive measures such as autoscaling, better alerts, application optimization, and capacity planning.”
+5) After restoring service, I would perform RCA using logs and metrics and implement preventive measures such as autoscaling, better alerts, application optimization, and capacity planning.”
 
 =============≠=======================================================
 
