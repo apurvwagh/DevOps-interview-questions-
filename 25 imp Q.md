@@ -185,6 +185,153 @@ I would also check application logs for connection resets, crashes or upstream f
 
 =============≠=======================================================
 
+Q12. Your application should access S3 privately. You don’t want traffic going over the public internet. How would you design it?
+
+🎯 2-Minute Interview Answer
+
+“For an application running on private EC2 instances or EKS Pods, I would use an Amazon S3 VPC Gateway Endpoint. This allows the workload to access S3 through the AWS private network without requiring an Internet Gateway or NAT Gateway.
+
+I would associate the endpoint with the appropriate private route tables and restrict the S3 bucket using a bucket policy so that access is allowed only through the specific VPC endpoint where appropriate. I would also use IAM roles with least-privilege S3 permissions.”
+
+For private S3 access from a VPC, I would prefer an S3 Gateway Endpoint rather than sending the traffic through NAT. It keeps the traffic on the AWS network and can also reduce NAT Gateway cost.”
+
+=============≠=======================================================
+
+Q13. Someone manually changed an AWS resource from the AWS Console. How will Terraform detect it?
+
+🎯 2-Minute Interview Answer
+
+“This is Terraform drift. Terraform detects it when I run terraform plan or terraform apply, because Terraform refreshes the state against the actual AWS infrastructure and compares the actual configuration with the desired configuration defined in code.
+
+For example, if Terraform manages an EC2 instance and someone manually changes its instance type from t3.medium to t3.large, Terraform will detect the difference during planning and may propose changing it back to the value defined in Terraform.
+
+I would investigate the plan before applying it, because not every manual change should automatically be reverted. I would either update the Terraform code if the manual change was intentional or apply the Terraform configuration to bring the resource back to the desired state.”
+
+=============≠=======================================================
+
+Q14. Your production server suddenly runs out of disk space. What’s your debugging approach?
+
+🎯 2-Minute Interview Answer
+
+“First I would confirm which filesystem is full and determine what is consuming the disk. I would use df -h to identify the full filesystem and du to find the largest directories and files. Then I would check logs, temporary files, application-generated files, deleted-but-open files and Docker/container logs.
+
+I would immediately mitigate the customer impact by safely removing or rotating unnecessary files or expanding the EBS volume if appropriate. I would not blindly delete files from production.
+
+After recovery, I would identify the root cause—for example, uncontrolled application logs, a failed log rotation, temporary files, core dumps or container images—and implement log rotation, retention policies, monitoring and disk-space alerts.”
+
+=============≠=======================================================
+
+Q15. A developer says, “The pipeline is failing only in production. Dev and QA work perfectly.” How will you troubleshoot it?
+
+🎯 2-Minute Interview Answer
+
+“I would first compare the production pipeline and environment with Dev and QA rather than assuming the application code is the problem. I would identify the exact pipeline stage that fails and compare credentials, IAM permissions, secrets, environment variables, AWS account, region, network connectivity and deployment configuration.
+
+Because production usually has stricter permissions and controls, I would specifically investigate IAM authorization, security policies, private networking, approval gates, artifact access and production-only secrets.
+
+I would also verify that the same artifact/image is being promoted from QA to production rather than rebuilding different artifacts for each environment.
+
+Once I identify the difference, I would fix the production-specific configuration or permission issue, rerun the pipeline safely, and then add automated validation so the same problem is detected before production.”
+
+=============≠=======================================================
+
+Q16. Deployment is successful, all Pods are Running, but users still can’t access the application. Where will you start debugging?
+
+🎯 2-Minute Interview Answer
+
+“I would not assume that Running Pods mean the application is accessible. I would trace the request path from the user to the Pod and identify the first layer where traffic is failing.
+
+First, I would check whether the Pods are Ready and whether the application is actually listening on the expected port. Then I would verify the Kubernetes Service and its EndpointSlices.
+
+After that, I would check the Ingress and AWS ALB—listener rules, target groups, target health, security groups and health checks. I would also verify DNS and, if CloudFront is involved, caching and origin configuration.
+
+I would test the application from inside the cluster as well as externally. This helps me determine whether the issue is inside Kubernetes or somewhere in the external traffic path.”
+
+=============≠=======================================================
+
+Q17. Your EKS cluster needs internet access to pull Docker images, but worker nodes shouldn’t have Public IPs. How would you design it?
+
+🎯 2-Minute Interview Answer
+
+“I would keep the EKS worker nodes in private subnets without public IPs. For pulling images from Amazon ECR, I would preferably use VPC endpoints for ECR and S3, because ECR image layers are stored in S3. This allows image pulls without traversing the public internet.
+
+If the nodes need general outbound internet access—for example, to download packages or access external APIs—I would route their traffic through a NAT Gateway in a public subnet. The private subnet’s route table would point the default route to the NAT Gateway.
+
+The NAT Gateway has a public IP and communicates through the Internet Gateway, while the worker nodes remain private.
+
+Private nodes don’t need public IPs. I use NAT Gateway for required general outbound internet access and VPC endpoints for AWS services such as ECR and S3. This gives private workers controlled outbound connectivity while keeping them unreachable directly from the internet.”
+
+=============≠=======================================================
+
+Q18. Your Terraform deployment accidentally deleted an AWS resource. How would you prevent this in production?
+
+🎯 2-Minute Interview Answer
+
+“First, I would prevent Terraform from being able to accidentally destroy critical resources by using lifecycle protection such as prevent_destroy = true where appropriate. I would also enforce a production workflow where engineers cannot directly run terraform apply; changes go through pull requests, Terraform plan review and an approval gate.
+
+I would carefully review any plan containing destroy or replace, especially for stateful resources such as RDS, S3 or production networking.
+
+I would also use remote state with locking, least-privilege IAM, separate production state, and CI/CD controls. Finally, I would maintain backups and recovery mechanisms because Terraform safeguards don’t replace data protection.”
+
+=============≠=======================================================
+
+Q19. Production application suddenly fails with Too many open files. How will you troubleshoot it?
+
+🎯 2-Minute Interview Answer
+
+”Too many open files normally indicates that the process has reached its file descriptor limit. I would first check the application’s current file descriptor usage and limits, then determine what is consuming the descriptors—files, sockets, connections or leaked resources.
+
+I would check ulimit, /proc/<pid>/fd, lsof, application metrics and logs. I would specifically investigate whether there is a file descriptor leak, too many concurrent network connections, improperly closed files, or an unexpectedly high traffic level.
+
+For immediate mitigation, I might restart or scale the affected application if appropriate, but I would not consider that the permanent fix. I would identify and fix the leak or tune the limits only after understanding the cause.”
+
+=============≠=======================================================
+
+Q20. Pipeline completed successfully, but one microservice wasn’t updated while all others were. How will you troubleshoot it?
+
+🎯 2-Minute Interview Answer
+
+“I would first determine whether the problem is in the build, artifact, deployment or traffic layer. Since the other microservices updated successfully, I would compare the failing service’s pipeline stages and configuration with the successful services.
+
+I would verify that the service actually built a new image, that the expected image was pushed to ECR, and that the deployment manifest references the correct immutable image tag or digest. Then I would check the Kubernetes Deployment, ReplicaSet and Pods to verify which version is actually running.
+
+If we’re using ArgoCD or another GitOps tool, I would check whether the manifest change was committed, detected and synchronized. Finally, I would verify that the Service/Ingress is sending traffic to the new Pods.
+
+I would also check whether the pipeline had a conditional step, incorrect service path, wrong namespace or deployment target that caused this particular microservice to be skipped.”
+
+=============≠=======================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
