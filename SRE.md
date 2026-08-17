@@ -6,7 +6,7 @@ I will check application logs, Kubernetes pods, infrastructure, database, and de
 If required, I will rollback recent changes or apply a temporary fix.
 After recovery, I will perform RCA and implement preventive actions.
 
-2. How would you troubleshoot high latency in a production application?
+2. How would you troubleshoot high latency in a production application?l
    
 I will start by checking latency, throughput, error rate, and infrastructure metrics.
 I will identify whether the issue is from application, database, network, or external dependency.
