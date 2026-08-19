@@ -3,7 +3,7 @@
 1) My first priority is to determine customer impact and identify what is consuming the CPU. 
 2) I would not immediately restart the server because that could destroy useful evidence and may not fix the root cause.
 3)I would check monitoring dashboards for CPU, load average, traffic, latency, error rate and recent changes. 
-4) Then I would log into the server and use tools such as top, htop, ps, and pidstat to identify the process or threads consuming CPU.
+4) Then I would log into the server and use commands such as top, htop, ps, lsof and pidstat to identify the process or threads consuming CPU.
 5) I would correlate the CPU spike with recent deployments, traffic increases, scheduled jobs, batch processes, or configuration changes.
 6) If the application is responsible and customers are impacted, I might scale out, remove the affected instance from the load balancer,
  or roll back a recent deployment. If a non-critical process such as a backup or scheduled job is consuming CPU, I would investigate and safely stop or reschedule it.
