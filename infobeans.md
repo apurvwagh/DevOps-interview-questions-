@@ -2,11 +2,10 @@
 
 1) My first priority is to determine customer impact and identify what is consuming the CPU. 
 2) I would not immediately restart the server because that could destroy useful evidence and may not fix the root cause.
-3)I would check monitoring dashboards for CPU, load average, traffic, latency, error rate and recent changes. 
+3) I would check monitoring dashboards for CPU, load average, traffic, latency, error rate and recent changes. 
 4) Then I would log into the server and use commands such as top, htop, ps, lsof and pidstat to identify the process or threads consuming CPU.
-5) I would correlate the CPU spike with recent deployments, traffic increases, scheduled jobs, batch processes, or configuration changes.
-6) If the application is responsible and customers are impacted, I might scale out, remove the affected instance from the load balancer,
- or roll back a recent deployment. If a non-critical process such as a backup or scheduled job is consuming CPU, I would investigate and safely stop or reschedule it.
+5) I would check recent deployments, there are any scheduled jobs, batch processes, or configuration changes boz these are main factors on high CPU load
+6) If the application is responsible and customers are impacted then will roll back a recent deployment. If a non-critical process such as a backup or scheduled job is consuming CPU, I would investigate and safely stop or reschedule it.
 7) After restoring service, I would perform RCA using logs and metrics
 and implement preventive measures such as autoscaling, better alerts, application optimization, and capacity planning.”
 
@@ -25,9 +24,10 @@ and implement preventive measures such as autoscaling, better alerts, applicatio
 3. How do you troubleshoot a Pod stuck in CrashLoopBackOff?
 
 1) CrashLoopBackOff means the container is repeatedly starting and terminating. I first check the Pod status and events,
-   then look at the current and previous container logs. The previous logs are especially important because the container may have already restarted.
-2)  I check the exit code and last state to determine whether it is an application crash, missing configuration, Secret or environment variable, dependency failure, failed probe or OOMKilled condition.
-3) I then compare the issue with recent deployments or configuration changes. If the new release is responsible and production is impacted, I roll back to the last known-good version and then investigate the RCA.”
+   then check the kubectl describe pod so in the event section would come to know the exact issue.
+   also the current and previous container logs. The previous logs are especially important because the container may have already restarted.
+2)  so i determine whether it is an application crash, missing configuration, Secret or environment variable, dependency failure, failed probe or OOMKilled condition.
+4) I then compare the issue with recent deployments or configuration changes. If the new release is responsible and production is impacted, I roll back to the last known-good version and then investigate the RCA.”
 
 ========================================================================================
 
@@ -40,9 +40,9 @@ This is very important for your interview.
 
 3) After that, I would check the Ingress and AWS ALB—listener rules, target groups, target health, security groups and health checks. I would also verify DNS and, if CloudFront is involved, caching and origin configuration.
 
-4) I would test the application from inside the cluster as well as externally. This helps me determine whether the issue is inside Kubernetes or somewhere in the external traffic path.”
+user --> url--> route 53 --> LB (ALB) in alb check the target group --> LC ( check the congig corrected ) --> k8 service (check the service endpoint) --> pod --> application --> issue i found rediness prob is failing due to which application is not accessible
 
-=========================================================================================
+ =========================================================================================
 
 5. Difference between Liveness and Readiness probes?
 heath checks for application
