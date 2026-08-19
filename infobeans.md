@@ -94,10 +94,21 @@ commands: top , htop, isof, df -kh
 
 9. Explain one CI/CD pipeline you’ve worked on.
 
-“One of my CI/CD pipelines uses Jenkins for continuous integration and ArgoCD for GitOps-based deployment to EKS.
-The developer pushes code to Git. Jenkins checks out the code, runs unit tests and static/security checks, builds the application and Docker image, and pushes the image to Amazon ECR.
-The deployment manifest is then updated with the new immutable image tag or digest. ArgoCD detects the Git change and synchronizes the Kubernetes Deployment to EKS.
-After deployment, Kubernetes performs readiness and liveness checks, and we monitor the rollout using Prometheus, Grafana and CloudWatch. If the deployment is unhealthy, we stop or roll back to the previous known-good version.”
+1) In my current project, we follow a GitOps-based CI/CD pipeline using GitHub, Jenkins, Docker, AWS ECR, Argo CD, and EKS.
+   
+2) Developers create feature branches and raise Pull Requests. After code review, Jenkins is triggered automatically when the code is merged into the main branch.
+
+3) Jenkins builds the application using Maven, runs unit tests, performs SonarQube code quality checks, and creates a Docker image. The image is then scanned for vulnerabilities using Trivy. If all checks pass, the image is pushed to Amazon ECR.
+
+4) Next, Jenkins updates the image version in the GitOps repository. Argo CD detects this change and automatically deploys it to the EKS cluster.
+
+5) Kubernetes performs a rolling deployment to ensure zero downtime. After deployment, we verify pod health, logs, and Grafana dashboards. If any issue is found, we can quickly roll back to the previous stable version.
+
+5) The entire pipeline is automated, secure, and provides continuous feedback through Teams/Slack notifications.
+
+One-line version (for quick interviews):
+
+"We use GitHub → Jenkins → SonarQube → Trivy → Docker → ECR → Argo CD → EKS. Jenkins builds, tests, scans, and pushes the image, while Argo CD automatically deploys it to Kubernetes using GitOps principles with zero-downtime deployments."
 
 ====================================================================================
 
