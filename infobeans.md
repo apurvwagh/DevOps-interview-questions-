@@ -10,7 +10,7 @@
 7) After restoring service, I would perform RCA using logs and metrics
 and implement preventive measures such as autoscaling, better alerts, application optimization, and capacity planning.”
 
-===================================================================================================================
+==========================================================================================
 
 2. What kind of DevOps work are you currently handling? Explain your day-to-day responsibilities.
 
@@ -42,7 +42,7 @@ This is very important for your interview.
 
 4) I would test the application from inside the cluster as well as externally. This helps me determine whether the issue is inside Kubernetes or somewhere in the external traffic path.”
 
-============================================================================================
+=========================================================================================
 
 5. Difference between Liveness and Readiness probes?
 heath checks for application
@@ -74,7 +74,7 @@ Scenario 4: ImagePullBackOff Interview Answer
 “A deployment failed because the pods were in the ImagePullBackOff state. I checked the pod events and found an authentication error while pulling the image from Amazon ECR.
 The node IAM role lacked the required ECR permissions after a recent policy change. After restoring the correct IAM permissions, the nodes were able to pull the image successfully, and the deployment completed.
 
-============================================================================================
+======================================================================================
 
 7. What kind of Bash/Shell scripting have you done?
 
@@ -96,14 +96,14 @@ The developer pushes code to Git. Jenkins checks out the code, runs unit tests a
 The deployment manifest is then updated with the new immutable image tag or digest. ArgoCD detects the Git change and synchronizes the Kubernetes Deployment to EKS.
 After deployment, Kubernetes performs readiness and liveness checks, and we monitor the rollout using Prometheus, Grafana and CloudWatch. If the deployment is unhealthy, we stop or roll back to the previous known-good version.”
 
-========================================================================================================
+====================================================================================
 
 10. Exposure to Selenium / Playwright / Cypress?
 
 “I have more hands-on experience on the DevOps and CI/CD side than on UI automation. I understand Selenium, Playwright and Cypress as browser automation and end-to-end testing frameworks used to validate application behavior through a real or automated browser.
 From a DevOps perspective, my role would be to integrate these tests into the CI/CD pipeline, execute them in a suitable test environment, collect reports and artifacts, and use the results as a deployment quality gate.”
 
-=====================================================================================================
+===================================================================================
 
 11; How do you perform a zero-downtime Kubernetes cluster upgrade in production?
 In production, an EKS upgrade is a carefully planned activity to ensure zero downtime.
@@ -117,4 +117,4 @@ Pod Disruption Budgets, multiple replicas, and readiness probes ensure zero down
 Throughout the upgrade, I monitor pod health, application logs, ALB target health, CloudWatch, Prometheus, and Grafana.
 After validating the applications with smoke tests and business transactions, I decommission the old node group. If any issues occur, I follow the rollback plan by moving workloads back to the previous node group or restoring from backups.”
 
-===========================================================================================================
+=====================================================================================
