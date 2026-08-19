@@ -1,40 +1,48 @@
 1)  Production Server CPU Suddenly Becomes 100%. What’s Your First Approach?
 
-My first priority is to determine customer impact and identify what is consuming the CPU. 
-I would not immediately restart the server because that could destroy useful evidence and may not fix the root cause.
-I would check monitoring dashboards for CPU, load average, traffic, latency, error rate and recent changes. 
-Then I would log into the server and use tools such as top, htop, ps, and pidstat to identify the process or threads consuming CPU.
-I would correlate the CPU spike with recent deployments, traffic increases, scheduled jobs, batch processes, or configuration changes.
-If the application is responsible and customers are impacted, I might scale out, remove the affected instance from the load balancer,
+1) My first priority is to determine customer impact and identify what is consuming the CPU. 
+2) I would not immediately restart the server because that could destroy useful evidence and may not fix the root cause.
+3)I would check monitoring dashboards for CPU, load average, traffic, latency, error rate and recent changes. 
+4) Then I would log into the server and use tools such as top, htop, ps, and pidstat to identify the process or threads consuming CPU.
+5) I would correlate the CPU spike with recent deployments, traffic increases, scheduled jobs, batch processes, or configuration changes.
+6) If the application is responsible and customers are impacted, I might scale out, remove the affected instance from the load balancer,
  or roll back a recent deployment. If a non-critical process such as a backup or scheduled job is consuming CPU, I would investigate and safely stop or reschedule it.
-After restoring service, I would perform RCA using logs and metrics
+7) After restoring service, I would perform RCA using logs and metrics
 and implement preventive measures such as autoscaling, better alerts, application optimization, and capacity planning.”
 
-1. What kind of DevOps work are you currently handling? Explain your day-to-day responsibilities.
-🎯 2-Minute Interview Answer
-“Currently, I work as a Cloud DevOps Engineer, primarily around AWS, Kubernetes/EKS, Terraform and CI/CD. My responsibilities cover both infrastructure and application delivery.
-On the infrastructure side, I work with AWS services such as VPC, EC2, ALB, IAM, EKS, RDS, S3 and Route 53, and I use Terraform for infrastructure provisioning and management.
-On the Kubernetes side, I manage EKS workloads, deployments, Services, Ingress, HPA, readiness and liveness probes, resource requests and limits, node scheduling and production troubleshooting.
-For CI/CD, I work with Jenkins and GitOps tools such as ArgoCD. The pipeline typically includes source checkout, build, testing, security scanning, Docker image creation, pushing the image to ECR and deploying to EKS.
-I also work on monitoring and incident management using Prometheus, Grafana and CloudWatch. During production incidents, I troubleshoot the issue, identify the root cause, restore service and document the RCA and preventive actions.”
+===================================================================================================================
 
-2. How do you troubleshoot a Pod stuck in CrashLoopBackOff?
-🎯 Interview Answer
-“CrashLoopBackOff means the container is repeatedly starting and terminating. I first check the Pod status and events, then look at the current and previous container logs. The previous logs are especially important because the container may have already restarted.
-I check the exit code and last state to determine whether it is an application crash, missing configuration, Secret or environment variable, dependency failure, failed probe or OOMKilled condition.
-I then compare the issue with recent deployments or configuration changes. If the new release is responsible and production is impacted, I roll back to the last known-good version and then investigate the RCA.”
+2) What kind of DevOps work are you currently handling? Explain your day-to-day responsibilities.
+
+1) Currently, I work as a Cloud DevOps Engineer, primarily around AWS, Kubernetes/EKS, Terraform and CI/CD. My responsibilities cover both infrastructure and application delivery.
+2) On the infrastructure side, I work with AWS services such as VPC, EC2, ALB, IAM, EKS, RDS, S3 and Route 53, and I use Terraform for infrastructure provisioning and management.
+3) On the Kubernetes side, I manage EKS workloads, deployments, Services, Ingress, HPA, readiness and liveness probes, resource requests and limits, node scheduling and production troubleshooting.
+4) For CI/CD, I work with Jenkins and GitOps tools such as ArgoCD. The pipeline typically includes source checkout, build, testing, security scanning, Docker image creation, pushing the image to ECR and deploying to EKS.
+5) I also work on monitoring and incident management using Prometheus, Grafana and CloudWatch. During production incidents, I troubleshoot the issue, identify the root cause, restore service and document the RCA and preventive actions.”
+
+======================================================================================
+
+3) How do you troubleshoot a Pod stuck in CrashLoopBackOff?
+
+1) CrashLoopBackOff means the container is repeatedly starting and terminating. I first check the Pod status and events,
+   then look at the current and previous container logs. The previous logs are especially important because the container may have already restarted.
+2)  I check the exit code and last state to determine whether it is an application crash, missing configuration, Secret or environment variable, dependency failure, failed probe or OOMKilled condition.
+3) I then compare the issue with recent deployments or configuration changes. If the new release is responsible and production is impacted, I roll back to the last known-good version and then investigate the RCA.”
+
+========================================================================================
 
 3. Pod is Running but application is not accessible. What do you check?
 This is very important for your interview.
-🎯 Interview Answer
 
-I would not assume that Running Pods mean the application is accessible. I would trace the request path from the user to the Pod and identify the first layer where traffic is failing.
+1) I would not assume that Running Pods mean the application is accessible. I would trace the request path from the user to the Pod and identify the first layer where traffic is failing.
 
-First, I would check whether the Pods are Ready and whether the application is actually listening on the expected port. Then I would verify the Kubernetes Service and its EndpointSlices.
+2) First, I would check whether the Pods are Ready and whether the application is actually listening on the expected port. Then I would verify the Kubernetes Service and its EndpointSlices.
 
-After that, I would check the Ingress and AWS ALB—listener rules, target groups, target health, security groups and health checks. I would also verify DNS and, if CloudFront is involved, caching and origin configuration.
+3) After that, I would check the Ingress and AWS ALB—listener rules, target groups, target health, security groups and health checks. I would also verify DNS and, if CloudFront is involved, caching and origin configuration.
 
-I would test the application from inside the cluster as well as externally. This helps me determine whether the issue is inside Kubernetes or somewhere in the external traffic path.”
+4) I would test the application from inside the cluster as well as externally. This helps me determine whether the issue is inside Kubernetes or somewhere in the external traffic path.”
+
+============================================================================================
 
 4. Difference between Liveness and Readiness probes?
 🎯 Interview Answer
