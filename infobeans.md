@@ -132,3 +132,35 @@ Throughout the upgrade, I monitor pod health, application logs, ALB target healt
 After validating the applications with smoke tests and business transactions, I decommission the old node group. If any issues occur, I follow the rollback plan by moving workloads back to the previous node group or restoring from backups.”
 
 =====================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
