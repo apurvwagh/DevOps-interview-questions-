@@ -79,12 +79,15 @@ The node IAM role lacked the required ECR permissions after a recent policy chan
 7. What kind of Bash/Shell scripting have you done?
 
 “I’ve mainly used Bash for operational automation and troubleshooting. I’ve written scripts for log cleanup, service health checks, disk and CPU monitoring, deployment validation, AWS CLI automation, Kubernetes troubleshooting and CI/CD helper tasks.”
-
+1) Log Cleanup & Archival Script: Use Case: Prevent disk space issues by archiving old/large logs.
+2) Kubernetes Pod Health Check Script: Daily health validation of Kubernetes workloads.
+3) 3. Automated Backup Script: Database/filesystem backup automation via cron.
+4) 
 =====================================================================================
 
 8. Linux server has high CPU or disk usage. How do you troubleshoot?
 CPU
-
+commands: top , htop, isof, df -kh
 “First I confirm the CPU utilization and identify which process is consuming it. Then I determine whether it is application traffic, a runaway process, CPU-intensive job or system process. I correlate it with application logs and monitoring metrics and check whether the issue started after a deployment or traffic spike.”
 
 ====================================================================================
