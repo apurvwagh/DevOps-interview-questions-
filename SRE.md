@@ -46,16 +46,7 @@ Application logs and distributed tracing help identify failures.
 Business metrics like successful and failed transactions are very important.
 I define SLI, SLO, and alerts based on customer impact.
 
-
-**7. Explain SLI, SLO, and SLA. How do you calculate them?**
-    
-SLI is the actual measurement of service performance, such as availability or latency.
-SLO is the internal reliability target, for example 99.9% availability.
-SLA is the agreement with customers/business teams.
-Availability SLI = Successful requests / Total requests × 100.
-SLO compliance is calculated by comparing actual performance against the defined target.
-
-**8. Kubernetes pod is in CrashLoopBackOff. How will you troubleshoot?**
+**7. Kubernetes pod is in CrashLoopBackOff. How will you troubleshoot?**
     
 First, I check pod status and events using kubectl describe command.
 I review container logs to understand application failures.
@@ -63,7 +54,7 @@ Verify configuration, secrets, environment variables, and resource limits.
 Check readiness/liveness probes and dependency connectivity.
 Fix the issue, redeploy, and monitor pod stability.
 
-**9. How would you improve application availability, scalability, and fault tolerance?**
+**8. How would you improve application availability, scalability, and fault tolerance?**
     
 I will use highly available architecture with multiple instances and load balancing.
 Implement auto-scaling based on traffic and resource utilization.
@@ -71,13 +62,22 @@ Use caching, database optimization, and resilient service design.
 Implement health checks, monitoring, and disaster recovery.
 Regular testing ensures the application handles failures properly.
 
-**10. Tell me about an automation you implemented that improved operations.**
+**9. Tell me about an automation you implemented that improved operations.**
     
 I automated a manual operational process using Jenkins pipeline and scripting.
 The automation performed validation, execution, monitoring, and reporting.
 It reduced manual effort and minimized human errors.
 Added logging and metrics improved visibility.
 This helped the team improve reliability and reduce operational toil.
+
+
+**10. Explain SLI, SLO, and SLA. How do you calculate them?**
+    
+SLI is the actual measurement of service performance, such as availability or latency.
+SLO is the internal reliability target, for example 99.9% availability.
+SLA is the agreement with customers/business teams.
+Availability SLI = Successful requests / Total requests × 100.
+SLO compliance is calculated by comparing actual performance against the defined target.
 
 **11. What is MTTR and how do you reduce it?**
     
