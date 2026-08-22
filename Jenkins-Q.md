@@ -206,6 +206,25 @@ Finally, I configure approvals for production where required, notifications, mon
 9. ArgoCD/EKS → ArgoCD syncs the application to the target Kubernetes environment.
 10. Production readiness → configure probes, resources, HPA, PDB, IAM, networking and approvals.
 11. Post-deployment → validate health, monitoring, SLO/SLI, alerts and rollback strategy.
+
+=================================================================
+
+Q9. When onboarding a new microservice, I follow a standardized platform onboarding process.
+
+First, I understand the application’s requirements: traffic, ports, dependencies, database, availability requirements, SLOs, security requirements and environment requirements.
+
+Then I create or reuse the standard repository structure, Dockerfile, Jenkins pipeline and Kubernetes Helm/manifests.
+
+For AWS, I provision required infrastructure through Terraform, such as IAM roles, ECR, networking or supporting services. I avoid creating infrastructure manually.
+
+For Kubernetes, I configure Deployment, Service, readiness/liveness/startup probes, resource requests and limits, HPA, PDB and appropriate affinity or topology rules.
+
+I integrate the service with Jenkins for CI, security scanning and image build, push the image to ECR, and use ArgoCD/GitOps for deployment to EKS.
+
+I then configure Prometheus/Grafana monitoring, alerts and SLO/SLI dashboards.
+
+Before production, I validate security, connectivity, scaling, failure scenarios and rollback. Finally, I document the service, ownership, dependencies and runbook and hand it over to the on-call team.”
+
  
 
 
