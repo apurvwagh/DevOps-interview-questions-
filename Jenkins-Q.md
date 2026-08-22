@@ -9,3 +9,99 @@ However, if the organization uses HashiCorp Vault as the centralized secrets pla
 The secret would be injected at runtime and never hardcoded or printed in the Jenkins console.
 
 For an EKS application, I would also consider whether the application itself should retrieve the secret from Vault at runtime rather than passing the database password through Jenkins.”
+
+Interviewer: “Why shouldn’t Jenkins pass the DB password to Kubernetes?”
+
+“It can, but I would avoid unnecessarily exposing secrets through CI/CD. For workloads running on EKS, a stronger design is for the application to retrieve secrets at runtime using a workload identity and Vault integration, depending on the organization’s architecture.”
+
+===================================================================
+
+Q2. What is the difference between Jenkins Credentials Manager and HashiCorp Vault?
+
+“Jenkins Credentials Manager is primarily designed to securely store and provide credentials that Jenkins jobs need, such as SSH keys, API tokens, username/password credentials and secret files.
+
+HashiCorp Vault is a centralized enterprise secrets-management platform. It provides capabilities such as fine-grained policies, secret leasing, TTLs, dynamic credentials, rotation and audit logging.
+
+So if I have a simple Jenkins-specific credential, Jenkins Credentials Manager may be sufficient.
+
+If multiple systems such as Jenkins, Kubernetes applications and automation tools need centralized secret management, or if I need dynamic secrets and automated rotation, I would use Vault.
+
+I also wouldn’t automatically put every credential into Vault. The choice depends on the organization’s security architecture and requirements.”
+
+==================================================================
+
+Q3. Jenkins needs to deploy infrastructure to AWS. How would you authenticate Jenkins without storing AWS access keys?
+
+This is very important for your interviews, especially given your previous interview feedback around IAM/OIDC.
+
+“I would avoid storing long-lived AWS access keys and secret keys in Jenkins.
+
+I would use an identity-based authentication mechanism, preferably OIDC where supported, to establish trust between Jenkins and AWS IAM.
+
+Jenkins authenticates using its identity, AWS STS validates the trust relationship, and STS issues temporary credentials associated with an IAM role.
+
+That role would have only the permissions required for the pipeline, following least privilege.
+
+The temporary credentials expire automatically, which is much safer than storing permanent access keys.”
+
+Why not store AWS keys in Jenkins Credentials Manager?”
+
+Answer:
+
+“It’s possible, but long-lived access keys increase the blast radius if compromised. I prefer short-lived credentials through IAM roles and OIDC wherever the Jenkins environment and AWS integration support it.”
+
+==================================================================
+
+Q4. Explain Jenkins → Vault authentication and authorization.
+
+This is probably the most important Vault question.
+
+“First, Jenkins needs to authenticate to Vault using an authentication method configured by the organization. Depending on where Jenkins runs, this could be AppRole, Kubernetes authentication or another supported method.
+
+Vault validates Jenkins’s identity and issues a Vault token.
+
+That token is associated with a Vault policy. The policy determines exactly which secrets Jenkins can access.
+
+Jenkins then uses that token to retrieve the required secret at runtime.
+
+I would use short-lived tokens, least-privilege policies and Vault audit logging. I would also avoid putting the authentication secret itself directly into the Jenkinsfile.”
+
+If interviewer asks:
+
+“Authentication and authorization are the same?”
+
+Say:
+
+“No. Authentication establishes who Jenkins is; authorization determines what that identity is allowed to access.”
+
+==================================================================
+
+Q5. A developer accidentally prints a secret in Jenkins logs. What do you do?
+
+This is a real production security scenario.
+
+“First, I would treat the secret as compromised rather than assuming Jenkins masking makes it safe.
+
+I would immediately identify which credential was exposed, revoke or rotate it, and determine whether the log was accessible to other users or systems.
+
+If the credential was a Vault secret, I would revoke or rotate it according to the secret type and check Vault audit logs for suspicious access.
+
+If it was an AWS credential, I would revoke the affected credentials and investigate CloudTrail for unauthorized activity.
+
+Then I would remove or restrict access to the affected Jenkins build logs according to our incident procedure.
+
+For prevention, I would review the pipeline to ensure secrets aren’t passed to commands that print them, use Jenkins credential masking appropriately, avoid shell debugging such as set -x, enforce least privilege, and add security checks/review guidelines around secret handling.”
+
+==================================================================
+
+
+
+
+
+
+
+
+
+
+
+
