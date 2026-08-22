@@ -179,6 +179,40 @@ I also apply RBAC, least privilege, credential rotation, short TTLs where possib
 
 If a secret is accidentally exposed, I treat it as compromised, immediately revoke or rotate it, investigate access logs, and fix the pipeline so it cannot happen again.”
 
+Q8. Jenkins Pipeline Onboarding From Scratch
+
+When onboarding a new application into Jenkins, I first understand the application’s build, test, deployment, infrastructure and security requirements.
+
+I create or onboard the application’s Git repository and add a Jenkinsfile. I configure Jenkins to connect to the repository using a webhook or multibranch pipeline, so a code change automatically triggers the pipeline.
+
+I then define the standard pipeline stages: checkout, build, unit test, code-quality and security scanning, Docker image build, container scanning, push to ECR, and deployment.
+
+For Kubernetes applications, I normally separate CI from CD. Jenkins handles build, test and image publishing, while ArgoCD handles GitOps-based deployment to EKS.
+
+Credentials are managed through Jenkins Credentials Manager or Vault, and AWS authentication should preferably use IAM roles/OIDC with short-lived credentials rather than static access keys.
+
+Finally, I configure approvals for production where required, notifications, monitoring, rollback and auditability. For multiple microservices, I standardize this using Jenkins Shared Libraries and reusable templates.”
+
+1. Requirement gathering → application, build, deployment, security and environment requirements.
+2. Git repository → create/onboard repo and define branch strategy.
+3. Jenkins integration → configure GitHub/GitLab webhook or Multibranch Pipeline.
+4. Jenkinsfile → create pipeline using Declarative Pipeline/Shared Library.
+5. Credentials → configure Jenkins Credentials Manager/Vault and secure AWS authentication.
+6. CI pipeline → checkout → build → unit test → SAST/dependency scan.
+7. Docker → build image → container scan → push immutable image to ECR.
+8. GitOps/CD → update Helm/GitOps repository with the new image version.
+9. ArgoCD/EKS → ArgoCD syncs the application to the target Kubernetes environment.
+10. Production readiness → configure probes, resources, HPA, PDB, IAM, networking and approvals.
+11. Post-deployment → validate health, monitoring, SLO/SLI, alerts and rollback strategy.
+ 
+
+
+
+
+
+
+
+
 
 
 
