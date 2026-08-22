@@ -95,10 +95,89 @@ For prevention, I would review the pipeline to ensure secrets aren’t passed to
 ==================================================================
 
 
+Q6. Declarative vs Scripted Jenkins Pipeline
 
 
+“Jenkins supports two pipeline syntaxes: Declarative and Scripted.
 
+Declarative Pipeline uses a predefined, structured syntax. It is easier to read, maintain and validate, and is generally preferred for standard CI/CD pipelines.
 
+Scripted Pipeline is Groovy-based and gives much more programming flexibility. I would use it when the pipeline requires complex custom logic that is difficult to express using Declarative syntax.
+
+In production, I generally prefer Declarative Pipeline for the main pipeline structure and use script {} blocks when I need limited custom Groovy logic.”
+
+pipeline {
+    agent any
+
+    environment {
+        APP_NAME = 'payment-api'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'docker build -t payment-api:${BUILD_NUMBER} .'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'pytest'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh './deploy.sh'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployment successful'
+        }
+
+        failure {
+            echo 'Pipeline failed'
+        }
+    }
+}
+
+Which one do you prefer?”
+
+Don’t say:
+
+“Declarative always.”
+
+Say:
+
+“I prefer Declarative Pipeline for standard production CI/CD because it provides a consistent structure and is easier for teams to maintain. If I have complex custom logic that isn’t cleanly represented declaratively, I can use Scripted Pipeline features or script {} blocks within a Declarative Pipeline.”
+
+==================================================================
+
+Q7. How do you handle credentials securely in Jenkins?
+
+This is a high-priority question for your Mastercard interview because it connects Jenkins, AWS, Vault, IAM/OIDC and security.
+
+“I never hardcode credentials in the Jenkinsfile, Git repository, Dockerfile, or shell scripts.
+
+For Jenkins-specific credentials, I use Jenkins Credentials Manager and reference the credential by its ID. Jenkins injects the credential only during the required stage, and I make sure it isn’t printed in console logs.
+
+For enterprise secret management, especially when multiple applications or environments need secrets, I would integrate Jenkins with HashiCorp Vault or the organization’s approved secrets manager. Jenkins authenticates to Vault using an appropriate identity mechanism and retrieves only the required secret at runtime using a least-privilege policy.
+
+For AWS access, I prefer IAM roles with OIDC and short-lived STS credentials instead of storing long-lived AWS access keys in Jenkins.
+
+I also apply RBAC, least privilege, credential rotation, short TTLs where possible, audit logging, environment separation, and secret masking.
+
+If a secret is accidentally exposed, I treat it as compromised, immediately revoke or rotate it, investigate access logs, and fix the pipeline so it cannot happen again.”
 
 
 
