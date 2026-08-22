@@ -179,6 +179,8 @@ I also apply RBAC, least privilege, credential rotation, short TTLs where possib
 
 If a secret is accidentally exposed, I treat it as compromised, immediately revoke or rotate it, investigate access logs, and fix the pipeline so it cannot happen again.”
 
+=================================================================
+
 Q8. Jenkins Pipeline Onboarding From Scratch
 
 When onboarding a new application into Jenkins, I first understand the application’s build, test, deployment, infrastructure and security requirements.
